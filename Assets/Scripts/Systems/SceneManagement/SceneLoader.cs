@@ -29,7 +29,7 @@ namespace MiniGameFramework.Systems.SceneManagement
         private IEnumerator LoadSceneAsync(string sceneName, Action onComplete)
         {
             _isLoading = true;
-            EventManager.Instance.TriggerEvent(GameEvents.SCENE_LOAD_STARTED, sceneName);
+            EventManager.Instance.TriggerEvent(GameEvents.SCENE_LOAD_STARTED);
 
             yield return new WaitForSeconds(0.1f);
 
@@ -51,7 +51,7 @@ namespace MiniGameFramework.Systems.SceneManagement
             }
 
             _isLoading = false;
-            EventManager.Instance.TriggerEvent(GameEvents.SCENE_LOAD_COMPLETED, sceneName);
+            EventManager.Instance.TriggerEvent(GameEvents.SCENE_LOAD_COMPLETED);
             onComplete?.Invoke();
         }
     }
