@@ -5,6 +5,6 @@ namespace MiniGameFramework.Core
     /// </summary>
     public interface IUpdatable
     {
-        void OnUpdate();
+        void Update();
     }
 }
