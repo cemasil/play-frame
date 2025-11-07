@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 641f9810fd9f04415be821f2a367842c, type: 3}
+  m_Name: DefaultUITheme
+  m_EditorClassIdentifier: Assembly-CSharp::MiniGameFramework.UI.UITheme
+  primaryColor: {r: 0.2, g: 0.6, b: 1, a: 1}
+  secondaryColor: {r: 0.8, g: 0.8, b: 0.8, a: 1}
+  backgroundColor: {r: 0.1, g: 0.1, b: 0.1, a: 1}
+  textColor: {r: 1, g: 1, b: 1, a: 1}
+  accentColor: {r: 1, g: 0.8, b: 0, a: 1}
+  buttonNormalColor: {r: 0.8490566, g: 0.7729619, b: 0.7729619, a: 1}
+  buttonHighlightColor: {r: 1, g: 1, b: 0.8, a: 1}
+  buttonPressedColor: {r: 0.8, g: 0.8, b: 0.6, a: 1}
+  buttonDisabledColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  titleFont: {fileID: 0}
+  bodyFont: {fileID: 0}
+  tmpTitleFont: {fileID: 11400000, guid: dc36b3fdc14f47ebb36fd484a67e268a, type: 2}
+  tmpBodyFont: {fileID: 11400000, guid: dc36b3fdc14f47ebb36fd484a67e268a, type: 2}
+  titleSize: 36
+  headerSize: 30
+  bodySize: 20
+  buttonTextSize: 20
+  smallSpacing: 10
+  mediumSpacing: 20
+  largeSpacing: 40
+  panelBackground: {fileID: 0}
+  buttonSprite: {fileID: 0}
+  inputFieldSprite: {fileID: 0}
