@@ -8,17 +8,20 @@ namespace MiniGameFramework.MiniGames.Common
     /// </summary>
     public class BaseGameUI : MonoBehaviour, IInitializable, IUpdatable
     {
-        protected virtual void Awake()
+        private void Awake()
         {
             Initialize();
         }
-
-        protected virtual void Start()
+        public void Initialize()
+        {
+            OnInitialize();
+        }
+        private void Start()
         {
             OnGameStart();
         }
 
-        protected virtual void Update()
+        public void Update()
         {
             OnUpdate();
         }
@@ -28,11 +31,11 @@ namespace MiniGameFramework.MiniGames.Common
             Cleanup();
         }
 
-        public virtual void Initialize() { }
+        protected virtual void OnInitialize() { }
         protected virtual void OnGameStart() { }
-        public virtual void OnUpdate() { }
-        public virtual void UpdateScore(int score) { }
-        public virtual void ShowGameOver(int finalScore) { }
+        protected virtual void OnUpdate() { }
+        protected virtual void UpdateScore(int score) { }
+        protected virtual void ShowGameOver(int finalScore) { }
         protected virtual void Cleanup() { }
 
 
