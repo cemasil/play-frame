@@ -41,5 +41,13 @@ namespace MiniGameFramework.Core
                 Destroy(gameObject);
             }
         }
+
+        protected virtual void OnDestroy()
+        {
+            if (_instance == this)
+            {
+                _instance = null;
+            }
+        }
     }
 }

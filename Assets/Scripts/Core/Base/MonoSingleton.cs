@@ -29,8 +29,6 @@ namespace MiniGameFramework.Core
                     {
                         GameObject singletonObject = new GameObject($"[Singleton] {typeof(T)}");
                         _instance = singletonObject.AddComponent<T>();
-
-                        Debug.Log($"[MonoSingleton] Created new instance of {typeof(T)}");
                     }
                 }
 

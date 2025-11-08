@@ -9,16 +9,12 @@ namespace MiniGameFramework.UI.Panels
     {
         [Header("Buttons")]
         [SerializeField] private Button playButton;
-        [SerializeField] private Button settingsButton;
         [SerializeField] private Button quitButton;
 
         protected override void OnInitialize()
         {
             if (playButton != null)
                 playButton.onClick.AddListener(OnPlayClicked);
-
-            if (settingsButton != null)
-                settingsButton.onClick.AddListener(OnSettingsClicked);
 
             if (quitButton != null)
                 quitButton.onClick.AddListener(OnQuitClicked);
@@ -27,11 +23,6 @@ namespace MiniGameFramework.UI.Panels
         private void OnPlayClicked()
         {
             SceneLoader.Instance.LoadScene(SceneNames.GAME_SELECTION);
-        }
-
-        private void OnSettingsClicked()
-        {
-            Debug.Log("Settings clicked - TODO: Implement settings");
         }
 
         private void OnQuitClicked()
@@ -47,9 +38,6 @@ namespace MiniGameFramework.UI.Panels
         {
             if (playButton != null)
                 playButton.onClick.RemoveAllListeners();
-
-            if (settingsButton != null)
-                settingsButton.onClick.RemoveAllListeners();
 
             if (quitButton != null)
                 quitButton.onClick.RemoveAllListeners();

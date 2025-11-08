@@ -8,7 +8,7 @@ namespace MiniGameFramework.MiniGames.Match3
     /// <summary>
     /// Represents a single gem on the Match3 grid
     /// </summary>
-    public class Gem : BaseGameUI, IPointerDownHandler, IPointerUpHandler, IDragHandler
+    public class Gem : BaseGame, IPointerDownHandler, IPointerUpHandler, IDragHandler
     {
         public int X { get; set; }
         public int Y { get; set; }

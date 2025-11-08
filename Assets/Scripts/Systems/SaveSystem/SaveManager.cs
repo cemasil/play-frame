@@ -80,8 +80,6 @@ namespace MiniGameFramework.Systems.SaveSystem
             return PlayerPrefs.HasKey(SAVE_KEY);
         }
 
-        #region Helper Methods
-
         public void UpdateScore(int score)
         {
             _currentSaveData.totalScore += score;
@@ -123,7 +121,5 @@ namespace MiniGameFramework.Systems.SaveSystem
             _currentSaveData.gamesPlayed++;
             SaveGame();
         }
-
-        #endregion
     }
 }

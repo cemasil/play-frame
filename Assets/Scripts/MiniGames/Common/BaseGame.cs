@@ -4,9 +4,9 @@ using MiniGameFramework.Core;
 namespace MiniGameFramework.MiniGames.Common
 {
     /// <summary>
-    /// Base class for all mini-game UI components
+    /// Base class for all mini-games
     /// </summary>
-    public class BaseGameUI : MonoBehaviour, IInitializable, IUpdatable
+    public class BaseGame : MonoBehaviour, IInitializable, IUpdatable
     {
         private void Awake()
         {

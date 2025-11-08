@@ -12,7 +12,7 @@ namespace MiniGameFramework.MiniGames.Match3
     /// <summary>
     /// Main Match3 game controller
     /// </summary>
-    public class Match3Game : BaseGameUI
+    public class Match3Game : BaseGame
     {
         [Header("Grid Settings")]
         [SerializeField] private int gridWidth = 6;
