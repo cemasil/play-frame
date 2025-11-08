@@ -38,6 +38,7 @@ namespace MiniGameFramework.UI.Panels
                 var card = UIPrefabFactory.CreateGameCard(
                     game.displayName,
                     highScore,
+                    game.themeColor,
                     gameContainer
                 );
 

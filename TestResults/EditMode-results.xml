@@ -1,100 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<test-run id="2" testcasecount="10" result="Passed" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2025-11-06 14:11:54Z" end-time="2025-11-06 14:11:54Z" duration="0.1064855">
-  <test-suite type="TestSuite" id="1000" name="Mini Game Framework" fullname="Mini Game Framework" runstate="Runnable" testcasecount="10" result="Passed" start-time="2025-11-06 14:11:54Z" end-time="2025-11-06 14:11:54Z" duration="0.106486" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+<test-run id="2" testcasecount="10" result="Passed" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2025-11-08 20:50:43Z" end-time="2025-11-08 20:50:43Z" duration="0.0427482">
+  <test-suite type="TestSuite" id="1000" name="Mini Game Framework" fullname="Mini Game Framework" runstate="Runnable" testcasecount="10" result="Passed" start-time="2025-11-08 20:50:43Z" end-time="2025-11-08 20:50:43Z" duration="0.042748" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
     <properties>
       <property name="platform" value="EditMode" />
     </properties>
-    <test-suite type="Assembly" id="1013" name="MiniGameFramework.Tests.EditMode.dll" fullname="/Users/cembdc/Desktop/CeM/Projects/unity/mini-game-framework/Library/ScriptAssemblies/MiniGameFramework.Tests.EditMode.dll" runstate="Runnable" testcasecount="10" result="Passed" start-time="2025-11-06 14:11:54Z" end-time="2025-11-06 14:11:54Z" duration="0.102011" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <test-suite type="Assembly" id="1013" name="MiniGameFramework.Tests.EditMode.dll" fullname="/Users/cembdc/Desktop/CeM/Projects/unity/mini-game-framework/Library/ScriptAssemblies/MiniGameFramework.Tests.EditMode.dll" runstate="Runnable" testcasecount="10" result="Passed" start-time="2025-11-08 20:50:43Z" end-time="2025-11-08 20:50:43Z" duration="0.037919" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
       <properties>
-        <property name="_PID" value="35130" />
+        <property name="_PID" value="42314" />
         <property name="_APPDOMAIN" value="Unity Child Domain" />
         <property name="platform" value="EditMode" />
         <property name="EditorOnly" value="True" />
       </properties>
-      <test-suite type="TestSuite" id="1014" name="MiniGameFramework" fullname="MiniGameFramework" runstate="Runnable" testcasecount="10" result="Passed" start-time="2025-11-06 14:11:54Z" end-time="2025-11-06 14:11:54Z" duration="0.101544" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <test-suite type="TestSuite" id="1014" name="MiniGameFramework" fullname="MiniGameFramework" runstate="Runnable" testcasecount="10" result="Passed" start-time="2025-11-08 20:50:43Z" end-time="2025-11-08 20:50:43Z" duration="0.037407" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
         <properties />
-        <test-suite type="TestSuite" id="1015" name="Tests" fullname="MiniGameFramework.Tests" runstate="Runnable" testcasecount="10" result="Passed" start-time="2025-11-06 14:11:54Z" end-time="2025-11-06 14:11:54Z" duration="0.101212" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <test-suite type="TestSuite" id="1015" name="Tests" fullname="MiniGameFramework.Tests" runstate="Runnable" testcasecount="10" result="Passed" start-time="2025-11-08 20:50:43Z" end-time="2025-11-08 20:50:43Z" duration="0.037156" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
           <properties />
-          <test-suite type="TestSuite" id="1016" name="EditMode" fullname="MiniGameFramework.Tests.EditMode" runstate="Runnable" testcasecount="10" result="Passed" start-time="2025-11-06 14:11:54Z" end-time="2025-11-06 14:11:54Z" duration="0.100938" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <test-suite type="TestSuite" id="1016" name="EditMode" fullname="MiniGameFramework.Tests.EditMode" runstate="Runnable" testcasecount="10" result="Passed" start-time="2025-11-08 20:50:43Z" end-time="2025-11-08 20:50:43Z" duration="0.036915" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
             <properties />
-            <test-suite type="TestSuite" id="1017" name="Systems" fullname="MiniGameFramework.Tests.EditMode.Systems" runstate="Runnable" testcasecount="10" result="Passed" start-time="2025-11-06 14:11:54Z" end-time="2025-11-06 14:11:54Z" duration="0.100548" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <test-suite type="TestSuite" id="1017" name="Systems" fullname="MiniGameFramework.Tests.EditMode.Systems" runstate="Runnable" testcasecount="10" result="Passed" start-time="2025-11-08 20:50:43Z" end-time="2025-11-08 20:50:43Z" duration="0.036651" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
               <properties />
-              <test-suite type="TestFixture" id="1001" name="EventManagerTests" fullname="MiniGameFramework.Tests.EditMode.Systems.EventManagerTests" classname="MiniGameFramework.Tests.EditMode.Systems.EventManagerTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2025-11-06 14:11:54Z" end-time="2025-11-06 14:11:54Z" duration="0.079481" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <test-suite type="TestFixture" id="1001" name="EventManagerTests" fullname="MiniGameFramework.Tests.EditMode.Systems.EventManagerTests" classname="MiniGameFramework.Tests.EditMode.Systems.EventManagerTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2025-11-08 20:50:43Z" end-time="2025-11-08 20:50:43Z" duration="0.019892" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
                 <properties />
-                <test-case id="1006" name="EventManager_Subscribe_MultipleListeners_ShouldInvokeAll" fullname="MiniGameFramework.Tests.EditMode.Systems.EventManagerTests.EventManager_Subscribe_MultipleListeners_ShouldInvokeAll" methodname="EventManager_Subscribe_MultipleListeners_ShouldInvokeAll" classname="MiniGameFramework.Tests.EditMode.Systems.EventManagerTests" runstate="Runnable" seed="1572906714" result="Passed" start-time="2025-11-06 14:11:54Z" end-time="2025-11-06 14:11:54Z" duration="0.058702" asserts="0">
+                <test-case id="1006" name="EventManager_Subscribe_MultipleListeners_ShouldInvokeAll" fullname="MiniGameFramework.Tests.EditMode.Systems.EventManagerTests.EventManager_Subscribe_MultipleListeners_ShouldInvokeAll" methodname="EventManager_Subscribe_MultipleListeners_ShouldInvokeAll" classname="MiniGameFramework.Tests.EditMode.Systems.EventManagerTests" runstate="Runnable" seed="114066863" result="Passed" start-time="2025-11-08 20:50:43Z" end-time="2025-11-08 20:50:43Z" duration="0.009916" asserts="0">
                   <properties>
                     <property name="retryIteration" value="0" />
                     <property name="repeatIteration" value="0" />
                   </properties>
-                  <output><![CDATA[[EventManager] All events cleared
-[EventManager] Subscribed to event: MultiListenerEvent
-[EventManager] Subscribed to event: MultiListenerEvent
-[EventManager] Subscribed to event: MultiListenerEvent
-[EventManager] Triggered event: MultiListenerEvent
-[EventManager] All events cleared
-]]></output>
                 </test-case>
-                <test-case id="1002" name="EventManager_Subscribe_ShouldRegisterListener" fullname="MiniGameFramework.Tests.EditMode.Systems.EventManagerTests.EventManager_Subscribe_ShouldRegisterListener" methodname="EventManager_Subscribe_ShouldRegisterListener" classname="MiniGameFramework.Tests.EditMode.Systems.EventManagerTests" runstate="Runnable" seed="1022555301" result="Passed" start-time="2025-11-06 14:11:54Z" end-time="2025-11-06 14:11:54Z" duration="0.001855" asserts="0">
+                <test-case id="1002" name="EventManager_Subscribe_ShouldRegisterListener" fullname="MiniGameFramework.Tests.EditMode.Systems.EventManagerTests.EventManager_Subscribe_ShouldRegisterListener" methodname="EventManager_Subscribe_ShouldRegisterListener" classname="MiniGameFramework.Tests.EditMode.Systems.EventManagerTests" runstate="Runnable" seed="1959720072" result="Passed" start-time="2025-11-08 20:50:43Z" end-time="2025-11-08 20:50:43Z" duration="0.000363" asserts="0">
                   <properties>
                     <property name="retryIteration" value="0" />
                     <property name="repeatIteration" value="0" />
                   </properties>
-                  <output><![CDATA[[EventManager] All events cleared
-[EventManager] Subscribed to event: TestEvent
-[EventManager] All events cleared
-]]></output>
                 </test-case>
-                <test-case id="1003" name="EventManager_TriggerEvent_ShouldInvokeListener" fullname="MiniGameFramework.Tests.EditMode.Systems.EventManagerTests.EventManager_TriggerEvent_ShouldInvokeListener" methodname="EventManager_TriggerEvent_ShouldInvokeListener" classname="MiniGameFramework.Tests.EditMode.Systems.EventManagerTests" runstate="Runnable" seed="1527350106" result="Passed" start-time="2025-11-06 14:11:54Z" end-time="2025-11-06 14:11:54Z" duration="0.002032" asserts="0">
+                <test-case id="1003" name="EventManager_TriggerEvent_ShouldInvokeListener" fullname="MiniGameFramework.Tests.EditMode.Systems.EventManagerTests.EventManager_TriggerEvent_ShouldInvokeListener" methodname="EventManager_TriggerEvent_ShouldInvokeListener" classname="MiniGameFramework.Tests.EditMode.Systems.EventManagerTests" runstate="Runnable" seed="145430650" result="Passed" start-time="2025-11-08 20:50:43Z" end-time="2025-11-08 20:50:43Z" duration="0.000151" asserts="0">
                   <properties>
                     <property name="retryIteration" value="0" />
                     <property name="repeatIteration" value="0" />
                   </properties>
-                  <output><![CDATA[[EventManager] All events cleared
-[EventManager] Subscribed to event: TestEvent
-[EventManager] Triggered event: TestEvent
-[EventManager] All events cleared
-]]></output>
                 </test-case>
-                <test-case id="1005" name="EventManager_TriggerEvent_ShouldNotThrowError_WhenNoListeners" fullname="MiniGameFramework.Tests.EditMode.Systems.EventManagerTests.EventManager_TriggerEvent_ShouldNotThrowError_WhenNoListeners" methodname="EventManager_TriggerEvent_ShouldNotThrowError_WhenNoListeners" classname="MiniGameFramework.Tests.EditMode.Systems.EventManagerTests" runstate="Runnable" seed="1054985685" result="Passed" start-time="2025-11-06 14:11:54Z" end-time="2025-11-06 14:11:54Z" duration="0.001564" asserts="0">
+                <test-case id="1005" name="EventManager_TriggerEvent_ShouldNotThrowError_WhenNoListeners" fullname="MiniGameFramework.Tests.EditMode.Systems.EventManagerTests.EventManager_TriggerEvent_ShouldNotThrowError_WhenNoListeners" methodname="EventManager_TriggerEvent_ShouldNotThrowError_WhenNoListeners" classname="MiniGameFramework.Tests.EditMode.Systems.EventManagerTests" runstate="Runnable" seed="1573898813" result="Passed" start-time="2025-11-08 20:50:43Z" end-time="2025-11-08 20:50:43Z" duration="0.000621" asserts="0">
                   <properties>
                     <property name="retryIteration" value="0" />
                     <property name="repeatIteration" value="0" />
                   </properties>
-                  <output><![CDATA[[EventManager] All events cleared
-[EventManager] All events cleared
-]]></output>
                 </test-case>
-                <test-case id="1004" name="EventManager_Unsubscribe_ShouldRemoveListener" fullname="MiniGameFramework.Tests.EditMode.Systems.EventManagerTests.EventManager_Unsubscribe_ShouldRemoveListener" methodname="EventManager_Unsubscribe_ShouldRemoveListener" classname="MiniGameFramework.Tests.EditMode.Systems.EventManagerTests" runstate="Runnable" seed="1188632448" result="Passed" start-time="2025-11-06 14:11:54Z" end-time="2025-11-06 14:11:54Z" duration="0.001721" asserts="0">
+                <test-case id="1004" name="EventManager_Unsubscribe_ShouldRemoveListener" fullname="MiniGameFramework.Tests.EditMode.Systems.EventManagerTests.EventManager_Unsubscribe_ShouldRemoveListener" methodname="EventManager_Unsubscribe_ShouldRemoveListener" classname="MiniGameFramework.Tests.EditMode.Systems.EventManagerTests" runstate="Runnable" seed="2007176631" result="Passed" start-time="2025-11-08 20:50:43Z" end-time="2025-11-08 20:50:43Z" duration="0.000343" asserts="0">
                   <properties>
                     <property name="retryIteration" value="0" />
                     <property name="repeatIteration" value="0" />
                   </properties>
-                  <output><![CDATA[[EventManager] All events cleared
-[EventManager] Subscribed to event: TestEvent
-[EventManager] All events cleared
-]]></output>
                 </test-case>
               </test-suite>
-              <test-suite type="TestFixture" id="1007" name="SaveManagerTests" fullname="MiniGameFramework.Tests.EditMode.Systems.SaveManagerTests" classname="MiniGameFramework.Tests.EditMode.Systems.SaveManagerTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2025-11-06 14:11:54Z" end-time="2025-11-06 14:11:54Z" duration="0.019778" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <test-suite type="TestFixture" id="1007" name="SaveManagerTests" fullname="MiniGameFramework.Tests.EditMode.Systems.SaveManagerTests" classname="MiniGameFramework.Tests.EditMode.Systems.SaveManagerTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2025-11-08 20:50:43Z" end-time="2025-11-08 20:50:43Z" duration="0.015910" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
                 <properties />
-                <test-case id="1012" name="SaveManager_DeleteSave_ShouldClearAllData" fullname="MiniGameFramework.Tests.EditMode.Systems.SaveManagerTests.SaveManager_DeleteSave_ShouldClearAllData" methodname="SaveManager_DeleteSave_ShouldClearAllData" classname="MiniGameFramework.Tests.EditMode.Systems.SaveManagerTests" runstate="Runnable" seed="571978954" result="Passed" start-time="2025-11-06 14:11:54Z" end-time="2025-11-06 14:11:54Z" duration="0.008328" asserts="0">
+                <test-case id="1012" name="SaveManager_DeleteSave_ShouldClearAllData" fullname="MiniGameFramework.Tests.EditMode.Systems.SaveManagerTests.SaveManager_DeleteSave_ShouldClearAllData" methodname="SaveManager_DeleteSave_ShouldClearAllData" classname="MiniGameFramework.Tests.EditMode.Systems.SaveManagerTests" runstate="Runnable" seed="1626051944" result="Passed" start-time="2025-11-08 20:50:43Z" end-time="2025-11-08 20:50:43Z" duration="0.008359" asserts="0">
                   <properties>
                     <property name="retryIteration" value="0" />
                     <property name="repeatIteration" value="0" />
                   </properties>
                   <output><![CDATA[
 IgnoreFailingMessages:true
-[SaveManager] No save data found. Creating new save.
-[SaveManager] Game saved successfully at 2025-11-06 17:11:54
 [SaveManager] Failed to save game: The following game object is invoking the DontDestroyOnLoad method: [Persistent] MiniGameFramework.Systems.Events.EventManager. Notice that DontDestroyOnLoad can only be used in play mode and, as such, cannot be part of an editor script.
 
 IgnoreFailingMessages:false
-[SaveManager] Game saved successfully at 2025-11-06 17:11:54
-[SaveManager] Save data deleted
-[SaveManager] Save data deleted
 ]]></output>
                 </test-case>
-                <test-case id="1011" name="SaveManager_HasSaveData_ShouldReturnFalse_WhenNoSaveExists" fullname="MiniGameFramework.Tests.EditMode.Systems.SaveManagerTests.SaveManager_HasSaveData_ShouldReturnFalse_WhenNoSaveExists" methodname="SaveManager_HasSaveData_ShouldReturnFalse_WhenNoSaveExists" classname="MiniGameFramework.Tests.EditMode.Systems.SaveManagerTests" runstate="Runnable" seed="818734665" result="Passed" start-time="2025-11-06 14:11:54Z" end-time="2025-11-06 14:11:54Z" duration="0.001919" asserts="0">
+                <test-case id="1011" name="SaveManager_HasSaveData_ShouldReturnFalse_WhenNoSaveExists" fullname="MiniGameFramework.Tests.EditMode.Systems.SaveManagerTests.SaveManager_HasSaveData_ShouldReturnFalse_WhenNoSaveExists" methodname="SaveManager_HasSaveData_ShouldReturnFalse_WhenNoSaveExists" classname="MiniGameFramework.Tests.EditMode.Systems.SaveManagerTests" runstate="Runnable" seed="1018484653" result="Passed" start-time="2025-11-08 20:50:43Z" end-time="2025-11-08 20:50:43Z" duration="0.001476" asserts="0">
                   <properties>
                     <property name="retryIteration" value="0" />
                     <property name="repeatIteration" value="0" />
@@ -103,11 +75,9 @@ IgnoreFailingMessages:false
 IgnoreFailingMessages:true
 
 IgnoreFailingMessages:false
-[SaveManager] Save data deleted
-[SaveManager] Save data deleted
 ]]></output>
                 </test-case>
-                <test-case id="1010" name="SaveManager_HasSaveData_ShouldReturnTrue_WhenSaveExists" fullname="MiniGameFramework.Tests.EditMode.Systems.SaveManagerTests.SaveManager_HasSaveData_ShouldReturnTrue_WhenSaveExists" methodname="SaveManager_HasSaveData_ShouldReturnTrue_WhenSaveExists" classname="MiniGameFramework.Tests.EditMode.Systems.SaveManagerTests" runstate="Runnable" seed="169536101" result="Passed" start-time="2025-11-06 14:11:54Z" end-time="2025-11-06 14:11:54Z" duration="0.001788" asserts="0">
+                <test-case id="1010" name="SaveManager_HasSaveData_ShouldReturnTrue_WhenSaveExists" fullname="MiniGameFramework.Tests.EditMode.Systems.SaveManagerTests.SaveManager_HasSaveData_ShouldReturnTrue_WhenSaveExists" methodname="SaveManager_HasSaveData_ShouldReturnTrue_WhenSaveExists" classname="MiniGameFramework.Tests.EditMode.Systems.SaveManagerTests" runstate="Runnable" seed="1715912376" result="Passed" start-time="2025-11-08 20:50:43Z" end-time="2025-11-08 20:50:43Z" duration="0.001102" asserts="0">
                   <properties>
                     <property name="retryIteration" value="0" />
                     <property name="repeatIteration" value="0" />
@@ -116,11 +86,9 @@ IgnoreFailingMessages:false
 IgnoreFailingMessages:true
 
 IgnoreFailingMessages:false
-[SaveManager] Game saved successfully at 2025-11-06 17:11:54
-[SaveManager] Save data deleted
 ]]></output>
                 </test-case>
-                <test-case id="1008" name="SaveManager_ShouldCreateNewSaveData_WhenNoSaveExists" fullname="MiniGameFramework.Tests.EditMode.Systems.SaveManagerTests.SaveManager_ShouldCreateNewSaveData_WhenNoSaveExists" methodname="SaveManager_ShouldCreateNewSaveData_WhenNoSaveExists" classname="MiniGameFramework.Tests.EditMode.Systems.SaveManagerTests" runstate="Runnable" seed="436456510" result="Passed" start-time="2025-11-06 14:11:54Z" end-time="2025-11-06 14:11:54Z" duration="0.003134" asserts="0">
+                <test-case id="1008" name="SaveManager_ShouldCreateNewSaveData_WhenNoSaveExists" fullname="MiniGameFramework.Tests.EditMode.Systems.SaveManagerTests.SaveManager_ShouldCreateNewSaveData_WhenNoSaveExists" methodname="SaveManager_ShouldCreateNewSaveData_WhenNoSaveExists" classname="MiniGameFramework.Tests.EditMode.Systems.SaveManagerTests" runstate="Runnable" seed="1462191705" result="Passed" start-time="2025-11-08 20:50:43Z" end-time="2025-11-08 20:50:43Z" duration="0.002151" asserts="0">
                   <properties>
                     <property name="retryIteration" value="0" />
                     <property name="repeatIteration" value="0" />
@@ -129,12 +97,9 @@ IgnoreFailingMessages:false
 IgnoreFailingMessages:true
 
 IgnoreFailingMessages:false
-[SaveManager] No save data found. Creating new save.
-[SaveManager] Game saved successfully at 2025-11-06 17:11:54
-[SaveManager] Save data deleted
 ]]></output>
                 </test-case>
-                <test-case id="1009" name="SaveManager_ShouldSaveAndLoadData_Successfully" fullname="MiniGameFramework.Tests.EditMode.Systems.SaveManagerTests.SaveManager_ShouldSaveAndLoadData_Successfully" methodname="SaveManager_ShouldSaveAndLoadData_Successfully" classname="MiniGameFramework.Tests.EditMode.Systems.SaveManagerTests" runstate="Runnable" seed="1506460180" result="Passed" start-time="2025-11-06 14:11:54Z" end-time="2025-11-06 14:11:54Z" duration="0.002722" asserts="0">
+                <test-case id="1009" name="SaveManager_ShouldSaveAndLoadData_Successfully" fullname="MiniGameFramework.Tests.EditMode.Systems.SaveManagerTests.SaveManager_ShouldSaveAndLoadData_Successfully" methodname="SaveManager_ShouldSaveAndLoadData_Successfully" classname="MiniGameFramework.Tests.EditMode.Systems.SaveManagerTests" runstate="Runnable" seed="221355065" result="Passed" start-time="2025-11-08 20:50:43Z" end-time="2025-11-08 20:50:43Z" duration="0.001471" asserts="0">
                   <properties>
                     <property name="retryIteration" value="0" />
                     <property name="repeatIteration" value="0" />
@@ -143,9 +108,6 @@ IgnoreFailingMessages:false
 IgnoreFailingMessages:true
 
 IgnoreFailingMessages:false
-[SaveManager] Game saved successfully at 2025-11-06 17:11:54
-[SaveManager] Game loaded. Last saved: 2025-11-06 17:11:54
-[SaveManager] Save data deleted
 Saving results to: /Users/cembdc/Library/Application Support/DefaultCompany/Mini Game Framework/TestResults.xml
 ]]></output>
                 </test-case>

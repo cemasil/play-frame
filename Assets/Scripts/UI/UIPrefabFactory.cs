@@ -75,7 +75,7 @@ namespace MiniGameFramework.UI.Prefabs
             return text;
         }
 
-        public static GameObject CreateGameCard(string gameName, int highScore, Transform parent)
+        public static GameObject CreateGameCard(string gameName, int highScore, Color color, Transform parent)
         {
             var prefab = Resources.Load<GameObject>(PREFAB_PATH + "GameCard");
             if (prefab == null)
@@ -106,6 +106,15 @@ namespace MiniGameFramework.UI.Prefabs
             if (scoreTMP != null)
             {
                 scoreTMP.text = $"High Score: {highScore}";
+            }
+
+            var gameIcon = card.transform.Find("GameIcon")?.GetComponent<Image>();
+            if (gameIcon == null)
+                gameIcon = card.GetComponentInChildren<Image>();
+
+            if (gameIcon != null)
+            {
+                gameIcon.color = color;
             }
 
             return card;

@@ -149,12 +149,6 @@ I tried to follow SOLID principles:
 - **Open/Closed**: Can add new games without modifying framework code (GameConfig system)
 - **Dependency Inversion**: Games depend on interfaces/base classes, not concrete implementations
 
-I avoided some common Unity anti-patterns:
-- No `FindObjectOfType()` in Update loops
-- Unsubscribe from events in cleanup
-- Null checks before accessing serialized fields
-- Coroutines properly stopped when objects are destroyed
-
 ## Running the Project
 
 Open in Unity 2022.3 or later. Main scene is `MainMenu`. Build settings already has all scenes added.
