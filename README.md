@@ -116,6 +116,32 @@ public class PuzzleGame : MonoBehaviour
 
 5. **Object pooling**: Currently just `Instantiate()` and `Destroy()` for gems/cards. Would pool them for better performance.
 
+## Performance Optimizations
+
+Basic optimizations implemented:
+
+1. **Lazy Singleton Initialization**: Core systems (EventManager, SaveManager, SceneLoader) only initialize when first accessed, not at app start.
+
+2. **Async Scene Loading**: SceneLoader uses `LoadSceneAsync` with progress tracking to prevent frame drops during transitions.
+
+3. **Event Cleanup**: All games extend `BaseGameUI` which calls `Cleanup()` in `OnDestroy()`. Games override this method to remove button listeners and prevent memory leaks.
+
+4. **Minimal Dependencies**: No heavy external libraries. Framework uses Unity's built-in systems where possible.
+
+**Profiling Results** 
+
+Profiled during ~33 seconds gameplay session (2000 frames, 60 FPS):
+
+- Frame rate: Stable 60 FPS
+- Frame time: 1-2ms average (well below 16.6ms budget)
+- Texture Memory: 0.5 GB (constant)
+- Mesh Memory: 500 KB (constant)
+- Object Count: 14.5k (stable)
+- GC Memory: 0.8 GB (no leaks detected)
+- Material Count: 1.62k (constant)
+
+![Profiler Screenshot - Startup](docs/profiler.png)
+
 ## Code Quality Choices
 
 I tried to follow SOLID principles:
