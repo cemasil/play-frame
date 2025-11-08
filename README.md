@@ -1,93 +1,67 @@
 # Mini Game Framework
 
-A modular Unity framework for building mini-games with clean architecture and event-driven design.
+A Unity framework I built for creating simple mini-games with clean architecture. Currently has two working games: Match3 and Memory Card matching.
 
-## Features
+## Why This Architecture?
 
-- **Modular Architecture**: Clear separation between Core, Systems, MiniGames, and UI layers
-- **Singleton Patterns**: Three types for different lifecycle needs (Singleton, MonoSingleton, PersistentSingleton)
-- **Event System**: Loosely coupled communication via EventManager with support for parameterless and parameterized events
-- **Scene Management**: Async scene loading with progress tracking and event notifications
-- **Save System**: PlayerPrefs-based persistence with JSON serialization for game data and high scores
-- **UI Framework**: Theme-based UI system with prefab factory and automatic styling
-- **Game Registry**: Auto-discovery system for mini-games using ScriptableObject configs
-- **Unit Tests**: Covering EventManager and SaveManager
-- **SOLID Principles**: Clean code following Single Responsibility and Dependency Inversion
-
-## Architecture
+I wanted to avoid the common Unity pitfall of everything being tightly coupled singletons. The framework is organized into layers:
 
 ```
-Assets/Scripts/
-├── Core/                      # Framework foundation (no dependencies)
-│   ├── Base/                 # Singleton patterns (Singleton<T>, MonoSingleton<T>, PersistentSingleton<T>)
-│   ├── Interfaces/           # Common interfaces (IInitializable, IUpdatable, ICleanable)
-│   ├── Extensions/           # Utility extensions
-│   └── Utilities/            # Helper classes (Timer, CoroutineRunner, ObjectPooler)
-│
-├── Systems/                   # Framework systems (depends on Core)
-│   ├── EventSystem/          # EventManager for loose coupling
-│   ├── SceneManagement/      # SceneLoader with async support
-│   ├── SaveSystem/           # SaveManager with JSON serialization
-│   └── UISystem/             # UIPanel base class
-│
-├── MiniGames/                 # Game-specific logic
-│   ├── GameConfig.cs         # ScriptableObject for game configuration
-│   ├── GameRegistry.cs       # Auto-discovery of available games
-│   └── Match3/               # Example game implementation
-│
-├── UI/                        # UI components and panels
-│   ├── Panels/               # MainMenuPanel, GameSelectionPanel, LoadingPanel
-│   ├── UITheme.cs            # ScriptableObject for theme configuration
-│   ├── ThemedUIElement.cs    # Auto-apply themes to UI elements
-│   └── UIPrefabFactory.cs    # Factory for creating themed UI prefabs
-│
-└── Tests/                     # Unit tests
-    ├── EditMode/             # Editor tests
-    └── PlayMode/             # Runtime tests
+UI / MiniGames → Systems → Core  
 ```
-
-**Layer Dependencies:**  
-UI → MiniGames → Systems → Core  
 Each layer depends on Core. UI and MiniGames both use Systems (EventManager, SceneLoader, SaveManager).
 
-## Testing
+**Core** has the base patterns (Singleton, MonoSingleton, PersistentSingleton). I made three types because:
+- `Singleton<T>`: Plain C# classes that don't need MonoBehaviour (like data managers)
+- `MonoSingleton<T>`: Scene-specific managers that get destroyed on scene change
+- `PersistentSingleton<T>`: Stuff like EventManager and SaveManager that survive scene transitions
 
-The framework includes unit tests covering EventManager and SaveManager.
+Core is the most abstract layer with no dependencies on any other layer in the project. This means it can be reused in any Unity project.
 
-**From Terminal:**
-```bash
-make test          # Run EditMode tests
-make test-all      # Run all tests
-make clean         # Clean artifacts
-make logs          # View logs
-```
+**Systems** has EventManager, SceneLoader, and SaveManager. These are the "services" that games use. I intentionally kept them simple - EventManager just uses a dictionary of delegates.
 
+**MiniGames** contains the actual games. Each game extends `BaseGameUI` which handles the common Unity lifecycle functions (Initialize, Update, Cleanup). This way no need to remember to unsubscribe from events in every game.
 
-**Test Coverage:**
-- SaveManager: Save/load, score tracking, high scores, settings persistence
-- EventManager: Subscribe/unsubscribe, event triggering, multiple listeners, edge cases
+## Design Decisions
 
-Results are saved in `TestResults/` as `EditMode-results.xml`
+### Event System
+I chose a string-based event system over Unity Events or delegates because:
+- Easy to use: `EventManager.Instance.TriggerEvent(GameEvents.SCENE_LOAD_STARTED)`
+- No inspector setup needed
+- Games can subscribe/unsubscribe without knowing about each other
 
-## Quick Start
+### Save System
+Using PlayerPrefs with JSON serialization. I know it's not the most secure or performant solution, but:
+- No external dependencies
+- Works across platforms
+- Good enough for high scores and simple settings
+- Easy to debug (can check PlayerPrefs in editor)
 
-**1. Clone the repository**
-```bash
-git clone https://github.com/cemasil/mini-game-framework.git
-cd mini-game-framework
-```
+If I needed shared leaderboards or cross-user rankings, I'd set up a proper backend database instead.
 
-**2. Configure Unity path (if needed)**
+### Scene Management
+SceneLoader handles async loading with a loading screen. I added event triggers (`SCENE_LOAD_START`, `SCENE_LOAD_COMPLETE`) so other systems can react to scene changes. The progress bar updates via coroutine checking `AsyncOperation.progress`.
 
-The Makefile auto-detects Unity on macOS. For custom paths:
-```bash
-export UNITY_PATH=/path/to/Unity
-```
+### UI System
+I built a theme system with ScriptableObjects. Each UITheme has colors, fonts, etc. ThemedUIElement components automatically apply the theme in `OnValidate()` so you see changes in the editor immediately.
 
-**3. Open in Unity**
-1. Open Unity Hub
-2. Add project from disk
-3. Select this folder
+## Current Games
+
+### Match3
+- 6x6 grid, swap adjacent gems
+- Match 3+ horizontally or vertically
+- 15 moves to reach target score
+- Invalid swaps are allowed but swapped back
+
+**Technical note:** Initially I was checking the entire grid for matches after each swap, which caused a bug where random matches across the board would get cleared. Fixed it by only checking around the two swapped gems.
+
+### Memory Card Game
+- 4x4 grid (16 cards, 8 pairs)
+- Click to flip, match pairs
+- Timer counts up, tracks moves
+- Best time saved as high score
+
+I used colors instead of sprites for cards because it was faster to test. In a real game I'd use proper card artwork.
 
 ## Adding New Mini-Games
 
@@ -122,7 +96,7 @@ public class PuzzleGame : MonoBehaviour
     
     private void OnGameWin(int score)
     {
-        SaveManager.Instance.SaveGameScore("Puzzle", score);
+        SaveManager.Instance.SaveGameScore(GameNames.PUZZLE, score);
         // Handle win logic
     }
 }
@@ -130,108 +104,39 @@ public class PuzzleGame : MonoBehaviour
 
 **4. GameRegistry automatically discovers config and GameSelectionPanel displays it.**
 
-## Creating Custom UI Panels
+## Known Issues & Future Improvements
 
-The framework provides a theme-based UI system with automatic styling.
+1. **Dependency injection**: Instead of singletons everywhere, use a service locator or DI container. Would make testing easier. For example, instead of `SaveManager.Instance.SaveScore()`, inject an `ISaveService` through constructor. This way it can be mock in tests without needing the actual Unity environment.
 
-**1. Create a UITheme asset** (if not exists)
+2. **Addressables**: For larger games, loading all assets at startup doesn't scale. Unity's Addressables system would be better.
+
+3. **Better state management**: Right now game state (score, moves, time) is just private fields. Could use a proper state machine or observable pattern.
+
+4. **Animation system**: Games feel stiff without animations. Would integrate DOTween or create a simple tween manager.
+
+5. **Object pooling**: Currently just `Instantiate()` and `Destroy()` for gems/cards. Would pool them for better performance.
+
+## Code Quality Choices
+
+I tried to follow SOLID principles:
+- **Single Responsibility**: Each class does one thing (EventManager manages events, SaveManager manages saves)
+- **Open/Closed**: Can add new games without modifying framework code (GameConfig system)
+- **Dependency Inversion**: Games depend on interfaces/base classes, not concrete implementations
+
+I avoided some common Unity anti-patterns:
+- No `FindObjectOfType()` in Update loops
+- Unsubscribe from events in cleanup
+- Null checks before accessing serialized fields
+- Coroutines properly stopped when objects are destroyed
+
+## Running the Project
+
+Open in Unity 2022.3 or later. Main scene is `MainMenu`. Build settings already has all scenes added.
+
+There are unit tests for EventManager and SaveManager in the Tests folder. Run them from terminal using commands below.
+
+```bash
+make test          # Run all tests
+make clean         # Clean artifacts
+make logs          # View logs
 ```
-Assets/Resources/UI/Themes/ → Create → UI → UI Theme
-```
-
-**2. Create a panel script**
-```csharp
-using MiniGameFramework.Systems.UI;
-using TMPro;
-using UnityEngine.UI;
-
-public class SettingsPanel : UIPanel
-{
-    [SerializeField] private Button backButton;
-    [SerializeField] private TextMeshProUGUI titleText;
-    
-    protected override void OnInitialize()
-    {
-        backButton.onClick.AddListener(OnBackClicked);
-        titleText.text = "Settings";
-    }
-    
-    protected override void OnCleanup()
-    {
-        backButton.onClick.RemoveListener(OnBackClicked);
-    }
-    
-    private void OnBackClicked()
-    {
-        Hide();
-    }
-}
-```
-
-**3. Create the panel in Unity**
-- GameObject → UI → Panel
-- Add your script component
-- Add `ThemedUIElement` components to buttons/text for automatic theming
-- Save as prefab in `Assets/Prefabs/UI/Panels/`
-
-**4. Use in scenes**
-```csharp
-public SettingsPanel settingsPanel;
-
-private void Start()
-{
-    settingsPanel.Show();
-}
-```
-
-## Using the Event System
-
-The EventManager enables loose coupling between systems.
-
-**Subscribe to events:**
-```csharp
-protected override void OnInitialize()
-{
-    EventManager.Instance.Subscribe("GAME_START", OnGameStart);
-    EventManager.Instance.Subscribe("SCORE_UPDATE", OnScoreUpdate);
-}
-
-private void OnGameStart() { /* Handle event */ }
-private void OnScoreUpdate(object score) { /* Handle with parameter */ }
-```
-
-**Trigger events:**
-```csharp
-EventManager.Instance.TriggerEvent("GAME_START");
-EventManager.Instance.TriggerEvent("SCORE_UPDATE", 100);
-```
-
-**Unsubscribe:**
-```csharp
-protected override void OnCleanup()
-{
-    EventManager.Instance.Unsubscribe("GAME_START", OnGameStart);
-    EventManager.Instance.Unsubscribe("SCORE_UPDATE", OnScoreUpdate);
-}
-```
-
-## Project Structure
-
-```
-Assets/
-├── Resources/
-│   ├── UI/
-│   │   ├── Themes/          # UITheme ScriptableObjects
-│   │   └── Prefabs/         # Themed UI prefabs
-│   └── Games/               # GameConfig ScriptableObjects
-├── Scripts/                 # All C# scripts
-│   ├── Core/
-│   ├── MiniGames/
-│   ├── Systems/
-│   ├── UI/
-├── Scenes/                  # Unity scenes
-```
-
-## License
-
-MIT
