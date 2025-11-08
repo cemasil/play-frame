@@ -78,6 +78,18 @@ namespace MiniGameFramework.MiniGames.Memory
             isGameActive = true;
         }
 
+        protected override void Cleanup()
+        {
+            if (backButton != null)
+                backButton.onClick.RemoveListener(OnBackClicked);
+
+            if (restartButton != null)
+                restartButton.onClick.RemoveListener(OnRestartClicked);
+
+            if (menuButton != null)
+                menuButton.onClick.RemoveListener(OnMenuClicked);
+        }
+
         protected override void OnUpdate()
         {
             if (isGameActive)

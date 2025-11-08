@@ -72,6 +72,18 @@ namespace MiniGameFramework.MiniGames.Match3
             UpdateUI();
         }
 
+        protected override void Cleanup()
+        {
+            if (backButton != null)
+                backButton.onClick.RemoveListener(OnBackClicked);
+
+            if (restartButton != null)
+                restartButton.onClick.RemoveListener(OnRestartClicked);
+
+            if (menuButton != null)
+                menuButton.onClick.RemoveListener(OnMenuClicked);
+        }
+
         private void FillGrid()
         {
             for (int x = 0; x < gridWidth; x++)
