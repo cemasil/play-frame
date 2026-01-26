@@ -125,7 +125,7 @@ namespace MiniGameFramework.MiniGames.Memory
                 {
                     int cardId = cardIds[i];
                     Color cardColor = cardColors[cardId];
-                    card.Initialize(cardId, cardColor, OnCardClicked);
+                    card.Setup(cardId, cardColor, OnCardClicked);
                     cards.Add(card);
                 }
             }

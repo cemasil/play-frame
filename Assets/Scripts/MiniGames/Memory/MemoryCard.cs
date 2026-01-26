@@ -10,7 +10,7 @@ namespace MiniGameFramework.MiniGames.Memory
     /// Represents a single memory card with flip animations and click handling
     /// </summary>
     [RequireComponent(typeof(Button))]
-    public class MemoryCard : BaseGame, IPointerClickHandler
+    public class MemoryCard : BaseGamePiece, IPointerClickHandler
     {
         [SerializeField] private GameObject cardFront;
         [SerializeField] private GameObject cardBack;
@@ -27,7 +27,7 @@ namespace MiniGameFramework.MiniGames.Memory
             button = GetComponent<Button>();
         }
 
-        public void Initialize(int cardId, Color cardColor, Action<MemoryCard> clickCallback)
+        public void Setup(int cardId, Color cardColor, Action<MemoryCard> clickCallback)
         {
             CardId = cardId;
             onCardClicked = clickCallback;
@@ -41,6 +41,30 @@ namespace MiniGameFramework.MiniGames.Memory
                 }
             }
 
+            Hide();
+        }
+
+        public override void SetVisualState(PieceVisualState state)
+        {
+            switch (state)
+            {
+                case PieceVisualState.Matched:
+                    SetMatched();
+                    break;
+                case PieceVisualState.Normal:
+                    Hide();
+                    break;
+                case PieceVisualState.Disabled:
+                    SetInteractable(false);
+                    break;
+            }
+        }
+
+        public override void ResetPiece()
+        {
+            IsRevealed = false;
+            IsMatched = false;
+            if (button != null) button.interactable = true;
             Hide();
         }
 

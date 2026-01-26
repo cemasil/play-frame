@@ -8,11 +8,11 @@ namespace MiniGameFramework.MiniGames.Match3
     /// <summary>
     /// Represents a single gem on the Match3 grid
     /// </summary>
-    public class Gem : BaseGame, IPointerDownHandler, IPointerUpHandler, IDragHandler
+    public class Gem : BaseGamePiece, IPointerDownHandler, IPointerUpHandler, IDragHandler
     {
-        public int X { get; set; }
-        public int Y { get; set; }
-        public int ColorIndex { get; set; }
+        public int X { get; private set; }
+        public int Y { get; private set; }
+        public int ColorIndex { get; private set; }
 
         private Image image;
         private Vector2 dragStartPos;
@@ -79,6 +79,31 @@ namespace MiniGameFramework.MiniGames.Match3
         public void OnPointerUp(PointerEventData eventData)
         {
             isDragging = false;
+        }
+
+        public override void SetVisualState(PieceVisualState state)
+        {
+            // Can be extended for selection/highlight effects
+            switch (state)
+            {
+                case PieceVisualState.Selected:
+                    // Add selection visual (e.g., scale up, glow)
+                    break;
+                case PieceVisualState.Normal:
+                    // Reset to normal state
+                    break;
+            }
+        }
+
+        public override void ResetPiece()
+        {
+            isDragging = false;
+            onGemSwipe = null;
+        }
+
+        protected override void OnCleanup()
+        {
+            onGemSwipe = null;
         }
     }
 }
