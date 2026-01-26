@@ -49,5 +49,16 @@ namespace MiniGameFramework.Core
                 _instance = null;
             }
         }
+
+#if UNITY_EDITOR
+        protected virtual void OnApplicationQuit()
+        {
+            // Destroy persistent singleton GameObject when exiting Play Mode in Editor
+            if (_instance == this && gameObject != null)
+            {
+                DestroyImmediate(gameObject);
+            }
+        }
+#endif
     }
 }
