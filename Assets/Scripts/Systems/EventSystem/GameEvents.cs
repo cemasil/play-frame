@@ -28,5 +28,11 @@ namespace MiniGameFramework.Systems.Events
         // Score Events
         public static readonly GameEvent<int> ScoreUpdated = new("OnScoreUpdated");
         public static readonly GameEvent<int> HighScoreUpdated = new("OnHighScoreUpdated");
+
+        // Audio Events
+        public static readonly GameEvent<float> MusicVolumeChanged = new("OnMusicVolumeChanged");
+        public static readonly GameEvent<float> SfxVolumeChanged = new("OnSfxVolumeChanged");
+        public static readonly GameEvent<bool> MusicMuteChanged = new("OnMusicMuteChanged");
+        public static readonly GameEvent<bool> SfxMuteChanged = new("OnSfxMuteChanged");
     }
 }

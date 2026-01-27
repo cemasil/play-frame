@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using MiniGameFramework.Core.Pooling;
+using MiniGameFramework.Systems.Audio;
 using MiniGameFramework.Systems.SceneManagement;
 using MiniGameFramework.Systems.SaveSystem;
 using MiniGameFramework.MiniGames.Common;
@@ -51,6 +52,14 @@ namespace MiniGameFramework.MiniGames.Match3
         [SerializeField] private int targetScore = 500;
         [SerializeField] private int pointsPerGem = 10;
 
+        [Header("Audio")]
+        [SerializeField] private SFXCollection sfxCollection;
+        [SerializeField] private MusicCollection musicCollection;
+        [SerializeField] private AudioClip swapSound;
+        [SerializeField] private AudioClip matchSound;
+        [SerializeField] private AudioClip noMatchSound;
+        [SerializeField] private AudioClip gameMusic;
+
         private Match3Grid match3Grid;
         private ObjectPool<Gem> gemPool;
         private int currentScore = 0;
@@ -77,6 +86,11 @@ namespace MiniGameFramework.MiniGames.Match3
 
             FillGrid();
             UpdateUI();
+        }
+
+        protected override void OnGameStart()
+        {
+            PlayGameMusic();
         }
 
         private void InitializePool()
@@ -192,6 +206,7 @@ namespace MiniGameFramework.MiniGames.Match3
         private IEnumerator SwapAndMatchRoutine(Gem gem1, Gem gem2)
         {
             BeginProcessing();
+            PlaySwapSound();
 
             Vector2 pos1 = gem1.GetComponent<RectTransform>().anchoredPosition;
             Vector2 pos2 = gem2.GetComponent<RectTransform>().anchoredPosition;
@@ -207,6 +222,8 @@ namespace MiniGameFramework.MiniGames.Match3
 
             if (matches.Count > 0)
             {
+                PlayMatchSound();
+                
                 foreach (Gem gem in matches)
                 {
                     match3Grid.RemoveGem(gem);
@@ -221,6 +238,7 @@ namespace MiniGameFramework.MiniGames.Match3
             }
             else
             {
+                PlayNoMatchSound();
                 yield return new WaitForSeconds(0.2f);
 
                 StartCoroutine(MoveGemTo(gem1, pos2, pos1));
@@ -291,6 +309,12 @@ namespace MiniGameFramework.MiniGames.Match3
                 savedHighScore = currentScore;
             }
 
+            // Play win/lose sound
+            if (isWin)
+                PlayWinSound();
+            else
+                PlayLoseSound();
+
             if (gameOverPanel != null)
                 gameOverPanel.SetActive(true);
 
@@ -303,6 +327,82 @@ namespace MiniGameFramework.MiniGames.Match3
             if (highScoreText != null)
                 highScoreText.text = $"Best: {savedHighScore}";
         }
+
+        #region Audio Methods
+
+        private void PlayGameMusic()
+        {
+            if (gameMusic != null && AudioManager.HasInstance)
+            {
+                AudioManager.Instance.PlayMusic(gameMusic);
+            }
+            else if (musicCollection != null)
+            {
+                musicCollection.PlayRandomGameTrack();
+            }
+        }
+
+        private void PlaySwapSound()
+        {
+            if (swapSound != null && AudioManager.HasInstance)
+            {
+                AudioManager.Instance.PlaySFX(swapSound);
+            }
+            else if (sfxCollection != null)
+            {
+                sfxCollection.Play(sfxCollection.swap);
+            }
+        }
+
+        private void PlayMatchSound()
+        {
+            if (matchSound != null && AudioManager.HasInstance)
+            {
+                AudioManager.Instance.PlaySFX(matchSound);
+            }
+            else if (sfxCollection != null)
+            {
+                sfxCollection.PlayMatch();
+            }
+        }
+
+        private void PlayNoMatchSound()
+        {
+            if (noMatchSound != null && AudioManager.HasInstance)
+            {
+                AudioManager.Instance.PlaySFX(noMatchSound);
+            }
+            else if (sfxCollection != null)
+            {
+                sfxCollection.PlayMismatch();
+            }
+        }
+
+        private void PlayWinSound()
+        {
+            if (sfxCollection != null)
+            {
+                sfxCollection.PlayWin();
+            }
+            else if (musicCollection != null)
+            {
+                musicCollection.PlayVictory();
+            }
+        }
+
+        private void PlayLoseSound()
+        {
+            if (sfxCollection != null)
+            {
+                sfxCollection.PlayLose();
+            }
+            else if (musicCollection != null)
+            {
+                musicCollection.PlayDefeat();
+            }
+        }
+
+        #endregion
 
         private void OnBackClicked()
         {

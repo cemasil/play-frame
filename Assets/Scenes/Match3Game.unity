@@ -481,6 +481,8 @@ MonoBehaviour:
   gemSpacing: 10
   gemPrefab: {fileID: 8520141683804842807, guid: b36a1eec2537b477f9c6b06d5443223b, type: 3}
   gridContainer: {fileID: 429268769}
+  initialPoolSize: 36
+  maxPoolSize: 100
   gemColors:
   - {r: 1, g: 0.26666668, b: 0.26666668, a: 1}
   - {r: 0.26666668, g: 0.26666668, b: 1, a: 1}
@@ -500,6 +502,12 @@ MonoBehaviour:
   maxMoves: 15
   targetScore: 500
   pointsPerGem: 10
+  sfxCollection: {fileID: 11400000, guid: d21aba2d6e2ed4041a2239e94d3c704e, type: 2}
+  musicCollection: {fileID: 11400000, guid: e74eb437c9c4c443e9ef593bddfe0e54, type: 2}
+  swapSound: {fileID: 0}
+  matchSound: {fileID: 0}
+  noMatchSound: {fileID: 0}
+  gameMusic: {fileID: 0}
 --- !u!4 &555081230
 Transform:
   m_ObjectHideFlags: 0
