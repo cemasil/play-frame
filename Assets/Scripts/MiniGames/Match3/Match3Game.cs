@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using MiniGameFramework.Core.Pooling;
 using MiniGameFramework.Systems.SceneManagement;
 using MiniGameFramework.Systems.SaveSystem;
 using MiniGameFramework.MiniGames.Common;
@@ -23,6 +24,10 @@ namespace MiniGameFramework.MiniGames.Match3
         [Header("Prefabs")]
         [SerializeField] private GameObject gemPrefab;
         [SerializeField] private Transform gridContainer;
+
+        [Header("Pool Settings")]
+        [SerializeField] private int initialPoolSize = 36;
+        [SerializeField] private int maxPoolSize = 100;
 
         [Header("Colors")]
         [SerializeField] private Color[] gemColors = new Color[5];
@@ -47,12 +52,15 @@ namespace MiniGameFramework.MiniGames.Match3
         [SerializeField] private int pointsPerGem = 10;
 
         private Match3Grid match3Grid;
+        private ObjectPool<Gem> gemPool;
         private int currentScore = 0;
         private int remainingMoves;
         private bool isProcessing = false;
 
         protected override void OnInitialize()
         {
+            InitializePool();
+
             if (backButton != null)
                 backButton.onClick.AddListener(OnBackClicked);
 
@@ -72,6 +80,48 @@ namespace MiniGameFramework.MiniGames.Match3
             UpdateUI();
         }
 
+        private void InitializePool()
+        {
+            if (gemPrefab == null)
+            {
+                Debug.LogError("[Match3Game] Gem prefab is not assigned!");
+                return;
+            }
+
+            var gemComponent = gemPrefab.GetComponent<Gem>();
+            if (gemComponent == null)
+            {
+                Debug.LogError("[Match3Game] Gem prefab must have a Gem component!");
+                return;
+            }
+
+            gemPool = new ObjectPool<Gem>(
+                gemComponent,
+                gridContainer,
+                initialPoolSize,
+                maxPoolSize,
+                onCreate: OnGemCreated,
+                onGet: OnGemGet,
+                onRelease: OnGemRelease
+            );
+        }
+
+        private void OnGemCreated(Gem gem)
+        {
+            // Called when a new gem is instantiated
+        }
+
+        private void OnGemGet(Gem gem)
+        {
+            gem.gameObject.SetActive(true);
+        }
+
+        private void OnGemRelease(Gem gem)
+        {
+            gem.ResetPiece();
+            gem.gameObject.SetActive(false);
+        }
+
         protected override void Cleanup()
         {
             if (backButton != null)
@@ -82,6 +132,9 @@ namespace MiniGameFramework.MiniGames.Match3
 
             if (menuButton != null)
                 menuButton.onClick.RemoveListener(OnMenuClicked);
+
+            // Clear all pooled gems
+            gemPool?.Clear();
         }
 
         private void FillGrid()
@@ -110,11 +163,10 @@ namespace MiniGameFramework.MiniGames.Match3
 
         private void CreateGemAt(int x, int y, Vector2 position)
         {
-            GameObject gemObj = Instantiate(gemPrefab, gridContainer);
-            RectTransform rectTransform = gemObj.GetComponent<RectTransform>();
+            Gem gem = gemPool.Get();
+            RectTransform rectTransform = gem.RectTransform;
             rectTransform.anchoredPosition = position;
 
-            Gem gem = gemObj.GetComponent<Gem>();
             int colorIndex = Random.Range(0, gemColors.Length);
             gem.SetColor(gemColors[colorIndex], colorIndex);
             gem.SetPosition(x, y);
@@ -159,7 +211,7 @@ namespace MiniGameFramework.MiniGames.Match3
                 foreach (Gem gem in matches)
                 {
                     match3Grid.RemoveGem(gem);
-                    Destroy(gem.gameObject);
+                    gemPool.Release(gem);
                 }
 
                 currentScore += matches.Count * pointsPerGem;

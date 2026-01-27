@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using MiniGameFramework.Core.Pooling;
 using MiniGameFramework.Systems.SceneManagement;
 using MiniGameFramework.Systems.SaveSystem;
 using MiniGameFramework.MiniGames.Common;
-using UnityEditor.SearchService;
 
 namespace MiniGameFramework.MiniGames.Memory
 {
@@ -46,6 +46,11 @@ namespace MiniGameFramework.MiniGames.Memory
         [SerializeField] private float mismatchHideDuration = 1f;
         [SerializeField] private int pointsPerMatch = 100;
 
+        [Header("Pool Settings")]
+        [SerializeField] private int initialPoolSize = 16;
+        [SerializeField] private int maxPoolSize = 64;
+
+        private ObjectPool<MemoryCard> cardPool;
         private List<MemoryCard> cards = new List<MemoryCard>();
         private MemoryCard firstCard = null;
         private MemoryCard secondCard = null;
@@ -60,6 +65,8 @@ namespace MiniGameFramework.MiniGames.Memory
 
         protected override void OnInitialize()
         {
+            InitializePool();
+
             if (backButton != null)
                 backButton.onClick.AddListener(OnBackClicked);
 
@@ -78,6 +85,48 @@ namespace MiniGameFramework.MiniGames.Memory
             isGameActive = true;
         }
 
+        private void InitializePool()
+        {
+            if (cardPrefab == null)
+            {
+                Debug.LogError("[MemoryGame] Card prefab is not assigned!");
+                return;
+            }
+
+            var cardComponent = cardPrefab.GetComponent<MemoryCard>();
+            if (cardComponent == null)
+            {
+                Debug.LogError("[MemoryGame] Card prefab must have a MemoryCard component!");
+                return;
+            }
+
+            cardPool = new ObjectPool<MemoryCard>(
+                cardComponent,
+                gridContainer,
+                initialPoolSize,
+                maxPoolSize,
+                onCreate: OnCardCreated,
+                onGet: OnCardGet,
+                onRelease: OnCardRelease
+            );
+        }
+
+        private void OnCardCreated(MemoryCard card)
+        {
+            // Called when a new card is instantiated
+        }
+
+        private void OnCardGet(MemoryCard card)
+        {
+            card.gameObject.SetActive(true);
+        }
+
+        private void OnCardRelease(MemoryCard card)
+        {
+            card.ResetPiece();
+            card.gameObject.SetActive(false);
+        }
+
         protected override void Cleanup()
         {
             if (backButton != null)
@@ -88,6 +137,10 @@ namespace MiniGameFramework.MiniGames.Memory
 
             if (menuButton != null)
                 menuButton.onClick.RemoveListener(OnMenuClicked);
+
+            // Clear all pooled cards
+            cards.Clear();
+            cardPool?.Clear();
         }
 
         protected override void OnUpdate()
@@ -118,8 +171,7 @@ namespace MiniGameFramework.MiniGames.Memory
 
             for (int i = 0; i < cardIds.Count; i++)
             {
-                GameObject cardObj = Instantiate(cardPrefab, gridContainer);
-                MemoryCard card = cardObj.GetComponent<MemoryCard>();
+                MemoryCard card = cardPool.Get();
 
                 if (card != null)
                 {
