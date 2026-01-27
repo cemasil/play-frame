@@ -228,11 +228,14 @@ namespace MiniGameFramework.MiniGames.Memory
         private void ShowGameOver()
         {
             int totalSeconds = Mathf.FloorToInt(gameTime);
-            int savedBestTime = SaveManager.Instance.GetGameHighScore(GameNames.MEMORY);
+            int savedBestTime = SaveManager.HasInstance
+                ? SaveManager.Instance.GetGameHighScore(GameNames.MEMORY)
+                : 0;
 
             if (savedBestTime == 0 || totalSeconds < savedBestTime)
             {
-                SaveManager.Instance.UpdateGameHighScore(GameNames.MEMORY, totalSeconds);
+                if (SaveManager.HasInstance)
+                    SaveManager.Instance.UpdateGameHighScore(GameNames.MEMORY, totalSeconds);
                 savedBestTime = totalSeconds;
             }
 
@@ -262,17 +265,20 @@ namespace MiniGameFramework.MiniGames.Memory
 
         private void OnBackClicked()
         {
-            SceneLoader.Instance.LoadScene(SceneNames.GAME_SELECTION);
+            if (SceneLoader.HasInstance)
+                SceneLoader.Instance.LoadScene(SceneNames.GAME_SELECTION);
         }
 
         private void OnRestartClicked()
         {
-            SceneLoader.Instance.LoadScene(SceneNames.MEMORY);
+            if (SceneLoader.HasInstance)
+                SceneLoader.Instance.LoadScene(SceneNames.MEMORY);
         }
 
         private void OnMenuClicked()
         {
-            SceneLoader.Instance.LoadScene(SceneNames.MAIN_MENU);
+            if (SceneLoader.HasInstance)
+                SceneLoader.Instance.LoadScene(SceneNames.MAIN_MENU);
         }
     }
 }

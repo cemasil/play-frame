@@ -7,17 +7,20 @@ namespace MiniGameFramework.Systems.SaveSystem
 {
     /// <summary>
     /// Manages saving and loading game data using PlayerPrefs
+    /// Uses PersistentSingleton to survive scene transitions and avoid race conditions with EventManager
     /// </summary>
-    public class SaveManager : Singleton<SaveManager>
+    public class SaveManager : PersistentSingleton<SaveManager>
     {
         private const string SAVE_KEY = "GameSaveData";
         private SaveData _currentSaveData;
+        private bool _isInitialized = false;
 
         public SaveData CurrentSaveData => _currentSaveData;
 
-        public SaveManager()
+        protected override void OnSingletonAwake()
         {
             LoadGame();
+            _isInitialized = true;
         }
 
         public void SaveGame()
@@ -35,7 +38,11 @@ namespace MiniGameFramework.Systems.SaveSystem
                 string json = JsonUtility.ToJson(_currentSaveData, true);
                 PlayerPrefs.SetString(SAVE_KEY, json);
                 PlayerPrefs.Save();
-                EventManager.Instance.TriggerEvent(GameEvents.GAME_SAVED);
+
+                if (_isInitialized && EventManager.HasInstance)
+                {
+                    EventManager.Instance.TriggerEvent(GameEvents.GAME_SAVED);
+                }
             }
             catch (Exception e)
             {
@@ -59,7 +66,10 @@ namespace MiniGameFramework.Systems.SaveSystem
                     SaveGame();
                 }
 
-                EventManager.Instance.TriggerEvent(GameEvents.GAME_LOADED);
+                if (_isInitialized && EventManager.HasInstance)
+                {
+                    EventManager.Instance.TriggerEvent(GameEvents.GAME_LOADED);
+                }
             }
             catch (Exception e)
             {
@@ -87,10 +97,10 @@ namespace MiniGameFramework.Systems.SaveSystem
             if (_currentSaveData.totalScore > _currentSaveData.highScore)
             {
                 _currentSaveData.highScore = _currentSaveData.totalScore;
-                EventManager.Instance.TriggerEvent(GameEvents.HIGH_SCORE_UPDATED, _currentSaveData.highScore);
+                TriggerEventSafe(GameEvents.HIGH_SCORE_UPDATED, _currentSaveData.highScore);
             }
 
-            EventManager.Instance.TriggerEvent(GameEvents.SCORE_UPDATED, _currentSaveData.totalScore);
+            TriggerEventSafe(GameEvents.SCORE_UPDATED, _currentSaveData.totalScore);
             SaveGame();
         }
 
@@ -120,6 +130,17 @@ namespace MiniGameFramework.Systems.SaveSystem
         {
             _currentSaveData.gamesPlayed++;
             SaveGame();
+        }
+
+        /// <summary>
+        /// Safely trigger an event only if EventManager is available
+        /// </summary>
+        private void TriggerEventSafe(string eventName, object parameter = null)
+        {
+            if (EventManager.HasInstance)
+            {
+                EventManager.Instance.TriggerEvent(eventName, parameter);
+            }
         }
     }
 }

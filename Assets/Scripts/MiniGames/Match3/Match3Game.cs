@@ -229,11 +229,14 @@ namespace MiniGameFramework.MiniGames.Match3
         private void ShowGameOver()
         {
             bool isWin = currentScore >= targetScore;
-            int savedHighScore = SaveManager.Instance.GetGameHighScore(GameNames.MATCH3);
+            int savedHighScore = SaveManager.HasInstance
+                ? SaveManager.Instance.GetGameHighScore(GameNames.MATCH3)
+                : 0;
 
             if (currentScore > savedHighScore)
             {
-                SaveManager.Instance.UpdateGameHighScore(GameNames.MATCH3, currentScore);
+                if (SaveManager.HasInstance)
+                    SaveManager.Instance.UpdateGameHighScore(GameNames.MATCH3, currentScore);
                 savedHighScore = currentScore;
             }
 
@@ -252,17 +255,20 @@ namespace MiniGameFramework.MiniGames.Match3
 
         private void OnBackClicked()
         {
-            SceneLoader.Instance.LoadScene(SceneNames.GAME_SELECTION);
+            if (SceneLoader.HasInstance)
+                SceneLoader.Instance.LoadScene(SceneNames.GAME_SELECTION);
         }
 
         private void OnRestartClicked()
         {
-            SceneLoader.Instance.LoadScene(SceneNames.MATCH3);
+            if (SceneLoader.HasInstance)
+                SceneLoader.Instance.LoadScene(SceneNames.MATCH3);
         }
 
         private void OnMenuClicked()
         {
-            SceneLoader.Instance.LoadScene(SceneNames.MAIN_MENU);
+            if (SceneLoader.HasInstance)
+                SceneLoader.Instance.LoadScene(SceneNames.MAIN_MENU);
         }
     }
 }

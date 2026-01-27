@@ -30,11 +30,20 @@ namespace MiniGameFramework.UI.Panels
                 return;
             }
 
+            if (!GameRegistry.HasInstance)
+            {
+                Debug.LogError("[GameSelectionPanel] GameRegistry is not available!");
+                return;
+            }
+
             var games = GameRegistry.Instance.AvailableGames;
 
             foreach (var game in games)
             {
-                int highScore = SaveManager.Instance.GetGameHighScore(game.gameName);
+                int highScore = SaveManager.HasInstance
+                    ? SaveManager.Instance.GetGameHighScore(game.gameName)
+                    : 0;
+
                 var card = UIPrefabFactory.CreateGameCard(
                     game.displayName,
                     highScore,
@@ -51,16 +60,20 @@ namespace MiniGameFramework.UI.Panels
                 var playButton = card.GetComponentInChildren<Button>();
                 if (playButton != null)
                 {
+                    string sceneName = game.sceneName; // Capture for lambda
                     playButton.onClick.AddListener(() =>
-                        SceneLoader.Instance.LoadScene(game.sceneName)
-                    );
+                    {
+                        if (SceneLoader.HasInstance)
+                            SceneLoader.Instance.LoadScene(sceneName);
+                    });
                 }
             }
         }
 
         private void OnBackClicked()
         {
-            SceneLoader.Instance.LoadScene(SceneNames.MAIN_MENU);
+            if (SceneLoader.HasInstance)
+                SceneLoader.Instance.LoadScene(SceneNames.MAIN_MENU);
         }
 
         protected override void OnCleanup()
