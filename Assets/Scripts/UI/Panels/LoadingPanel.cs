@@ -23,12 +23,9 @@ namespace MiniGameFramework.UI.Panels
 
         protected override void OnInitialize()
         {
-            if (EventManager.HasInstance)
-            {
-                EventManager.Instance.Subscribe(GameEvents.SceneLoadStarted, OnSceneLoadStarted);
-                EventManager.Instance.Subscribe(GameEvents.SceneLoadProgress, OnSceneLoadProgress);
-                EventManager.Instance.Subscribe(GameEvents.SceneLoadCompleted, OnSceneLoadCompleted);
-            }
+            EventManager.Instance.Subscribe(GameEvents.SceneLoadStarted, OnSceneLoadStarted);
+            EventManager.Instance.Subscribe(GameEvents.SceneLoadProgress, OnSceneLoadProgress);
+            EventManager.Instance.Subscribe(GameEvents.SceneLoadCompleted, OnSceneLoadCompleted);
         }
 
         protected override void OnShow()
@@ -92,12 +89,9 @@ namespace MiniGameFramework.UI.Panels
 
         protected override void OnCleanup()
         {
-            if (EventManager.HasInstance)
-            {
-                EventManager.Instance.Unsubscribe(GameEvents.SceneLoadStarted, OnSceneLoadStarted);
-                EventManager.Instance.Unsubscribe(GameEvents.SceneLoadProgress, OnSceneLoadProgress);
-                EventManager.Instance.Unsubscribe(GameEvents.SceneLoadCompleted, OnSceneLoadCompleted);
-            }
+            EventManager.Instance.Unsubscribe(GameEvents.SceneLoadStarted, OnSceneLoadStarted);
+            EventManager.Instance.Unsubscribe(GameEvents.SceneLoadProgress, OnSceneLoadProgress);
+            EventManager.Instance.Unsubscribe(GameEvents.SceneLoadCompleted, OnSceneLoadCompleted);
         }
     }
 }

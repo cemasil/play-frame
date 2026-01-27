@@ -54,14 +54,12 @@ namespace MiniGameFramework.MiniGames.Memory
         private List<MemoryCard> cards = new List<MemoryCard>();
         private MemoryCard firstCard = null;
         private MemoryCard secondCard = null;
-        private bool isProcessing = false;
 
         private int moves = 0;
         private int matchedPairs = 0;
         private int totalPairs;
         private int currentScore = 0;
         private float gameTime = 0f;
-        private bool isGameActive = false;
 
         protected override void OnInitialize()
         {
@@ -82,7 +80,6 @@ namespace MiniGameFramework.MiniGames.Memory
             totalPairs = gridRows * gridColumns / 2;
             CreateGrid();
             UpdateUI();
-            isGameActive = true;
         }
 
         private void InitializePool()
@@ -145,7 +142,7 @@ namespace MiniGameFramework.MiniGames.Memory
 
         protected override void OnUpdate()
         {
-            if (isGameActive)
+            if (IsPlaying)
             {
                 gameTime += Time.deltaTime;
                 UpdateTimeDisplay();
@@ -185,7 +182,7 @@ namespace MiniGameFramework.MiniGames.Memory
 
         private void OnCardClicked(MemoryCard clickedCard)
         {
-            if (isProcessing || clickedCard.IsRevealed || clickedCard.IsMatched)
+            if (!CanAcceptInput || clickedCard.IsRevealed || clickedCard.IsMatched)
                 return;
 
             clickedCard.Reveal();
@@ -205,7 +202,7 @@ namespace MiniGameFramework.MiniGames.Memory
 
         private IEnumerator CheckMatchRoutine()
         {
-            isProcessing = true;
+            BeginProcessing();
             SetAllCardsInteractable(false);
 
             yield return new WaitForSeconds(cardRevealDuration);
@@ -221,9 +218,13 @@ namespace MiniGameFramework.MiniGames.Memory
 
                 if (matchedPairs >= totalPairs)
                 {
-                    isGameActive = false;
                     yield return new WaitForSeconds(0.5f);
+                    EndGame();
                     ShowGameOver();
+                }
+                else
+                {
+                    EndProcessing();
                 }
             }
             else
@@ -231,11 +232,11 @@ namespace MiniGameFramework.MiniGames.Memory
                 yield return new WaitForSeconds(mismatchHideDuration);
                 firstCard.Hide();
                 secondCard.Hide();
+                EndProcessing();
             }
 
             firstCard = null;
             secondCard = null;
-            isProcessing = false;
             SetAllCardsInteractable(true);
         }
 

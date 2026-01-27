@@ -55,7 +55,6 @@ namespace MiniGameFramework.MiniGames.Match3
         private ObjectPool<Gem> gemPool;
         private int currentScore = 0;
         private int remainingMoves;
-        private bool isProcessing = false;
 
         protected override void OnInitialize()
         {
@@ -177,7 +176,7 @@ namespace MiniGameFramework.MiniGames.Match3
 
         private void HandleGemSwipe(Gem gem, Vector2Int direction)
         {
-            if (isProcessing || remainingMoves <= 0) return;
+            if (!CanAcceptInput || remainingMoves <= 0) return;
 
             int targetX = gem.X + direction.x;
             int targetY = gem.Y + direction.y;
@@ -192,7 +191,7 @@ namespace MiniGameFramework.MiniGames.Match3
 
         private IEnumerator SwapAndMatchRoutine(Gem gem1, Gem gem2)
         {
-            isProcessing = true;
+            BeginProcessing();
 
             Vector2 pos1 = gem1.GetComponent<RectTransform>().anchoredPosition;
             Vector2 pos2 = gem2.GetComponent<RectTransform>().anchoredPosition;
@@ -236,10 +235,13 @@ namespace MiniGameFramework.MiniGames.Match3
 
             if (remainingMoves <= 0)
             {
+                EndGame();
                 ShowGameOver();
             }
-
-            isProcessing = false;
+            else
+            {
+                EndProcessing();
+            }
         }
 
         private IEnumerator MoveGemTo(Gem gem, Vector2 startPos, Vector2 targetPos)
