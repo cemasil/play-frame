@@ -31,7 +31,7 @@ namespace MiniGameFramework.Systems.SceneManagement
             _isLoading = true;
 
             if (EventManager.HasInstance)
-                EventManager.Instance.TriggerEvent(GameEvents.SCENE_LOAD_STARTED);
+                EventManager.Instance.TriggerEvent(GameEvents.SceneLoadStarted);
 
             yield return new WaitForSeconds(0.1f);
 
@@ -43,7 +43,7 @@ namespace MiniGameFramework.Systems.SceneManagement
                 float progress = Mathf.Clamp01(asyncOperation.progress / 0.9f);
 
                 if (EventManager.HasInstance)
-                    EventManager.Instance.TriggerEvent(GameEvents.SCENE_LOAD_PROGRESS, progress);
+                    EventManager.Instance.TriggerEvent(GameEvents.SceneLoadProgress, progress);
 
                 if (asyncOperation.progress >= 0.9f)
                 {
@@ -57,7 +57,7 @@ namespace MiniGameFramework.Systems.SceneManagement
             _isLoading = false;
 
             if (EventManager.HasInstance)
-                EventManager.Instance.TriggerEvent(GameEvents.SCENE_LOAD_COMPLETED);
+                EventManager.Instance.TriggerEvent(GameEvents.SceneLoadCompleted);
 
             onComplete?.Invoke();
         }

@@ -41,7 +41,7 @@ namespace MiniGameFramework.Systems.SaveSystem
 
                 if (_isInitialized && EventManager.HasInstance)
                 {
-                    EventManager.Instance.TriggerEvent(GameEvents.GAME_SAVED);
+                    EventManager.Instance.TriggerEvent(GameEvents.GameSaved);
                 }
             }
             catch (Exception e)
@@ -68,7 +68,7 @@ namespace MiniGameFramework.Systems.SaveSystem
 
                 if (_isInitialized && EventManager.HasInstance)
                 {
-                    EventManager.Instance.TriggerEvent(GameEvents.GAME_LOADED);
+                    EventManager.Instance.TriggerEvent(GameEvents.GameLoaded);
                 }
             }
             catch (Exception e)
@@ -97,10 +97,10 @@ namespace MiniGameFramework.Systems.SaveSystem
             if (_currentSaveData.totalScore > _currentSaveData.highScore)
             {
                 _currentSaveData.highScore = _currentSaveData.totalScore;
-                TriggerEventSafe(GameEvents.HIGH_SCORE_UPDATED, _currentSaveData.highScore);
+                TriggerEventSafe(GameEvents.HighScoreUpdated, _currentSaveData.highScore);
             }
 
-            TriggerEventSafe(GameEvents.SCORE_UPDATED, _currentSaveData.totalScore);
+            TriggerEventSafe(GameEvents.ScoreUpdated, _currentSaveData.totalScore);
             SaveGame();
         }
 
@@ -133,13 +133,13 @@ namespace MiniGameFramework.Systems.SaveSystem
         }
 
         /// <summary>
-        /// Safely trigger an event only if EventManager is available
+        /// Safely trigger a type-safe event only if EventManager is available
         /// </summary>
-        private void TriggerEventSafe(string eventName, object parameter = null)
+        private void TriggerEventSafe<T>(GameEvent<T> gameEvent, T parameter)
         {
             if (EventManager.HasInstance)
             {
-                EventManager.Instance.TriggerEvent(eventName, parameter);
+                EventManager.Instance.TriggerEvent(gameEvent, parameter);
             }
         }
     }

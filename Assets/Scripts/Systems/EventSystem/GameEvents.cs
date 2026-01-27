@@ -1,32 +1,32 @@
 namespace MiniGameFramework.Systems.Events
 {
     /// <summary>
-    /// Common event names used across the framework
-    /// Centralized to avoid string typos
+    /// Type-safe event definitions for the framework.
+    /// Use these with EventManager for compile-time type checking.
     /// </summary>
     public static class GameEvents
     {
         // Scene Events
-        public const string SCENE_LOAD_STARTED = "OnSceneLoadStarted";
-        public const string SCENE_LOAD_PROGRESS = "OnSceneLoadProgress";
-        public const string SCENE_LOAD_COMPLETED = "OnSceneLoadCompleted";
+        public static readonly GameEvent SceneLoadStarted = new("OnSceneLoadStarted");
+        public static readonly GameEvent<float> SceneLoadProgress = new("OnSceneLoadProgress");
+        public static readonly GameEvent SceneLoadCompleted = new("OnSceneLoadCompleted");
 
         // Game State Events
-        public const string GAME_STARTED = "OnGameStarted";
-        public const string GAME_PAUSED = "OnGamePaused";
-        public const string GAME_RESUMED = "OnGameResumed";
-        public const string GAME_ENDED = "OnGameEnded";
+        public static readonly GameEvent GameStarted = new("OnGameStarted");
+        public static readonly GameEvent GamePaused = new("OnGamePaused");
+        public static readonly GameEvent GameResumed = new("OnGameResumed");
+        public static readonly GameEvent GameEnded = new("OnGameEnded");
 
         // Save System Events
-        public const string GAME_SAVED = "OnGameSaved";
-        public const string GAME_LOADED = "OnGameLoaded";
+        public static readonly GameEvent GameSaved = new("OnGameSaved");
+        public static readonly GameEvent GameLoaded = new("OnGameLoaded");
 
         // UI Events
-        public const string UI_PANEL_OPENED = "OnUIPanelOpened";
-        public const string UI_PANEL_CLOSED = "OnUIPanelClosed";
+        public static readonly GameEvent<string> UIPanelOpened = new("OnUIPanelOpened");
+        public static readonly GameEvent<string> UIPanelClosed = new("OnUIPanelClosed");
 
         // Score Events
-        public const string SCORE_UPDATED = "OnScoreUpdated";
-        public const string HIGH_SCORE_UPDATED = "OnHighScoreUpdated";
+        public static readonly GameEvent<int> ScoreUpdated = new("OnScoreUpdated");
+        public static readonly GameEvent<int> HighScoreUpdated = new("OnHighScoreUpdated");
     }
 }

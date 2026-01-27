@@ -25,9 +25,9 @@ namespace MiniGameFramework.UI.Panels
         {
             if (EventManager.HasInstance)
             {
-                EventManager.Instance.Subscribe(GameEvents.SCENE_LOAD_STARTED, OnSceneLoadStarted);
-                EventManager.Instance.Subscribe(GameEvents.SCENE_LOAD_PROGRESS, OnSceneLoadProgress);
-                EventManager.Instance.Subscribe(GameEvents.SCENE_LOAD_COMPLETED, OnSceneLoadCompleted);
+                EventManager.Instance.Subscribe(GameEvents.SceneLoadStarted, OnSceneLoadStarted);
+                EventManager.Instance.Subscribe(GameEvents.SceneLoadProgress, OnSceneLoadProgress);
+                EventManager.Instance.Subscribe(GameEvents.SceneLoadCompleted, OnSceneLoadCompleted);
             }
         }
 
@@ -55,12 +55,9 @@ namespace MiniGameFramework.UI.Panels
             targetProgress = 0f;
         }
 
-        private void OnSceneLoadProgress(object progressObj)
+        private void OnSceneLoadProgress(float progress)
         {
-            if (progressObj is float progress)
-            {
-                targetProgress = progress * 100f;
-            }
+            targetProgress = progress * 100f;
         }
 
         private void OnSceneLoadCompleted()
@@ -97,9 +94,9 @@ namespace MiniGameFramework.UI.Panels
         {
             if (EventManager.HasInstance)
             {
-                EventManager.Instance.Unsubscribe(GameEvents.SCENE_LOAD_STARTED, OnSceneLoadStarted);
-                EventManager.Instance.Unsubscribe(GameEvents.SCENE_LOAD_PROGRESS, OnSceneLoadProgress);
-                EventManager.Instance.Unsubscribe(GameEvents.SCENE_LOAD_COMPLETED, OnSceneLoadCompleted);
+                EventManager.Instance.Unsubscribe(GameEvents.SceneLoadStarted, OnSceneLoadStarted);
+                EventManager.Instance.Unsubscribe(GameEvents.SceneLoadProgress, OnSceneLoadProgress);
+                EventManager.Instance.Unsubscribe(GameEvents.SceneLoadCompleted, OnSceneLoadCompleted);
             }
         }
     }
