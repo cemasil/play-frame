@@ -22,8 +22,7 @@ namespace MiniGameFramework.UI.Panels
 
         private void OnPlayClicked()
         {
-            if (SceneLoader.HasInstance)
-                SceneLoader.Instance.LoadScene(SceneNames.GAME_SELECTION);
+            SceneLoader.Instance.LoadScene(SceneNames.GAME_SELECTION);
         }
 
         private void OnQuitClicked()
