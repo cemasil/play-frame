@@ -223,7 +223,7 @@ namespace MiniGameFramework.MiniGames.Match3
             if (matches.Count > 0)
             {
                 PlayMatchSound();
-                
+
                 foreach (Gem gem in matches)
                 {
                     match3Grid.RemoveGem(gem);

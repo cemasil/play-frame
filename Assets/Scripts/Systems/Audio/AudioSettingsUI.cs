@@ -180,10 +180,10 @@ namespace MiniGameFramework.Systems.Audio
             if (AudioManager.HasInstance)
             {
                 AudioManager.Instance.IsMusicMuted = !AudioManager.Instance.IsMusicMuted;
-                
+
                 if (musicToggle != null)
                     musicToggle.isOn = !AudioManager.Instance.IsMusicMuted;
-                
+
                 UpdateMusicIcon();
             }
         }
@@ -193,10 +193,10 @@ namespace MiniGameFramework.Systems.Audio
             if (AudioManager.HasInstance)
             {
                 AudioManager.Instance.IsSfxMuted = !AudioManager.Instance.IsSfxMuted;
-                
+
                 if (sfxToggle != null)
                     sfxToggle.isOn = !AudioManager.Instance.IsSfxMuted;
-                
+
                 UpdateSfxIcon();
             }
         }
