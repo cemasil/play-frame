@@ -427,6 +427,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3635139512081961803, guid: 7d5f4db6b88364018a2c26ce18435d7e, type: 3}
+      propertyPath: localizationKey
+      value: button.quit
+      objectReference: {fileID: 0}
     - target: {fileID: 6315403498327997584, guid: 7d5f4db6b88364018a2c26ce18435d7e, type: 3}
       propertyPath: m_text
       value: Quit
@@ -658,6 +662,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1539696390}
     m_Modifications:
+    - target: {fileID: -2741986742851556755, guid: 3d093d9b1ae5c4dbb853ef76e9509678, type: 3}
+      propertyPath: localizationKey
+      value: ui.main_menu
+      objectReference: {fileID: 0}
     - target: {fileID: 823833074922516100, guid: 3d093d9b1ae5c4dbb853ef76e9509678, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -847,6 +855,10 @@ PrefabInstance:
     - target: {fileID: 2816332478555480610, guid: 7d5f4db6b88364018a2c26ce18435d7e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3635139512081961803, guid: 7d5f4db6b88364018a2c26ce18435d7e, type: 3}
+      propertyPath: localizationKey
+      value: button.play
       objectReference: {fileID: 0}
     - target: {fileID: 6315403498327997584, guid: 7d5f4db6b88364018a2c26ce18435d7e, type: 3}
       propertyPath: m_text

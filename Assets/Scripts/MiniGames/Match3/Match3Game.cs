@@ -7,6 +7,7 @@ using MiniGameFramework.Core.Pooling;
 using MiniGameFramework.Systems.Audio;
 using MiniGameFramework.Systems.SceneManagement;
 using MiniGameFramework.Systems.SaveSystem;
+using MiniGameFramework.Systems.Localization;
 using MiniGameFramework.MiniGames.Common;
 
 namespace MiniGameFramework.MiniGames.Match3
@@ -289,13 +290,13 @@ namespace MiniGameFramework.MiniGames.Match3
         private void UpdateUI()
         {
             if (movesText != null)
-                movesText.text = $"Moves: {remainingMoves}";
+                movesText.text = LocalizationManager.Get(LocalizationKeys.MOVES, remainingMoves);
 
             if (scoreText != null)
-                scoreText.text = $"Score: {currentScore}";
+                scoreText.text = LocalizationManager.Get(LocalizationKeys.SCORE, currentScore);
 
             if (targetText != null)
-                targetText.text = $"Target: {targetScore}";
+                targetText.text = LocalizationManager.Get("ui.target", targetScore);
         }
 
         private void ShowGameOver()
@@ -319,13 +320,15 @@ namespace MiniGameFramework.MiniGames.Match3
                 gameOverPanel.SetActive(true);
 
             if (resultText != null)
-                resultText.text = isWin ? "You Win!" : "Game Over!";
+                resultText.text = isWin
+                    ? LocalizationManager.Get(LocalizationKeys.YOU_WIN)
+                    : LocalizationManager.Get(LocalizationKeys.GAME_OVER);
 
             if (finalScoreText != null)
-                finalScoreText.text = $"Final Score: {currentScore}";
+                finalScoreText.text = LocalizationManager.Get(LocalizationKeys.FINAL_SCORE, currentScore);
 
             if (highScoreText != null)
-                highScoreText.text = $"Best: {savedHighScore}";
+                highScoreText.text = LocalizationManager.Get(LocalizationKeys.HIGH_SCORE, savedHighScore);
         }
 
         #region Audio Methods

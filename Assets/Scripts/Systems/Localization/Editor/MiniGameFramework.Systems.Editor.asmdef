@@ -1,11 +1,13 @@
 {
-    "name": "MiniGameFramework.Systems",
-    "rootNamespace": "MiniGameFramework.Systems",
+    "name": "MiniGameFramework.Systems.Editor",
+    "rootNamespace": "MiniGameFramework.Systems.Editor",
     "references": [
-        "MiniGameFramework.Core",
+        "MiniGameFramework.Systems",
         "Unity.TextMeshPro"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

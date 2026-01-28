@@ -379,6 +379,10 @@ PrefabInstance:
       propertyPath: m_HorizontalAlignment
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 6880013498152922861, guid: bfbee3b1715104d6ab12348dee7854f9, type: 3}
+      propertyPath: localizationKey
+      value: ui.text
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -515,55 +519,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!1 &939362545
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 939362547}
-  - component: {fileID: 939362546}
-  m_Layer: 0
-  m_Name: Managers
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &939362546
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 939362545}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c4c58ac932454adf94e3bbbac3913b6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: MiniGameFramework.Systems::MiniGameFramework.Systems.Audio.AudioManager
-  musicSource: {fileID: 0}
-  sfxSource: {fileID: 0}
-  crossFadeDuration: 1
-  playMusicOnStart: 1
-  defaultMusic: {fileID: 0}
---- !u!4 &939362547
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 939362545}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 421.7579, y: 1162.7434, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1110659296
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -740,6 +695,8 @@ MonoBehaviour:
   saveManagerPrefab: {fileID: 0}
   audioManagerPrefab: {fileID: 2845275841514723405, guid: 398e9fcc1d6104daa92a8f2a2c304ad4, type: 3}
   sceneLoaderPrefab: {fileID: 0}
+  inputManagerPrefab: {fileID: 0}
+  localizationManagerPrefab: {fileID: 8330143775893926890, guid: 32a00e450eb09463e8f579e323adda57, type: 3}
   nextSceneName: MainMenu
 --- !u!4 &1326081203
 Transform:
@@ -931,6 +888,5 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 500086524}
-  - {fileID: 939362547}
   - {fileID: 1326081203}
   - {fileID: 881767153}

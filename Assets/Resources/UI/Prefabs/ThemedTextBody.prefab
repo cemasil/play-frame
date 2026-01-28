@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3318282758766947975}
   - component: {fileID: 8539734777059870074}
   - component: {fileID: 1095796800378221909}
+  - component: {fileID: -1962074246255948289}
   m_Layer: 5
   m_Name: ThemedTextBody
   m_TagString: Untagged
@@ -153,3 +154,18 @@ MonoBehaviour:
   elementType: 1
   textType: 2
   applyOnEnable: 1
+--- !u!114 &-1962074246255948289
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1481213098923824886}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a15f6c521b704506ac96bd3c2bb9661, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MiniGameFramework.Systems::MiniGameFramework.Systems.Localization.LocalizedText
+  localizationKey: 
+  prefix: 
+  suffix: 

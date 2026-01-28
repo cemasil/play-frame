@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7497802942548266444}
   - component: {fileID: 5293372382114562453}
   - component: {fileID: 6315403498327997584}
+  - component: {fileID: 3635139512081961803}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -74,7 +75,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4281479730
+    rgba: 4294967295
   m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -136,6 +137,21 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &3635139512081961803
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 565906991806383285}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a15f6c521b704506ac96bd3c2bb9661, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MiniGameFramework.Systems::MiniGameFramework.Systems.Localization.LocalizedText
+  localizationKey: 
+  prefix: 
+  suffix: 
 --- !u!1 &2617428177629871711
 GameObject:
   m_ObjectHideFlags: 0

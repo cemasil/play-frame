@@ -7,6 +7,7 @@ using MiniGameFramework.Core.Pooling;
 using MiniGameFramework.Systems.Audio;
 using MiniGameFramework.Systems.SceneManagement;
 using MiniGameFramework.Systems.SaveSystem;
+using MiniGameFramework.Systems.Localization;
 using MiniGameFramework.MiniGames.Common;
 
 namespace MiniGameFramework.MiniGames.Memory
@@ -279,10 +280,10 @@ namespace MiniGameFramework.MiniGames.Memory
         private void UpdateUI()
         {
             if (movesText != null)
-                movesText.text = $"Moves: {moves}";
+                movesText.text = LocalizationManager.Get(LocalizationKeys.MOVES, moves);
 
             if (scoreText != null)
-                scoreText.text = $"Score: {currentScore}";
+                scoreText.text = LocalizationManager.Get(LocalizationKeys.SCORE, currentScore);
         }
 
         private void UpdateTimeDisplay()
@@ -291,7 +292,7 @@ namespace MiniGameFramework.MiniGames.Memory
             {
                 int minutes = Mathf.FloorToInt(gameTime / 60f);
                 int seconds = Mathf.FloorToInt(gameTime % 60f);
-                timeText.text = $"Time: {minutes}:{seconds:00}";
+                timeText.text = LocalizationManager.Get(LocalizationKeys.TIME, $"{minutes}:{seconds:00}");
             }
         }
 
@@ -313,23 +314,23 @@ namespace MiniGameFramework.MiniGames.Memory
                 gameOverPanel.SetActive(true);
 
             if (resultText != null)
-                resultText.text = "You Win!";
+                resultText.text = LocalizationManager.Get(LocalizationKeys.YOU_WIN);
 
             if (finalTimeText != null)
             {
                 int minutes = totalSeconds / 60;
                 int seconds = totalSeconds % 60;
-                finalTimeText.text = $"Time: {minutes}:{seconds:00}";
+                finalTimeText.text = LocalizationManager.Get(LocalizationKeys.TIME, $"{minutes}:{seconds:00}");
             }
 
             if (finalMovesText != null)
-                finalMovesText.text = $"Moves: {moves}";
+                finalMovesText.text = LocalizationManager.Get(LocalizationKeys.MOVES, moves);
 
             if (highScoreText != null)
             {
                 int bestMinutes = savedBestTime / 60;
                 int bestSeconds = savedBestTime % 60;
-                highScoreText.text = $"Best Time: {bestMinutes}:{bestSeconds:00}";
+                highScoreText.text = LocalizationManager.Get(LocalizationKeys.BEST_TIME, $"{bestMinutes}:{bestSeconds:00}");
             }
         }
 

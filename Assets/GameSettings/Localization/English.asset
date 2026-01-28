@@ -1,0 +1,78 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c262bb7cf59624e73a4e7c5b142b7137, type: 3}
+  m_Name: English
+  m_EditorClassIdentifier: 
+  languageCode: en
+  displayName: English
+  nativeDisplayName: English
+  entries:
+  - key: ui.moves
+    value: 'Moves: {0}'
+  - key: ui.score
+    value: 'Score: {0}'
+  - key: ui.time
+    value: 'Time: {0}'
+  - key: ui.target
+    value: 'Target: {0}'
+  - key: ui.best_time
+    value: 'Best Time: {0}'
+  - key: ui.high_score
+    value: 'Best: {0}'
+  - key: ui.final_score
+    value: 'Final Score: {0}'
+  - key: ui.pairs
+    value: 'Pairs: {0}/{1}'
+  - key: ui.main_menu
+    value: Main Menu
+  - key: ui.select_game
+    value: Select A Game
+  - key: ui.loading
+    value: Loading...
+  - key: result.win
+    value: You Win!
+  - key: result.game_over
+    value: Game Over!
+  - key: result.level_complete
+    value: Level Complete!
+  - key: result.new_high_score
+    value: New High Score!
+  - key: button.play
+    value: Play
+  - key: button.restart
+    value: Restart
+  - key: button.resume
+    value: Resume
+  - key: button.pause
+    value: Pause
+  - key: button.quit
+    value: Quit
+  - key: button.main_menu
+    value: Main Menu
+  - key: button.settings
+    value: Settings
+  - key: button.next_level
+    value: Next Level
+  - key: button.try_again
+    value: Try Again
+  - key: button.back
+    value: Back
+  - key: settings.music
+    value: Music
+  - key: settings.sfx
+    value: Sound Effects
+  - key: settings.language
+    value: Language
+  - key: game.match3
+    value: Match 3
+  - key: game.memory
+    value: Memory Game

@@ -34,5 +34,8 @@ namespace MiniGameFramework.Systems.Events
         public static readonly GameEvent<float> SfxVolumeChanged = new("OnSfxVolumeChanged");
         public static readonly GameEvent<bool> MusicMuteChanged = new("OnMusicMuteChanged");
         public static readonly GameEvent<bool> SfxMuteChanged = new("OnSfxMuteChanged");
+
+        // Localization Events
+        public static readonly GameEvent<string> LanguageChanged = new("OnLanguageChanged");
     }
 }

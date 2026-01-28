@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using MiniGameFramework.Systems.Localization;
 
 namespace MiniGameFramework.UI.Prefabs
 {
@@ -105,7 +106,7 @@ namespace MiniGameFramework.UI.Prefabs
 
             if (scoreTMP != null)
             {
-                scoreTMP.text = $"High Score: {highScore}";
+                scoreTMP.text = LocalizationManager.Get(LocalizationKeys.HIGH_SCORE, highScore);
             }
 
             var gameIcon = card.transform.Find("GameIcon")?.GetComponent<Image>();
