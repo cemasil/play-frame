@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using System.Collections;
 
 namespace MiniGameFramework.Systems.Localization
 {
@@ -22,6 +23,7 @@ namespace MiniGameFramework.Systems.Localization
         [SerializeField] private string suffix;
 
         private TextMeshProUGUI _text;
+        private bool _isSubscribed;
 
         private void Awake()
         {
@@ -30,19 +32,45 @@ namespace MiniGameFramework.Systems.Localization
 
         private void OnEnable()
         {
-            if (LocalizationManager.HasInstance)
+            TrySubscribe();
+            UpdateText();
+
+            // If manager not ready yet, wait for it
+            if (!LocalizationManager.HasInstance)
             {
-                LocalizationManager.Instance.OnLanguageChanged += OnLanguageChanged;
+                StartCoroutine(WaitForLocalizationManager());
+            }
+        }
+
+        private IEnumerator WaitForLocalizationManager()
+        {
+            // Wait until LocalizationManager is available
+            while (!LocalizationManager.HasInstance)
+            {
+                yield return null;
             }
 
+            TrySubscribe();
             UpdateText();
+        }
+
+        private void TrySubscribe()
+        {
+            if (_isSubscribed || !LocalizationManager.HasInstance)
+                return;
+
+            LocalizationManager.Instance.OnLanguageChanged += OnLanguageChanged;
+            _isSubscribed = true;
         }
 
         private void OnDisable()
         {
-            if (LocalizationManager.HasInstance)
+            StopAllCoroutines();
+
+            if (_isSubscribed && LocalizationManager.HasInstance)
             {
                 LocalizationManager.Instance.OnLanguageChanged -= OnLanguageChanged;
+                _isSubscribed = false;
             }
         }
 
