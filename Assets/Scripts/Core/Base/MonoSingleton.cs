@@ -59,15 +59,13 @@ namespace MiniGameFramework.Core
                 {
                     DontDestroyOnLoad(gameObject);
                 }
+
+                OnSingletonAwake();
             }
             else if (_instance != this)
             {
-                Debug.LogWarning($"[MonoSingleton] Duplicate instance of {typeof(T)} found. Destroying...");
                 Destroy(gameObject);
-                return;
             }
-
-            OnSingletonAwake();
         }
 
         /// <summary>
@@ -87,14 +85,8 @@ namespace MiniGameFramework.Core
 #if UNITY_EDITOR
         protected virtual void OnApplicationQuit()
         {
-            if (_instance == this)
-            {
-                _applicationIsQuitting = true;
-                if (Persistent && gameObject != null)
-                {
-                    DestroyImmediate(gameObject);
-                }
-            }
+            _applicationIsQuitting = true;
+            _instance = null;
         }
 
         /// <summary>

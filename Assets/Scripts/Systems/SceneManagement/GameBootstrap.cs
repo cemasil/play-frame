@@ -1,0 +1,137 @@
+using System.Collections;
+using UnityEngine;
+using MiniGameFramework.Systems.SceneManagement;
+using MiniGameFramework.Systems.SaveSystem;
+using MiniGameFramework.Systems.Audio;
+using MiniGameFramework.Systems.Events;
+
+namespace MiniGameFramework.Systems.Bootstrap
+{
+    /// <summary>
+    /// Bootstrap scene controller - initializes all managers and services.
+    /// This should be the first scene in Build Settings (index 0).
+    /// </summary>
+    public class GameBootstrap : MonoBehaviour
+    {
+        [Header("Settings")]
+        [SerializeField] private float minimumSplashDuration = 2f;
+        [SerializeField] private bool showSplashScreen = true;
+
+        [Header("Managers (Optional - will auto-create if not assigned)")]
+        [SerializeField] private GameObject eventManagerPrefab;
+        [SerializeField] private GameObject saveManagerPrefab;
+        [SerializeField] private GameObject audioManagerPrefab;
+        [SerializeField] private GameObject sceneLoaderPrefab;
+
+        [Header("Next Scene")]
+        [SerializeField] private string nextSceneName = SceneNames.MAIN_MENU;
+
+        private float _startTime;
+        private bool _isInitialized;
+
+        private void Start()
+        {
+            _startTime = Time.time;
+            StartCoroutine(InitializeGame());
+        }
+
+        private IEnumerator InitializeGame()
+        {
+            Debug.Log("[Bootstrap] Starting game initialization...");
+
+            yield return InitializeManagers();
+
+            yield return LoadSavedData();
+
+            yield return InitializeAudio();
+
+            yield return AdditionalInitialization();
+
+            _isInitialized = true;
+            Debug.Log("[Bootstrap] Game initialization complete!");
+
+            float elapsed = Time.time - _startTime;
+            if (elapsed < minimumSplashDuration)
+            {
+                yield return new WaitForSeconds(minimumSplashDuration - elapsed);
+            }
+
+            LoadNextScene();
+        }
+
+        private IEnumerator InitializeManagers()
+        {
+            Debug.Log("[Bootstrap] Initializing managers...");
+
+            EnsureManagerFromPrefab<EventManager>(eventManagerPrefab);
+            _ = EventManager.Instance;
+            yield return null;
+
+            EnsureManagerFromPrefab<SaveManager>(saveManagerPrefab);
+            _ = SaveManager.Instance;
+            yield return null;
+
+            EnsureManagerFromPrefab<AudioManager>(audioManagerPrefab);
+            _ = AudioManager.Instance;
+            yield return null;
+
+            EnsureManagerFromPrefab<SceneLoader>(sceneLoaderPrefab);
+            _ = SceneLoader.Instance;
+            yield return null;
+        }
+
+        private void EnsureManagerFromPrefab<T>(GameObject prefab) where T : MonoBehaviour
+        {
+            if (FindFirstObjectByType<T>() != null)
+            {
+                Debug.Log($"[Bootstrap] {typeof(T).Name} already exists.");
+                return;
+            }
+
+            if (prefab != null)
+            {
+                Instantiate(prefab);
+                Debug.Log($"[Bootstrap] {typeof(T).Name} instantiated from prefab.");
+            }
+        }
+
+        private IEnumerator LoadSavedData()
+        {
+            Debug.Log("[Bootstrap] Loading saved data...");
+
+            var saveManager = SaveManager.Instance;
+            saveManager.LoadGame();
+
+            yield return null;
+        }
+
+        private IEnumerator InitializeAudio()
+        {
+            Debug.Log("[Bootstrap] Initializing audio...");
+
+            var audioManager = AudioManager.Instance;
+
+            yield return null;
+        }
+
+        /// <summary>
+        /// Override this in a derived class for game-specific initialization
+        /// </summary>
+        protected virtual IEnumerator AdditionalInitialization()
+        {
+            yield return null;
+        }
+
+        private void LoadNextScene()
+        {
+            if (SceneLoader.HasInstance)
+            {
+                SceneLoader.Instance.LoadScene(nextSceneName);
+            }
+            else
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene(nextSceneName);
+            }
+        }
+    }
+}
