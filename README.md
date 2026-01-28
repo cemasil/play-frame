@@ -1,4 +1,4 @@
-# Mini Game Framework
+# PlayFrame
 
 A Unity framework I built for creating simple mini-games with clean architecture. Currently has two working games: Match3 and Memory Card matching.
 

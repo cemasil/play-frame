@@ -24,7 +24,7 @@
 ```
 Canvas
 ├── Background (Image)
-├── TitleText (Text - "Mini Game Framework")
+├── TitleText (Text - "PlayFrame")
 ├── ButtonPanel (Empty GameObject)
 │   ├── PlayButton (Button + Text "Play")
 │   ├── SettingsButton (Button + Text "Settings")
