@@ -89,9 +89,12 @@ namespace MiniGameFramework.UI.Panels
 
         protected override void OnCleanup()
         {
-            EventManager.Instance.Unsubscribe(GameEvents.SceneLoadStarted, OnSceneLoadStarted);
-            EventManager.Instance.Unsubscribe(GameEvents.SceneLoadProgress, OnSceneLoadProgress);
-            EventManager.Instance.Unsubscribe(GameEvents.SceneLoadCompleted, OnSceneLoadCompleted);
+            if (EventManager.HasInstance)
+            {
+                EventManager.Instance.Unsubscribe(GameEvents.SceneLoadStarted, OnSceneLoadStarted);
+                EventManager.Instance.Unsubscribe(GameEvents.SceneLoadProgress, OnSceneLoadProgress);
+                EventManager.Instance.Unsubscribe(GameEvents.SceneLoadCompleted, OnSceneLoadCompleted);
+            }
         }
     }
 }
