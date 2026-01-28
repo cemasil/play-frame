@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace MiniGameFramework.Systems.Audio
+namespace PlayFrame.Systems.Audio
 {
     /// <summary>
     /// Automatically plays click sound on button press.

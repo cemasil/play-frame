@@ -1,4 +1,4 @@
-namespace MiniGameFramework.MiniGames.Common
+namespace PlayFrame.MiniGames.Common
 {
     /// <summary>
     /// Standard game states for mini-games

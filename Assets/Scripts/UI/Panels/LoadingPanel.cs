@@ -1,10 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using MiniGameFramework.Systems.UI;
-using MiniGameFramework.Systems.Events;
+using PlayFrame.Systems.UI;
+using PlayFrame.Systems.Events;
 
-namespace MiniGameFramework.UI.Panels
+namespace PlayFrame.UI.Panels
 {
     /// <summary>
     /// Loading Panel - Listens to scene loading events and displays progress

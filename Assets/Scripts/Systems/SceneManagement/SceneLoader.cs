@@ -2,10 +2,10 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using MiniGameFramework.Core;
-using MiniGameFramework.Systems.Events;
+using PlayFrame.Core;
+using PlayFrame.Systems.Events;
 
-namespace MiniGameFramework.Systems.SceneManagement
+namespace PlayFrame.Systems.SceneManagement
 {
     /// <summary>
     /// Handles scene loading with progress tracking and events.

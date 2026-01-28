@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using MiniGameFramework.Core;
+using PlayFrame.Core;
 
-namespace MiniGameFramework.Systems.Events
+namespace PlayFrame.Systems.Events
 {
     /// <summary>
     /// Central event manager for loose coupling between systems.

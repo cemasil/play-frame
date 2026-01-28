@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MiniGameFramework.Systems.SaveSystem
+namespace PlayFrame.Systems.SaveSystem
 {
     [Serializable]
     public class SaveData

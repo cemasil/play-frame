@@ -1,8 +1,8 @@
 {
-    "name": "MiniGameFramework.Systems",
-    "rootNamespace": "MiniGameFramework.Systems",
+    "name": "PlayFrame.Systems",
+    "rootNamespace": "PlayFrame.Systems",
     "references": [
-        "MiniGameFramework.Core",
+        "PlayFrame.Core",
         "Unity.TextMeshPro"
     ],
     "includePlatforms": [],

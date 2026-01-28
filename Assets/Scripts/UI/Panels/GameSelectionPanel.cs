@@ -1,12 +1,12 @@
 using UnityEngine;
 using UnityEngine.UI;
-using MiniGameFramework.Systems.SceneManagement;
-using MiniGameFramework.Systems.SaveSystem;
-using MiniGameFramework.Systems.UI;
-using MiniGameFramework.UI.Prefabs;
-using MiniGameFramework.MiniGames;
+using PlayFrame.Systems.SceneManagement;
+using PlayFrame.Systems.SaveSystem;
+using PlayFrame.Systems.UI;
+using PlayFrame.UI.Prefabs;
+using PlayFrame.MiniGames;
 
-namespace MiniGameFramework.UI.Panels
+namespace PlayFrame.UI.Panels
 {
     public class GameSelectionPanel : UIPanel
     {

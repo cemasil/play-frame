@@ -1,4 +1,4 @@
-namespace MiniGameFramework.Systems.Events
+namespace PlayFrame.Systems.Events
 {
     /// <summary>
     /// Type-safe event definitions for the framework.

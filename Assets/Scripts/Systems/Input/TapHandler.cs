@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace MiniGameFramework.Systems.Input
+namespace PlayFrame.Systems.Input
 {
     /// <summary>
     /// Handles tap/click input for UI elements.

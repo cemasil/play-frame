@@ -1,13 +1,13 @@
 using System.Collections;
 using UnityEngine;
-using MiniGameFramework.Systems.SceneManagement;
-using MiniGameFramework.Systems.SaveSystem;
-using MiniGameFramework.Systems.Audio;
-using MiniGameFramework.Systems.Events;
-using MiniGameFramework.Systems.Input;
-using MiniGameFramework.Systems.Localization;
+using PlayFrame.Systems.SceneManagement;
+using PlayFrame.Systems.SaveSystem;
+using PlayFrame.Systems.Audio;
+using PlayFrame.Systems.Events;
+using PlayFrame.Systems.Input;
+using PlayFrame.Systems.Localization;
 
-namespace MiniGameFramework.Systems.Bootstrap
+namespace PlayFrame.Systems.Bootstrap
 {
     /// <summary>
     /// Bootstrap scene controller - initializes all managers and services.

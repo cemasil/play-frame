@@ -1,8 +1,8 @@
 using System;
 using UnityEngine;
-using MiniGameFramework.Core;
+using PlayFrame.Core;
 
-namespace MiniGameFramework.Systems.Input
+namespace PlayFrame.Systems.Input
 {
     /// <summary>
     /// Central input manager that handles gesture detection and dispatching.

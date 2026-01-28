@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MiniGameFramework.Core.StateMachine
+namespace PlayFrame.Core.StateMachine
 {
     /// <summary>
     /// Generic state machine for managing game states

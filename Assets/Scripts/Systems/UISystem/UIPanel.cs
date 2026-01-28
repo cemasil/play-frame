@@ -1,7 +1,7 @@
 using UnityEngine;
-using MiniGameFramework.Core;
+using PlayFrame.Core;
 
-namespace MiniGameFramework.Systems.UI
+namespace PlayFrame.Systems.UI
 {
     /// <summary>
     /// Base class for all UI panels

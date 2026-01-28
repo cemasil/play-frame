@@ -1,10 +1,10 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
-using MiniGameFramework.MiniGames.Common;
-using MiniGameFramework.Systems.Input;
+using PlayFrame.MiniGames.Common;
+using PlayFrame.Systems.Input;
 
-namespace MiniGameFramework.MiniGames.Memory
+namespace PlayFrame.MiniGames.Memory
 {
     /// <summary>
     /// Represents a single memory card with flip animations and tap handling.

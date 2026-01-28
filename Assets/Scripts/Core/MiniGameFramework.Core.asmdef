@@ -1,6 +1,6 @@
 {
-    "name": "MiniGameFramework.Core",
-    "rootNamespace": "MiniGameFramework.Core",
+    "name": "PlayFrame.Core",
+    "rootNamespace": "PlayFrame.Core",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],

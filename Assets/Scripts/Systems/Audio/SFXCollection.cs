@@ -1,11 +1,11 @@
 using UnityEngine;
 
-namespace MiniGameFramework.Systems.Audio
+namespace PlayFrame.Systems.Audio
 {
     /// <summary>
     /// ScriptableObject for organizing sound effects by category
     /// </summary>
-    [CreateAssetMenu(fileName = "SFXCollection", menuName = "MiniGameFramework/Audio/SFX Collection")]
+    [CreateAssetMenu(fileName = "SFXCollection", menuName = "PlayFrame/Audio/SFX Collection")]
     public class SFXCollection : ScriptableObject
     {
         [Header("UI Sounds")]

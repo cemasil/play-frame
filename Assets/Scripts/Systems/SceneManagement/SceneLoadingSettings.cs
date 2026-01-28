@@ -1,12 +1,12 @@
 using UnityEngine;
 
-namespace MiniGameFramework.Systems.SceneManagement
+namespace PlayFrame.Systems.SceneManagement
 {
     /// <summary>
     /// Configuration settings for scene loading behavior.
-    /// Create via: Assets > Create > MiniGameFramework > Scene Loading Settings
+    /// Create via: Assets > Create > PlayFrame > Scene Loading Settings
     /// </summary>
-    [CreateAssetMenu(fileName = "SceneLoadingSettings", menuName = "MiniGameFramework/Scene Loading Settings")]
+    [CreateAssetMenu(fileName = "SceneLoadingSettings", menuName = "PlayFrame/Scene Loading Settings")]
     public class SceneLoadingSettings : ScriptableObject
     {
         [Header("Timing")]

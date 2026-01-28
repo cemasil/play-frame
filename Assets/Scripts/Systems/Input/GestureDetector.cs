@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace MiniGameFramework.Systems.Input
+namespace PlayFrame.Systems.Input
 {
     /// <summary>
     /// Touch/Mouse gesture detector.

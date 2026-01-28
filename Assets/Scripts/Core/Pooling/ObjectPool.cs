@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MiniGameFramework.Core.Pooling
+namespace PlayFrame.Core.Pooling
 {
     /// <summary>
     /// Generic object pool for any Component type.

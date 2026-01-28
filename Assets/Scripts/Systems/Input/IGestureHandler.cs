@@ -1,6 +1,6 @@
 using System;
 
-namespace MiniGameFramework.Systems.Input
+namespace PlayFrame.Systems.Input
 {
     /// <summary>
     /// Interface for gesture detection.

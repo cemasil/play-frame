@@ -1,9 +1,9 @@
 using System;
 using UnityEngine;
-using MiniGameFramework.Core;
-using MiniGameFramework.Systems.Events;
+using PlayFrame.Core;
+using PlayFrame.Systems.Events;
 
-namespace MiniGameFramework.Systems.SaveSystem
+namespace PlayFrame.Systems.SaveSystem
 {
     /// <summary>
     /// Manages saving and loading game data using PlayerPrefs

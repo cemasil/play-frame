@@ -1,7 +1,7 @@
 using UnityEngine;
-using MiniGameFramework.Core;
+using PlayFrame.Core;
 
-namespace MiniGameFramework.Core.Utils
+namespace PlayFrame.Core.Utils
 {
     /// <summary>
     /// Simple helper to mark GameObjects as DontDestroyOnLoad

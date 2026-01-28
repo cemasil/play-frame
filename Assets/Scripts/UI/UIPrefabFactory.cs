@@ -1,9 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using MiniGameFramework.Systems.Localization;
+using PlayFrame.Systems.Localization;
 
-namespace MiniGameFramework.UI.Prefabs
+namespace PlayFrame.UI.Prefabs
 {
     /// <summary>
     /// Factory for creating common UI elements from prefabs in Resources/UI/Prefabs/

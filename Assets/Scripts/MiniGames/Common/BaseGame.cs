@@ -1,8 +1,8 @@
 using UnityEngine;
-using MiniGameFramework.Core;
-using MiniGameFramework.Core.StateMachine;
+using PlayFrame.Core;
+using PlayFrame.Core.StateMachine;
 
-namespace MiniGameFramework.MiniGames.Common
+namespace PlayFrame.MiniGames.Common
 {
     /// <summary>
     /// Base class for all mini-games with built-in state machine

@@ -1,4 +1,4 @@
-namespace MiniGameFramework.Systems.SaveSystem
+namespace PlayFrame.Systems.SaveSystem
 {
     /// <summary>
     /// Centralized game name constants

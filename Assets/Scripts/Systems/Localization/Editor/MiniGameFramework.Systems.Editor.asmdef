@@ -1,8 +1,8 @@
 {
-    "name": "MiniGameFramework.Systems.Editor",
-    "rootNamespace": "MiniGameFramework.Systems.Editor",
+    "name": "PlayFrame.Systems.Editor",
+    "rootNamespace": "PlayFrame.Systems.Editor",
     "references": [
-        "MiniGameFramework.Systems",
+        "PlayFrame.Systems",
         "Unity.TextMeshPro"
     ],
     "includePlatforms": [

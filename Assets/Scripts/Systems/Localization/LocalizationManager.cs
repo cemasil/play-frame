@@ -1,9 +1,9 @@
 using System;
 using UnityEngine;
-using MiniGameFramework.Core;
-using MiniGameFramework.Systems.Events;
+using PlayFrame.Core;
+using PlayFrame.Systems.Events;
 
-namespace MiniGameFramework.Systems.Localization
+namespace PlayFrame.Systems.Localization
 {
     /// <summary>
     /// Manages localization and language switching.

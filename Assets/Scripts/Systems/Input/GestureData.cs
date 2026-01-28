@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace MiniGameFramework.Systems.Input
+namespace PlayFrame.Systems.Input
 {
     /// <summary>
     /// Gesture types supported by the input system

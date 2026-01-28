@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace MiniGameFramework.Core
+namespace PlayFrame.Core
 {
     /// <summary>
     /// Generic MonoBehaviour Singleton pattern

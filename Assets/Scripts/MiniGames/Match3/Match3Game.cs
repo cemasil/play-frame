@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using MiniGameFramework.Core.Pooling;
-using MiniGameFramework.Systems.Audio;
-using MiniGameFramework.Systems.SceneManagement;
-using MiniGameFramework.Systems.SaveSystem;
-using MiniGameFramework.Systems.Localization;
-using MiniGameFramework.MiniGames.Common;
+using PlayFrame.Core.Pooling;
+using PlayFrame.Systems.Audio;
+using PlayFrame.Systems.SceneManagement;
+using PlayFrame.Systems.SaveSystem;
+using PlayFrame.Systems.Localization;
+using PlayFrame.MiniGames.Common;
 
-namespace MiniGameFramework.MiniGames.Match3
+namespace PlayFrame.MiniGames.Match3
 {
     /// <summary>
     /// Main Match3 game controller

@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-namespace MiniGameFramework.UI
+namespace PlayFrame.UI
 {
     /// <summary>
     /// Helper component to automatically apply UI theme to elements

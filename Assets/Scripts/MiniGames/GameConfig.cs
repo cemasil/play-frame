@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace MiniGameFramework.MiniGames
+namespace PlayFrame.MiniGames
 {
     /// <summary>
     /// Configuration for a mini-game

@@ -1,9 +1,9 @@
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-using MiniGameFramework.Systems.SaveSystem;
+using PlayFrame.Systems.SaveSystem;
 
-namespace MiniGameFramework.Tests.EditMode.Systems
+namespace PlayFrame.Tests.EditMode.Systems
 {
     [TestFixture]
     public class SaveManagerTests

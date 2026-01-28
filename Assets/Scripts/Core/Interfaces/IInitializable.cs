@@ -1,4 +1,4 @@
-namespace MiniGameFramework.Core
+namespace PlayFrame.Core
 {
     /// <summary>
     /// Interface for objects that need initialization

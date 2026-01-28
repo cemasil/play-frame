@@ -1,12 +1,12 @@
 using UnityEngine;
 
-namespace MiniGameFramework.Systems.Input
+namespace PlayFrame.Systems.Input
 {
     /// <summary>
     /// Configuration settings for gesture detection.
-    /// Create via: Create → MiniGameFramework → Input → Gesture Settings
+    /// Create via: Create → PlayFrame → Input → Gesture Settings
     /// </summary>
-    [CreateAssetMenu(fileName = "GestureSettings", menuName = "MiniGameFramework/Input/Gesture Settings")]
+    [CreateAssetMenu(fileName = "GestureSettings", menuName = "PlayFrame/Input/Gesture Settings")]
     public class GestureSettings : ScriptableObject
     {
         [Header("Swipe Settings")]

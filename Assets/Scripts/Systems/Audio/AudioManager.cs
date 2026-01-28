@@ -1,10 +1,10 @@
 using System;
 using UnityEngine;
-using MiniGameFramework.Core;
-using MiniGameFramework.Systems.Events;
-using MiniGameFramework.Systems.SaveSystem;
+using PlayFrame.Core;
+using PlayFrame.Systems.Events;
+using PlayFrame.Systems.SaveSystem;
 
-namespace MiniGameFramework.Systems.Audio
+namespace PlayFrame.Systems.Audio
 {
     /// <summary>
     /// Central audio manager for music and sound effects.

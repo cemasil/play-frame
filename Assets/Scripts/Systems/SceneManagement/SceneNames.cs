@@ -1,4 +1,4 @@
-namespace MiniGameFramework.Systems.SceneManagement
+namespace PlayFrame.Systems.SceneManagement
 {
     public static class SceneNames
     {

@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
-using MiniGameFramework.Core;
+using PlayFrame.Core;
 
-namespace MiniGameFramework.MiniGames
+namespace PlayFrame.MiniGames
 {
     /// <summary>
     /// Registry for all available mini-games

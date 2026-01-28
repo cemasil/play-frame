@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEditor;
 using TMPro;
 
-namespace MiniGameFramework.Systems.Localization.Editor
+namespace PlayFrame.Systems.Localization.Editor
 {
     /// <summary>
     /// Editor utility to quickly add LocalizedText components to selected objects.

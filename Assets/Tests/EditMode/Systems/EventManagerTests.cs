@@ -1,9 +1,9 @@
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-using MiniGameFramework.Systems.Events;
+using PlayFrame.Systems.Events;
 
-namespace MiniGameFramework.Tests.EditMode.Systems
+namespace PlayFrame.Tests.EditMode.Systems
 {
     [TestFixture]
     public class EventManagerTests

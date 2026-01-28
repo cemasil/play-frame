@@ -1,7 +1,7 @@
 using UnityEngine;
-using MiniGameFramework.Core;
+using PlayFrame.Core;
 
-namespace MiniGameFramework.MiniGames.Common
+namespace PlayFrame.MiniGames.Common
 {
     /// <summary>
     /// Base class for all game pieces (gems, cards, tiles, etc.)

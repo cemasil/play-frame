@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace MiniGameFramework.Systems.Localization
+namespace PlayFrame.Systems.Localization
 {
     /// <summary>
     /// Represents a single key-value pair for localization.
@@ -20,9 +20,9 @@ namespace MiniGameFramework.Systems.Localization
     /// <summary>
     /// ScriptableObject containing all localized strings for a specific language.
     /// Create one per language: English.asset, Turkish.asset, etc.
-    /// Create via: Assets > Create > MiniGameFramework > Localization > String Table
+    /// Create via: Assets > Create > PlayFrame > Localization > String Table
     /// </summary>
-    [CreateAssetMenu(fileName = "NewLanguage", menuName = "MiniGameFramework/Localization/String Table")]
+    [CreateAssetMenu(fileName = "NewLanguage", menuName = "PlayFrame/Localization/String Table")]
     public class LocalizedStringTable : ScriptableObject
     {
         [Header("Language Info")]

@@ -1,10 +1,10 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
-using MiniGameFramework.MiniGames.Common;
-using MiniGameFramework.Systems.Input;
+using PlayFrame.MiniGames.Common;
+using PlayFrame.Systems.Input;
 
-namespace MiniGameFramework.MiniGames.Match3
+namespace PlayFrame.MiniGames.Match3
 {
     /// <summary>
     /// Represents a single gem on the Match3 grid.

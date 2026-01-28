@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace MiniGameFramework.Systems.Audio
+namespace PlayFrame.Systems.Audio
 {
     /// <summary>
     /// UI component for audio settings. Attach to settings panel.

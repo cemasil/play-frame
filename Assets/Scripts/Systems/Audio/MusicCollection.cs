@@ -1,11 +1,11 @@
 using UnityEngine;
 
-namespace MiniGameFramework.Systems.Audio
+namespace PlayFrame.Systems.Audio
 {
     /// <summary>
     /// ScriptableObject for organizing music tracks
     /// </summary>
-    [CreateAssetMenu(fileName = "MusicCollection", menuName = "MiniGameFramework/Audio/Music Collection")]
+    [CreateAssetMenu(fileName = "MusicCollection", menuName = "PlayFrame/Audio/Music Collection")]
     public class MusicCollection : ScriptableObject
     {
         [Header("Menu Music")]

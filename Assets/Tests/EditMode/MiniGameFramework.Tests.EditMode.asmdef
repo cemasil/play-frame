@@ -1,11 +1,11 @@
 {
-    "name": "MiniGameFramework.Tests.EditMode",
-    "rootNamespace": "MiniGameFramework.Tests.EditMode",
+    "name": "PlayFrame.Tests.EditMode",
+    "rootNamespace": "PlayFrame.Tests.EditMode",
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "MiniGameFramework.Core",
-        "MiniGameFramework.Systems"
+        "PlayFrame.Core",
+        "PlayFrame.Systems"
     ],
     "includePlatforms": [
         "Editor"

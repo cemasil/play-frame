@@ -1,4 +1,4 @@
-namespace MiniGameFramework.Systems.Localization
+namespace PlayFrame.Systems.Localization
 {
     /// <summary>
     /// Predefined localization keys used throughout the framework.

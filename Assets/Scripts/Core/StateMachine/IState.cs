@@ -1,4 +1,4 @@
-namespace MiniGameFramework.Core.StateMachine
+namespace PlayFrame.Core.StateMachine
 {
     /// <summary>
     /// Interface for state machine states

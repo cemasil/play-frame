@@ -1,9 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
-using MiniGameFramework.Systems.SceneManagement;
-using MiniGameFramework.Systems.UI;
+using PlayFrame.Systems.SceneManagement;
+using PlayFrame.Systems.UI;
 
-namespace MiniGameFramework.UI.Panels
+namespace PlayFrame.UI.Panels
 {
     public class MainMenuPanel : UIPanel
     {

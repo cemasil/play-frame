@@ -1,6 +1,6 @@
 using System;
 
-namespace MiniGameFramework.Systems.Events
+namespace PlayFrame.Systems.Events
 {
     /// <summary>
     /// Type-safe event without parameters

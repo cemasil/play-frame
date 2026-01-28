@@ -2,7 +2,7 @@ using UnityEngine;
 using TMPro;
 using System.Collections;
 
-namespace MiniGameFramework.Systems.Localization
+namespace PlayFrame.Systems.Localization
 {
     /// <summary>
     /// Automatically localizes a TextMeshPro text component.
