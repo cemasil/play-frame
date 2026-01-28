@@ -183,7 +183,7 @@ namespace MiniGameFramework.MiniGames.Match3
             int colorIndex = Random.Range(0, gemColors.Length);
             gem.SetColor(gemColors[colorIndex], colorIndex);
             gem.SetPosition(x, y);
-            gem.OnSwipe(HandleGemSwipe);
+            gem.OnSwipeCallback(HandleGemSwipe);
 
             match3Grid.SetGem(x, y, gem);
         }

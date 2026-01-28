@@ -1,16 +1,17 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
 using MiniGameFramework.MiniGames.Common;
+using MiniGameFramework.Systems.Input;
 
 namespace MiniGameFramework.MiniGames.Memory
 {
     /// <summary>
-    /// Represents a single memory card with flip animations and click handling
+    /// Represents a single memory card with flip animations and tap handling.
+    /// Uses TapHandler for input abstraction.
     /// </summary>
-    [RequireComponent(typeof(Button))]
-    public class MemoryCard : BaseGamePiece, IPointerClickHandler
+    [RequireComponent(typeof(TapHandler))]
+    public class MemoryCard : BaseGamePiece, ITappable
     {
         [SerializeField] private GameObject cardFront;
         [SerializeField] private GameObject cardBack;
@@ -19,18 +20,25 @@ namespace MiniGameFramework.MiniGames.Memory
         public bool IsRevealed { get; private set; }
         public bool IsMatched { get; private set; }
 
-        private Action<MemoryCard> onCardClicked;
-        private Button button;
+        private Action<MemoryCard> _onCardTapped;
+        private TapHandler _tapHandler;
+        private Button _button;
 
         protected override void OnInitialize()
         {
-            button = GetComponent<Button>();
+            _button = GetComponent<Button>();
+            _tapHandler = GetComponent<TapHandler>();
+
+            if (_tapHandler == null)
+            {
+                _tapHandler = gameObject.AddComponent<TapHandler>();
+            }
         }
 
-        public void Setup(int cardId, Color cardColor, Action<MemoryCard> clickCallback)
+        public void Setup(int cardId, Color cardColor, Action<MemoryCard> tapCallback)
         {
             CardId = cardId;
-            onCardClicked = clickCallback;
+            _onCardTapped = tapCallback;
 
             if (cardFront != null)
             {
@@ -42,6 +50,25 @@ namespace MiniGameFramework.MiniGames.Memory
             }
 
             Hide();
+        }
+
+        /// <summary>
+        /// Register callback for tap events
+        /// </summary>
+        public void OnTapCallback(Action<MemoryCard> tapCallback)
+        {
+            _onCardTapped = tapCallback;
+        }
+
+        /// <summary>
+        /// Called by ITappable interface when tap is detected
+        /// </summary>
+        public void OnTap()
+        {
+            if (!IsRevealed && !IsMatched)
+            {
+                _onCardTapped?.Invoke(this);
+            }
         }
 
         public override void SetVisualState(PieceVisualState state)
@@ -64,16 +91,9 @@ namespace MiniGameFramework.MiniGames.Memory
         {
             IsRevealed = false;
             IsMatched = false;
-            if (button != null) button.interactable = true;
+            _onCardTapped = null;
+            if (_button != null) _button.interactable = true;
             Hide();
-        }
-
-        public void OnPointerClick(PointerEventData eventData)
-        {
-            if (!IsRevealed && !IsMatched)
-            {
-                onCardClicked?.Invoke(this);
-            }
         }
 
         public void Reveal()
@@ -94,15 +114,20 @@ namespace MiniGameFramework.MiniGames.Memory
         {
             IsMatched = true;
             IsRevealed = true;
-            if (button != null) button.interactable = false;
+            if (_button != null) _button.interactable = false;
         }
 
         public void SetInteractable(bool interactable)
         {
-            if (button != null && !IsMatched)
+            if (_button != null && !IsMatched)
             {
-                button.interactable = interactable;
+                _button.interactable = interactable;
             }
+        }
+
+        protected override void OnCleanup()
+        {
+            _onCardTapped = null;
         }
     }
 }

@@ -1,41 +1,59 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
 using MiniGameFramework.MiniGames.Common;
+using MiniGameFramework.Systems.Input;
 
 namespace MiniGameFramework.MiniGames.Match3
 {
     /// <summary>
-    /// Represents a single gem on the Match3 grid
+    /// Represents a single gem on the Match3 grid.
+    /// Uses SwipeHandler for input abstraction.
     /// </summary>
-    public class Gem : BaseGamePiece, IPointerDownHandler, IPointerUpHandler, IDragHandler
+    [RequireComponent(typeof(SwipeHandler))]
+    public class Gem : BaseGamePiece, ISwipeable
     {
         public int X { get; private set; }
         public int Y { get; private set; }
         public int ColorIndex { get; private set; }
 
-        private Image image;
-        private Vector2 dragStartPos;
-        private bool isDragging = false;
-        private const float DRAG_THRESHOLD = 30f;
-
-        private System.Action<Gem, Vector2Int> onGemSwipe;
+        private Image _image;
+        private SwipeHandler _swipeHandler;
+        private Action<Gem, Vector2Int> _onGemSwipe;
 
         protected override void OnInitialize()
         {
-            image = GetComponent<Image>();
+            _image = GetComponent<Image>();
+            _swipeHandler = GetComponent<SwipeHandler>();
+
+            if (_swipeHandler == null)
+            {
+                _swipeHandler = gameObject.AddComponent<SwipeHandler>();
+            }
         }
 
-        public void OnSwipe(System.Action<Gem, Vector2Int> swipeCallback)
+        /// <summary>
+        /// Register callback for swipe events
+        /// </summary>
+        public void OnSwipeCallback(Action<Gem, Vector2Int> swipeCallback)
         {
-            onGemSwipe = swipeCallback;
+            _onGemSwipe = swipeCallback;
+        }
+
+        /// <summary>
+        /// Called by ISwipeable interface when swipe is detected
+        /// </summary>
+        public void OnSwipe(SwipeDirection direction)
+        {
+            var directionVector = SwipeHandler.GetDirectionVector(direction);
+            _onGemSwipe?.Invoke(this, directionVector);
         }
 
         public void SetColor(Color color, int colorIndex)
         {
-            if (image != null)
+            if (_image != null)
             {
-                image.color = color;
+                _image.color = color;
                 ColorIndex = colorIndex;
             }
         }
@@ -46,44 +64,8 @@ namespace MiniGameFramework.MiniGames.Match3
             Y = y;
         }
 
-        public void OnPointerDown(PointerEventData eventData)
-        {
-            dragStartPos = eventData.position;
-            isDragging = true;
-        }
-
-        public void OnDrag(PointerEventData eventData)
-        {
-            if (!isDragging) return;
-
-            Vector2 dragDelta = eventData.position - dragStartPos;
-
-            if (dragDelta.magnitude > DRAG_THRESHOLD)
-            {
-                Vector2Int direction = Vector2Int.zero;
-
-                if (Mathf.Abs(dragDelta.x) > Mathf.Abs(dragDelta.y))
-                {
-                    direction = dragDelta.x > 0 ? Vector2Int.right : Vector2Int.left;
-                }
-                else
-                {
-                    direction = dragDelta.y > 0 ? Vector2Int.down : Vector2Int.up;
-                }
-
-                onGemSwipe?.Invoke(this, direction);
-                isDragging = false;
-            }
-        }
-
-        public void OnPointerUp(PointerEventData eventData)
-        {
-            isDragging = false;
-        }
-
         public override void SetVisualState(PieceVisualState state)
         {
-            // Can be extended for selection/highlight effects
             switch (state)
             {
                 case PieceVisualState.Selected:
@@ -97,13 +79,12 @@ namespace MiniGameFramework.MiniGames.Match3
 
         public override void ResetPiece()
         {
-            isDragging = false;
-            onGemSwipe = null;
+            _onGemSwipe = null;
         }
 
         protected override void OnCleanup()
         {
-            onGemSwipe = null;
+            _onGemSwipe = null;
         }
     }
 }

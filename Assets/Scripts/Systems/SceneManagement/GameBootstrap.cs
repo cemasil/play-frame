@@ -4,6 +4,7 @@ using MiniGameFramework.Systems.SceneManagement;
 using MiniGameFramework.Systems.SaveSystem;
 using MiniGameFramework.Systems.Audio;
 using MiniGameFramework.Systems.Events;
+using MiniGameFramework.Systems.Input;
 
 namespace MiniGameFramework.Systems.Bootstrap
 {
@@ -22,6 +23,7 @@ namespace MiniGameFramework.Systems.Bootstrap
         [SerializeField] private GameObject saveManagerPrefab;
         [SerializeField] private GameObject audioManagerPrefab;
         [SerializeField] private GameObject sceneLoaderPrefab;
+        [SerializeField] private GameObject inputManagerPrefab;
 
         [Header("Next Scene")]
         [SerializeField] private string nextSceneName = SceneNames.MAIN_MENU;
@@ -73,6 +75,10 @@ namespace MiniGameFramework.Systems.Bootstrap
 
             EnsureManagerFromPrefab<AudioManager>(audioManagerPrefab);
             _ = AudioManager.Instance;
+            yield return null;
+
+            EnsureManagerFromPrefab<InputManager>(inputManagerPrefab);
+            _ = InputManager.Instance;
             yield return null;
 
             EnsureManagerFromPrefab<SceneLoader>(sceneLoaderPrefab);
