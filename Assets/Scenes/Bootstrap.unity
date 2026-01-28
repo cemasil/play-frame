@@ -381,7 +381,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6880013498152922861, guid: bfbee3b1715104d6ab12348dee7854f9, type: 3}
       propertyPath: localizationKey
-      value: ui.text
+      value: ui.loading
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
