@@ -1,18 +1,25 @@
 using System;
 using System.Collections.Generic;
+using PlayFrame.Core.Events;
 
 namespace PlayFrame.Systems.Analytics
 {
     /// <summary>
-    /// Base class for all analytics events
+    /// Base class for all analytics events.
+    /// Implements IEvent for integration with the core event system.
     /// </summary>
     [Serializable]
-    public class AnalyticsEvent
+    public class AnalyticsEvent : IEvent
     {
         /// <summary>
         /// Event name (used for tracking)
         /// </summary>
         public string EventName { get; protected set; }
+
+        /// <summary>
+        /// Event ID (same as EventName for analytics events)
+        /// </summary>
+        public string EventId => EventName;
 
         /// <summary>
         /// UTC timestamp when the event occurred
@@ -39,6 +46,11 @@ namespace PlayFrame.Systems.Analytics
             Parameters[key] = value;
             return this;
         }
+
+        public override string ToString()
+        {
+            return $"[{EventName}] at {Timestamp:HH:mm:ss.fff}";
+        }
     }
 
     #region Game Session Events
@@ -56,7 +68,7 @@ namespace PlayFrame.Systems.Analytics
         public string DeviceModel { get; private set; }
         public string OperatingSystem { get; private set; }
 
-        public SessionStartEvent(string gameName, string gameVersion = "1.0.0") 
+        public SessionStartEvent(string gameName, string gameVersion = "1.0.0")
             : base(AnalyticsEventNames.SESSION_START)
         {
             SessionId = Guid.NewGuid().ToString();
@@ -79,7 +91,7 @@ namespace PlayFrame.Systems.Analytics
         public int LevelsPlayed { get; private set; }
         public int TotalScore { get; private set; }
 
-        public SessionEndEvent(string sessionId, float durationSeconds, int levelsPlayed, int totalScore) 
+        public SessionEndEvent(string sessionId, float durationSeconds, int levelsPlayed, int totalScore)
             : base(AnalyticsEventNames.SESSION_END)
         {
             SessionId = sessionId;
@@ -105,7 +117,7 @@ namespace PlayFrame.Systems.Analytics
         public string Difficulty { get; private set; }
         public int AttemptNumber { get; private set; }
 
-        public LevelStartedEvent(string gameName, int levelNumber, string levelId = "", string difficulty = "normal", int attemptNumber = 1) 
+        public LevelStartedEvent(string gameName, int levelNumber, string levelId = "", string difficulty = "normal", int attemptNumber = 1)
             : base(AnalyticsEventNames.LEVEL_STARTED)
         {
             GameName = gameName;

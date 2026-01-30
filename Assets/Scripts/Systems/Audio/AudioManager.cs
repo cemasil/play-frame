@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 using PlayFrame.Core;
-using PlayFrame.Systems.Events;
+using PlayFrame.Core.Events;
 using PlayFrame.Systems.SaveSystem;
 
 namespace PlayFrame.Systems.Audio
@@ -369,7 +369,7 @@ namespace PlayFrame.Systems.Audio
         {
             if (EventManager.HasInstance)
             {
-                EventManager.Instance.TriggerEvent(GameEvents.MusicVolumeChanged, _musicVolume);
+                EventManager.Instance.TriggerEvent(CoreEvents.MusicVolumeChanged, _musicVolume);
             }
         }
 
@@ -377,7 +377,7 @@ namespace PlayFrame.Systems.Audio
         {
             if (EventManager.HasInstance)
             {
-                EventManager.Instance.TriggerEvent(GameEvents.SfxVolumeChanged, _sfxVolume);
+                EventManager.Instance.TriggerEvent(CoreEvents.SfxVolumeChanged, _sfxVolume);
             }
         }
 
@@ -385,7 +385,7 @@ namespace PlayFrame.Systems.Audio
         {
             if (EventManager.HasInstance)
             {
-                EventManager.Instance.TriggerEvent(GameEvents.MusicMuteChanged, _isMusicMuted);
+                EventManager.Instance.TriggerEvent(CoreEvents.MusicMuteChanged, _isMusicMuted);
             }
         }
 
@@ -393,7 +393,7 @@ namespace PlayFrame.Systems.Audio
         {
             if (EventManager.HasInstance)
             {
-                EventManager.Instance.TriggerEvent(GameEvents.SfxMuteChanged, _isSfxMuted);
+                EventManager.Instance.TriggerEvent(CoreEvents.SfxMuteChanged, _isSfxMuted);
             }
         }
 

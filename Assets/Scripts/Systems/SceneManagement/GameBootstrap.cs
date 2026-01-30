@@ -1,9 +1,9 @@
 using System.Collections;
 using UnityEngine;
+using PlayFrame.Core.Events;
 using PlayFrame.Systems.SceneManagement;
 using PlayFrame.Systems.SaveSystem;
 using PlayFrame.Systems.Audio;
-using PlayFrame.Systems.Events;
 using PlayFrame.Systems.Input;
 using PlayFrame.Systems.Localization;
 using PlayFrame.Systems.Analytics;
@@ -21,7 +21,7 @@ namespace PlayFrame.Systems.Bootstrap
         [SerializeField] private bool showSplashScreen = true;
 
         [Header("Managers (Optional - will auto-create if not assigned)")]
-        [SerializeField] private GameObject eventManagerPrefab;
+        private GameObject eventManager;
         [SerializeField] private GameObject saveManagerPrefab;
         [SerializeField] private GameObject audioManagerPrefab;
         [SerializeField] private GameObject sceneLoaderPrefab;
@@ -69,7 +69,7 @@ namespace PlayFrame.Systems.Bootstrap
         {
             Debug.Log("[Bootstrap] Initializing managers...");
 
-            EnsureManagerFromPrefab<EventManager>(eventManagerPrefab);
+            EnsureManagerFromPrefab<EventManager>(eventManager);
             _ = EventManager.Instance;
             yield return null;
 

@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using PlayFrame.Core;
-using PlayFrame.Systems.Events;
+using PlayFrame.Core.Events;
 
 namespace PlayFrame.Systems.SceneManagement
 {
@@ -43,7 +43,7 @@ namespace PlayFrame.Systems.SceneManagement
             _loadStartTime = Time.unscaledTime;
 
             if (EventManager.HasInstance)
-                EventManager.Instance.TriggerEvent(GameEvents.SceneLoadStarted);
+                EventManager.Instance.TriggerEvent(CoreEvents.SceneLoadStarted);
 
             // Pre-load delay (allows UI to show loading screen)
             if (Settings.PreLoadDelay > 0f)
@@ -77,7 +77,7 @@ namespace PlayFrame.Systems.SceneManagement
 
                 // Broadcast progress
                 if (EventManager.HasInstance)
-                    EventManager.Instance.TriggerEvent(GameEvents.SceneLoadProgress, _displayProgress);
+                    EventManager.Instance.TriggerEvent(CoreEvents.SceneLoadProgress, _displayProgress);
 
                 // Check if load is complete
                 if (Settings.IsLoadComplete(asyncOperation.progress))
@@ -101,7 +101,7 @@ namespace PlayFrame.Systems.SceneManagement
                     // Ensure progress shows 100%
                     _displayProgress = 1f;
                     if (EventManager.HasInstance)
-                        EventManager.Instance.TriggerEvent(GameEvents.SceneLoadProgress, 1f);
+                        EventManager.Instance.TriggerEvent(CoreEvents.SceneLoadProgress, 1f);
 
                     asyncOperation.allowSceneActivation = true;
                 }
@@ -112,7 +112,7 @@ namespace PlayFrame.Systems.SceneManagement
             _isLoading = false;
 
             if (EventManager.HasInstance)
-                EventManager.Instance.TriggerEvent(GameEvents.SceneLoadCompleted);
+                EventManager.Instance.TriggerEvent(CoreEvents.SceneLoadCompleted);
 
             onComplete?.Invoke();
         }

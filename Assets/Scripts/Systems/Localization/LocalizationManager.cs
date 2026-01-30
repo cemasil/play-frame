@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 using PlayFrame.Core;
-using PlayFrame.Systems.Events;
+using PlayFrame.Core.Events;
 
 namespace PlayFrame.Systems.Localization
 {
@@ -195,7 +195,7 @@ namespace PlayFrame.Systems.Localization
             // Broadcast via EventManager for decoupled listeners
             if (EventManager.HasInstance)
             {
-                EventManager.Instance.TriggerEvent(GameEvents.LanguageChanged, _currentTable.LanguageCode);
+                EventManager.Instance.TriggerEvent(CoreEvents.LanguageChanged, _currentTable.LanguageCode);
             }
         }
 

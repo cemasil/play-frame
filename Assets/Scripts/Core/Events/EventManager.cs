@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using PlayFrame.Core;
 
-namespace PlayFrame.Systems.Events
+namespace PlayFrame.Core.Events
 {
     /// <summary>
     /// Central event manager for loose coupling between systems.
-    /// Supports both type-safe generic events and legacy string-based events.
+    /// Supports type-safe generic events for compile-time safety.
     /// </summary>
     public class EventManager : PersistentSingleton<EventManager>
     {
@@ -116,66 +115,6 @@ namespace PlayFrame.Systems.Events
 
         #endregion
 
-        #region Legacy String-Based Events (Backward Compatibility)
-
-        /// <summary>
-        /// [Legacy] Subscribe to a string-based event without parameters
-        /// Consider using type-safe GameEvent instead
-        /// </summary>
-        public void Subscribe(string eventName, Action listener)
-        {
-            SubscribeInternal(eventName, listener);
-        }
-
-        /// <summary>
-        /// [Legacy] Subscribe to a string-based event with object parameter
-        /// Consider using type-safe GameEvent&lt;T&gt; instead
-        /// </summary>
-        public void Subscribe(string eventName, Action<object> listener)
-        {
-            SubscribeInternal(eventName, listener);
-        }
-
-        /// <summary>
-        /// [Legacy] Unsubscribe from a string-based event
-        /// </summary>
-        public void Unsubscribe(string eventName, Action listener)
-        {
-            UnsubscribeInternal(eventName, listener);
-        }
-
-        /// <summary>
-        /// [Legacy] Unsubscribe from a string-based event with object parameter
-        /// </summary>
-        public void Unsubscribe(string eventName, Action<object> listener)
-        {
-            UnsubscribeInternal(eventName, listener);
-        }
-
-        /// <summary>
-        /// [Legacy] Trigger a string-based event
-        /// Consider using type-safe TriggerEvent(GameEvent) instead
-        /// </summary>
-        public void TriggerEvent(string eventName, object parameter = null)
-        {
-            if (!_eventDictionary.TryGetValue(eventName, out Delegate del)) return;
-
-            if (parameter == null && del is Action action)
-            {
-                action.Invoke();
-            }
-            else if (del is Action<object> actionWithParam)
-            {
-                actionWithParam.Invoke(parameter);
-            }
-            else if (del is Action actionNoParam)
-            {
-                actionNoParam.Invoke();
-            }
-        }
-
-        #endregion
-
         #region Internal Methods
 
         private void SubscribeInternal(string eventName, Delegate listener)
@@ -221,7 +160,7 @@ namespace PlayFrame.Systems.Events
         }
 
         /// <summary>
-        /// Check if an event has any listeners
+        /// Check if an event has any listeners (by name)
         /// </summary>
         public bool HasListeners(string eventName)
         {
@@ -243,6 +182,19 @@ namespace PlayFrame.Systems.Events
         {
             return HasListeners(gameEvent.Name);
         }
+
+        /// <summary>
+        /// Check if a type-safe event has any listeners
+        /// </summary>
+        public bool HasListeners<T1, T2>(GameEvent<T1, T2> gameEvent)
+        {
+            return HasListeners(gameEvent.Name);
+        }
+
+        /// <summary>
+        /// Get the number of registered event types
+        /// </summary>
+        public int EventCount => _eventDictionary.Count;
 
         #endregion
     }

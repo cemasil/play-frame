@@ -1,8 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using PlayFrame.Core.Events;
 using PlayFrame.Systems.UI;
-using PlayFrame.Systems.Events;
 
 namespace PlayFrame.UI.Panels
 {
@@ -23,9 +23,9 @@ namespace PlayFrame.UI.Panels
 
         protected override void OnInitialize()
         {
-            EventManager.Instance.Subscribe(GameEvents.SceneLoadStarted, OnSceneLoadStarted);
-            EventManager.Instance.Subscribe(GameEvents.SceneLoadProgress, OnSceneLoadProgress);
-            EventManager.Instance.Subscribe(GameEvents.SceneLoadCompleted, OnSceneLoadCompleted);
+            EventManager.Instance.Subscribe(CoreEvents.SceneLoadStarted, OnSceneLoadStarted);
+            EventManager.Instance.Subscribe(CoreEvents.SceneLoadProgress, OnSceneLoadProgress);
+            EventManager.Instance.Subscribe(CoreEvents.SceneLoadCompleted, OnSceneLoadCompleted);
         }
 
         protected override void OnShow()
@@ -91,9 +91,9 @@ namespace PlayFrame.UI.Panels
         {
             if (EventManager.HasInstance)
             {
-                EventManager.Instance.Unsubscribe(GameEvents.SceneLoadStarted, OnSceneLoadStarted);
-                EventManager.Instance.Unsubscribe(GameEvents.SceneLoadProgress, OnSceneLoadProgress);
-                EventManager.Instance.Unsubscribe(GameEvents.SceneLoadCompleted, OnSceneLoadCompleted);
+                EventManager.Instance.Unsubscribe(CoreEvents.SceneLoadStarted, OnSceneLoadStarted);
+                EventManager.Instance.Unsubscribe(CoreEvents.SceneLoadProgress, OnSceneLoadProgress);
+                EventManager.Instance.Unsubscribe(CoreEvents.SceneLoadCompleted, OnSceneLoadCompleted);
             }
         }
     }

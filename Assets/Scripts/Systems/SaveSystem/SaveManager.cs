@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 using PlayFrame.Core;
-using PlayFrame.Systems.Events;
+using PlayFrame.Core.Events;
 
 namespace PlayFrame.Systems.SaveSystem
 {
@@ -131,7 +131,7 @@ namespace PlayFrame.Systems.SaveSystem
 
                 if (_isInitialized && EventManager.HasInstance)
                 {
-                    EventManager.Instance.TriggerEvent(GameEvents.GameSaved);
+                    EventManager.Instance.TriggerEvent(CoreEvents.GameSaved);
                 }
             }
             catch (Exception e)
@@ -186,7 +186,7 @@ namespace PlayFrame.Systems.SaveSystem
 
                 if (_isInitialized && EventManager.HasInstance)
                 {
-                    EventManager.Instance.TriggerEvent(GameEvents.GameLoaded);
+                    EventManager.Instance.TriggerEvent(CoreEvents.GameLoaded);
                 }
             }
             catch (Exception e)
@@ -327,10 +327,10 @@ namespace PlayFrame.Systems.SaveSystem
             if (_currentSaveData.totalScore > _currentSaveData.highScore)
             {
                 _currentSaveData.highScore = _currentSaveData.totalScore;
-                TriggerEventSafe(GameEvents.HighScoreUpdated, _currentSaveData.highScore);
+                TriggerEventSafe(CoreEvents.HighScoreUpdated, _currentSaveData.highScore);
             }
 
-            TriggerEventSafe(GameEvents.ScoreUpdated, _currentSaveData.totalScore);
+            TriggerEventSafe(CoreEvents.ScoreUpdated, _currentSaveData.totalScore);
             SaveGame();
         }
 
