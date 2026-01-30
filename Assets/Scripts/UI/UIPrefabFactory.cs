@@ -1,27 +1,52 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using PlayFrame.Systems.Localization;
 
 namespace PlayFrame.UI.Prefabs
 {
     /// <summary>
-    /// Factory for creating common UI elements from prefabs in Resources/UI/Prefabs/
+    /// Factory for creating common UI elements from prefabs.
+    /// Requires UIPrefabSettings to be initialized via UIManager or SetSettings().
     /// </summary>
     public static class UIPrefabFactory
     {
-        private const string PREFAB_PATH = "UI/Prefabs/";
+        private static UIPrefabSettings _settings;
+
+        /// <summary>
+        /// Set the prefab settings (called by UIManager or at startup)
+        /// </summary>
+        public static void SetSettings(UIPrefabSettings settings)
+        {
+            _settings = settings;
+            UIPrefabSettings.SetInstance(settings);
+        }
+
+        private static UIPrefabSettings Settings
+        {
+            get
+            {
+                if (_settings == null)
+                {
+                    _settings = UIPrefabSettings.Instance;
+                    if (_settings == null)
+                    {
+                        Debug.LogError("[UIPrefabFactory] UIPrefabSettings not initialized. " +
+                            "Call UIPrefabFactory.SetSettings() or ensure UIManager has settings assigned.");
+                    }
+                }
+                return _settings;
+            }
+        }
 
         public static Button CreateButton(string text, Transform parent)
         {
-            var prefab = Resources.Load<Button>(PREFAB_PATH + "ThemedButton");
-            if (prefab == null)
+            if (Settings?.ThemedButtonPrefab == null)
             {
-                Debug.LogWarning("[UIPrefabFactory] ThemedButton prefab not found in Resources/UI/Prefabs/");
+                Debug.LogWarning("[UIPrefabFactory] ThemedButton prefab not assigned in UIPrefabSettings");
                 return null;
             }
 
-            var button = Object.Instantiate(prefab, parent);
+            var button = Object.Instantiate(Settings.ThemedButtonPrefab, parent);
             var buttonText = button.GetComponentInChildren<TextMeshProUGUI>();
             if (buttonText != null)
                 buttonText.text = text;
@@ -31,36 +56,21 @@ namespace PlayFrame.UI.Prefabs
 
         public static GameObject CreatePanel(Transform parent)
         {
-            var prefab = Resources.Load<GameObject>(PREFAB_PATH + "ThemedPanel");
-            if (prefab == null)
+            if (Settings?.ThemedPanelPrefab == null)
             {
-                Debug.LogWarning("[UIPrefabFactory] ThemedPanel prefab not found in Resources/UI/Prefabs/");
+                Debug.LogWarning("[UIPrefabFactory] ThemedPanel prefab not assigned in UIPrefabSettings");
                 return null;
             }
 
-            return Object.Instantiate(prefab, parent);
+            return Object.Instantiate(Settings.ThemedPanelPrefab, parent);
         }
 
         public static TextMeshProUGUI CreateText(string content, Transform parent, TextType textType = TextType.Body)
         {
-            string prefabName = textType switch
-            {
-                TextType.Body => "ThemedTextBody",
-                TextType.Header => "ThemedTextHeader",
-                TextType.Title => "ThemedTextTitle",
-                _ => null
-            };
-
-            if (prefabName == null)
-            {
-                Debug.LogWarning($"[UIPrefabFactory] Invalid TextType: {textType}");
-                return null;
-            }
-
-            var prefab = Resources.Load<TextMeshProUGUI>(PREFAB_PATH + prefabName);
+            var prefab = Settings?.GetTextPrefab(textType);
             if (prefab == null)
             {
-                Debug.LogWarning("[UIPrefabFactory] ThemedText prefab not found in Resources/UI/Prefabs/");
+                Debug.LogWarning($"[UIPrefabFactory] Text prefab for {textType} not assigned in UIPrefabSettings");
                 return null;
             }
 
@@ -68,9 +78,9 @@ namespace PlayFrame.UI.Prefabs
             text.text = content;
 
             var themedElement = text.GetComponent<ThemedUIElement>();
-            if (themedElement != null)
+            if (themedElement != null && Settings?.DefaultTheme != null)
             {
-                themedElement.SetTheme(Resources.Load<UITheme>("DefaultUITheme"));
+                themedElement.SetTheme(Settings.DefaultTheme);
             }
 
             return text;
@@ -78,14 +88,13 @@ namespace PlayFrame.UI.Prefabs
 
         public static GameObject CreateGameCard(string gameName, int highScore, Color color, Transform parent)
         {
-            var prefab = Resources.Load<GameObject>(PREFAB_PATH + "GameCard");
-            if (prefab == null)
+            if (Settings?.GameCardPrefab == null)
             {
-                Debug.LogWarning("[UIPrefabFactory] GameCard prefab not found in Resources/UI/Prefabs/");
+                Debug.LogWarning("[UIPrefabFactory] GameCard prefab not assigned in UIPrefabSettings");
                 return null;
             }
 
-            var card = Object.Instantiate(prefab, parent);
+            var card = Object.Instantiate(Settings.GameCardPrefab, parent);
 
             var nameTMP = card.transform.Find("GameName")?.GetComponent<TextMeshProUGUI>();
             if (nameTMP == null)
@@ -106,7 +115,7 @@ namespace PlayFrame.UI.Prefabs
 
             if (scoreTMP != null)
             {
-                scoreTMP.text = LocalizationManager.Get(LocalizationKeys.HIGH_SCORE, highScore);
+                scoreTMP.text = $"High Score: {highScore}";
             }
 
             var gameIcon = card.transform.Find("GameIcon")?.GetComponent<Image>();

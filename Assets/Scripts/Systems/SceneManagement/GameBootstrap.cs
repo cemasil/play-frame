@@ -13,6 +13,7 @@ namespace PlayFrame.Systems.Bootstrap
     /// <summary>
     /// Bootstrap scene controller - initializes all managers and services.
     /// This should be the first scene in Build Settings (index 0).
+    /// For UI initialization, add UIBootstrap component separately.
     /// </summary>
     public class GameBootstrap : MonoBehaviour
     {

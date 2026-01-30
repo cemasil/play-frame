@@ -361,7 +361,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1512418625051859097, guid: bfbee3b1715104d6ab12348dee7854f9, type: 3}
       propertyPath: m_text
-      value: Loading...
+      value: '[ui.loading]'
       objectReference: {fileID: 0}
     - target: {fileID: 1512418625051859097, guid: bfbee3b1715104d6ab12348dee7854f9, type: 3}
       propertyPath: m_fontStyle
@@ -670,6 +670,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1326081203}
   - component: {fileID: 1326081202}
+  - component: {fileID: 1326081204}
+  - component: {fileID: 1326081205}
   m_Layer: 0
   m_Name: GameBootstrap
   m_TagString: Untagged
@@ -691,7 +693,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: MiniGameFramework.Systems::MiniGameFramework.Systems.Bootstrap.GameBootstrap
   minimumSplashDuration: 2
   showSplashScreen: 1
-  eventManagerPrefab: {fileID: 0}
   saveManagerPrefab: {fileID: 5006320219627765273, guid: 6c3ef8415aed046b2a92849c241cef70, type: 3}
   audioManagerPrefab: {fileID: 2845275841514723405, guid: 398e9fcc1d6104daa92a8f2a2c304ad4, type: 3}
   sceneLoaderPrefab: {fileID: 4621824595003166115, guid: ec100ab7c79824b89b71f9a1be62a4ed, type: 3}
@@ -714,6 +715,34 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1326081204
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1326081201}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6740a6771bb8d4ac79bbe54197b61caf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: PlayFrame.UI::PlayFrame.UI.UIBootstrap
+  uiPrefabSettings: {fileID: 11400000, guid: d26c36e086f744e0693d5d06a55c2a68, type: 2}
+--- !u!114 &1326081205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1326081201}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 083200b31c34041d882021b247bb0b40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: PlayFrame.MiniGames::PlayFrame.MiniGames.GameRegistry
+  gameConfigs:
+  - {fileID: 11400000, guid: 71646b20a1aa249309742b6bef96c46c, type: 2}
+  - {fileID: 11400000, guid: f028eb5e250b14909a5babf42d8dca8d, type: 2}
 --- !u!1 &1826771149
 GameObject:
   m_ObjectHideFlags: 0
