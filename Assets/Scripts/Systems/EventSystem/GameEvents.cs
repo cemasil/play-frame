@@ -1,3 +1,5 @@
+using PlayFrame.Systems.Analytics;
+
 namespace PlayFrame.Systems.Events
 {
     /// <summary>
@@ -37,5 +39,13 @@ namespace PlayFrame.Systems.Events
 
         // Localization Events
         public static readonly GameEvent<string> LanguageChanged = new("OnLanguageChanged");
+
+        // Analytics Events - Use these for subscribing to analytics data
+        public static readonly GameEvent<LevelStartedEvent> AnalyticsLevelStarted = new("OnAnalyticsLevelStarted");
+        public static readonly GameEvent<LevelCompletedEvent> AnalyticsLevelCompleted = new("OnAnalyticsLevelCompleted");
+        public static readonly GameEvent<LevelFailedEvent> AnalyticsLevelFailed = new("OnAnalyticsLevelFailed");
+        public static readonly GameEvent<LevelRetryEvent> AnalyticsLevelRetry = new("OnAnalyticsLevelRetry");
+        public static readonly GameEvent<SessionStartEvent> AnalyticsSessionStart = new("OnAnalyticsSessionStart");
+        public static readonly GameEvent<SessionEndEvent> AnalyticsSessionEnd = new("OnAnalyticsSessionEnd");
     }
 }

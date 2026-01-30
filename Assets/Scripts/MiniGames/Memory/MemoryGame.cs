@@ -8,12 +8,13 @@ using PlayFrame.Systems.Audio;
 using PlayFrame.Systems.SceneManagement;
 using PlayFrame.Systems.SaveSystem;
 using PlayFrame.Systems.Localization;
+using PlayFrame.Systems.Analytics;
 using PlayFrame.MiniGames.Common;
 
 namespace PlayFrame.MiniGames.Memory
 {
     /// <summary>
-    /// Main Memory game controller
+    /// Main Memory game controller with analytics integration
     /// </summary>
     public class MemoryGame : BaseGame
     {
@@ -70,6 +71,13 @@ namespace PlayFrame.MiniGames.Memory
         private int totalPairs;
         private int currentScore = 0;
         private float gameTime = 0f;
+
+        #region Analytics Override Properties
+
+        protected override string GameName => GameNames.MEMORY;
+        protected override string Difficulty => $"{gridRows}x{gridColumns}";
+
+        #endregion
 
         protected override void OnInitialize()
         {
@@ -301,11 +309,24 @@ namespace PlayFrame.MiniGames.Memory
             int totalSeconds = Mathf.FloorToInt(gameTime);
             int savedBestTime = SaveManager.Instance.GetGameHighScore(GameNames.MEMORY);
 
-            if (savedBestTime == 0 || totalSeconds < savedBestTime)
+            bool isNewHighScore = (savedBestTime == 0 || totalSeconds < savedBestTime);
+
+            if (isNewHighScore)
             {
+                // Track high score before updating
+                TrackHighScore(totalSeconds, savedBestTime);
                 SaveManager.Instance.UpdateGameHighScore(GameNames.MEMORY, totalSeconds);
                 savedBestTime = totalSeconds;
             }
+
+            // Track level completion with analytics
+            TrackLevelCompleted(
+                score: currentScore,
+                moveCount: moves,
+                isNewHighScore: isNewHighScore,
+                stars: CalculateStars(),
+                matchCount: matchedPairs
+            );
 
             // Play win sound
             PlayWinSound();
@@ -332,6 +353,20 @@ namespace PlayFrame.MiniGames.Memory
                 int bestSeconds = savedBestTime % 60;
                 highScoreText.text = LocalizationManager.Get(LocalizationKeys.BEST_TIME, $"{bestMinutes}:{bestSeconds:00}");
             }
+        }
+
+        /// <summary>
+        /// Calculate stars based on performance (moves vs optimal)
+        /// </summary>
+        private int CalculateStars()
+        {
+            // Optimal moves = total pairs (one move per pair if perfect memory)
+            int optimalMoves = totalPairs;
+            float moveRatio = (float)moves / optimalMoves;
+
+            if (moveRatio <= 1.5f) return 3; // Excellent
+            if (moveRatio <= 2.5f) return 2; // Good
+            return 1; // Completed
         }
 
         #region Audio Methods
@@ -405,6 +440,8 @@ namespace PlayFrame.MiniGames.Memory
 
         private void OnRestartClicked()
         {
+            // Track retry before reloading
+            TrackLevelRetried();
             SceneLoader.Instance.LoadScene(SceneNames.MEMORY);
         }
 

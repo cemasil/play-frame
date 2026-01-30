@@ -8,12 +8,13 @@ using PlayFrame.Systems.Audio;
 using PlayFrame.Systems.SceneManagement;
 using PlayFrame.Systems.SaveSystem;
 using PlayFrame.Systems.Localization;
+using PlayFrame.Systems.Analytics;
 using PlayFrame.MiniGames.Common;
 
 namespace PlayFrame.MiniGames.Match3
 {
     /// <summary>
-    /// Main Match3 game controller
+    /// Main Match3 game controller with analytics integration
     /// </summary>
     public class Match3Game : BaseGame
     {
@@ -65,6 +66,15 @@ namespace PlayFrame.MiniGames.Match3
         private ObjectPool<Gem> gemPool;
         private int currentScore = 0;
         private int remainingMoves;
+        private int totalMatchesMade = 0;
+        private int totalMovesMade = 0;
+
+        #region Analytics Override Properties
+
+        protected override string GameName => GameNames.MATCH3;
+        protected override string Difficulty => $"{gridWidth}x{gridHeight}_target{targetScore}";
+
+        #endregion
 
         protected override void OnInitialize()
         {
@@ -220,10 +230,17 @@ namespace PlayFrame.MiniGames.Match3
             match3Grid.SwapGems(gem1, gem2);
             List<Gem> matches = match3Grid.FindMatchesForGems(gem1, gem2);
             remainingMoves--;
+            totalMovesMade++;
 
             if (matches.Count > 0)
             {
                 PlayMatchSound();
+                totalMatchesMade++;
+
+                // Track the match
+                int matchPoints = matches.Count * pointsPerGem;
+                TrackMatchMade(matches.Count, "normal", 1, matchPoints);
+                TrackGameMove("swap", totalMovesMade, true, matchPoints);
 
                 foreach (Gem gem in matches)
                 {
@@ -231,7 +248,7 @@ namespace PlayFrame.MiniGames.Match3
                     gemPool.Release(gem);
                 }
 
-                currentScore += matches.Count * pointsPerGem;
+                currentScore += matchPoints;
 
                 yield return new WaitForSeconds(0.2f);
 
@@ -240,6 +257,8 @@ namespace PlayFrame.MiniGames.Match3
             else
             {
                 PlayNoMatchSound();
+                TrackGameMove("swap", totalMovesMade, false, 0);
+
                 yield return new WaitForSeconds(0.2f);
 
                 StartCoroutine(MoveGemTo(gem1, pos2, pos1));
@@ -304,10 +323,34 @@ namespace PlayFrame.MiniGames.Match3
             bool isWin = currentScore >= targetScore;
             int savedHighScore = SaveManager.Instance.GetGameHighScore(GameNames.MATCH3);
 
-            if (currentScore > savedHighScore)
+            bool isNewHighScore = currentScore > savedHighScore;
+
+            if (isNewHighScore)
             {
+                // Track high score before updating
+                TrackHighScore(currentScore, savedHighScore);
                 SaveManager.Instance.UpdateGameHighScore(GameNames.MATCH3, currentScore);
                 savedHighScore = currentScore;
+            }
+
+            // Track analytics based on win/loss
+            if (isWin)
+            {
+                TrackLevelCompleted(
+                    score: currentScore,
+                    moveCount: totalMovesMade,
+                    isNewHighScore: isNewHighScore,
+                    stars: CalculateStars(),
+                    matchCount: totalMatchesMade
+                );
+            }
+            else
+            {
+                TrackLevelFailed(
+                    failReason: FailReasons.OUT_OF_MOVES,
+                    score: currentScore,
+                    moveCount: totalMovesMade
+                );
             }
 
             // Play win/lose sound
@@ -329,6 +372,16 @@ namespace PlayFrame.MiniGames.Match3
 
             if (highScoreText != null)
                 highScoreText.text = LocalizationManager.Get(LocalizationKeys.HIGH_SCORE, savedHighScore);
+        }
+
+        /// <summary>
+        /// Calculate stars based on performance
+        /// </summary>
+        private int CalculateStars()
+        {
+            if (currentScore >= targetScore * 2) return 3; // Double target
+            if (currentScore >= targetScore * 1.5f) return 2; // 50% over target
+            return 1; // Met target
         }
 
         #region Audio Methods
@@ -414,6 +467,8 @@ namespace PlayFrame.MiniGames.Match3
 
         private void OnRestartClicked()
         {
+            // Track retry before reloading
+            TrackLevelRetried();
             SceneLoader.Instance.LoadScene(SceneNames.MATCH3);
         }
 
