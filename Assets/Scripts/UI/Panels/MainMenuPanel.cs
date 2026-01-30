@@ -22,7 +22,7 @@ namespace PlayFrame.UI.Panels
 
         private void OnPlayClicked()
         {
-            SceneLoader.Instance.LoadScene(SceneNames.GAME_SELECTION);
+            SceneLoaderManager.Instance.LoadScene(SceneNames.GAME_SELECTION);
         }
 
         private void OnQuitClicked()

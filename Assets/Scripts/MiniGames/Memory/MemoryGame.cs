@@ -435,19 +435,19 @@ namespace PlayFrame.MiniGames.Memory
 
         private void OnBackClicked()
         {
-            SceneLoader.Instance.LoadScene(SceneNames.GAME_SELECTION);
+            SceneLoaderManager.Instance.LoadScene(SceneNames.GAME_SELECTION);
         }
 
         private void OnRestartClicked()
         {
             // Track retry before reloading
             TrackLevelRetried();
-            SceneLoader.Instance.LoadScene(SceneNames.MEMORY);
+            SceneLoaderManager.Instance.LoadScene(SceneNames.MEMORY);
         }
 
         private void OnMenuClicked()
         {
-            SceneLoader.Instance.LoadScene(SceneNames.MAIN_MENU);
+            SceneLoaderManager.Instance.LoadScene(SceneNames.MAIN_MENU);
         }
     }
 }

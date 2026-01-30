@@ -53,14 +53,14 @@ namespace PlayFrame.UI.Panels
                 if (playButton != null)
                 {
                     string sceneName = game.sceneName; // Capture for lambda
-                    playButton.onClick.AddListener(() => SceneLoader.Instance.LoadScene(sceneName));
+                    playButton.onClick.AddListener(() => SceneLoaderManager.Instance.LoadScene(sceneName));
                 }
             }
         }
 
         private void OnBackClicked()
         {
-            SceneLoader.Instance.LoadScene(SceneNames.MAIN_MENU);
+            SceneLoaderManager.Instance.LoadScene(SceneNames.MAIN_MENU);
         }
 
         protected override void OnCleanup()
