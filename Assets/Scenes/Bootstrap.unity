@@ -697,6 +697,7 @@ MonoBehaviour:
   sceneLoaderPrefab: {fileID: 0}
   inputManagerPrefab: {fileID: 0}
   localizationManagerPrefab: {fileID: 8330143775893926890, guid: 32a00e450eb09463e8f579e323adda57, type: 3}
+  analyticsManagerPrefab: {fileID: 6220354950864708616, guid: d5f46e58f05364a5997ff9396137f9e8, type: 3}
   nextSceneName: MainMenu
 --- !u!4 &1326081203
 Transform:

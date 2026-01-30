@@ -5,10 +5,12 @@ namespace PlayFrame.Systems.Analytics
     /// <summary>
     /// ScriptableObject for configuring analytics settings.
     /// Create via Assets > Create > PlayFrame > Analytics > Analytics Settings
+    /// Place in GameSettings/Analytics folder.
     /// </summary>
     [CreateAssetMenu(fileName = "AnalyticsSettings", menuName = "PlayFrame/Analytics/Analytics Settings")]
     public class AnalyticsSettings : ScriptableObject
     {
+
         [Header("General Settings")]
         [Tooltip("Enable/disable analytics collection globally")]
         [SerializeField] private bool enableAnalytics = true;
@@ -38,44 +40,58 @@ namespace PlayFrame.Systems.Analytics
         [Tooltip("Collect detailed gameplay metrics")]
         [SerializeField] private bool collectDetailedMetrics = true;
 
-        [Header("Storage Settings")]
-        [Tooltip("Enable local storage for offline analytics")]
-        [SerializeField] private bool enableLocalStorage = true;
+        [Header("Built-in Providers")]
+        [Tooltip("Enable console logging provider (Editor/Debug builds only)")]
+        [SerializeField] private bool enableConsoleProvider = true;
+
+        [Tooltip("Enable local file storage provider for offline analytics")]
+        [SerializeField] private bool enableLocalStorageProvider = true;
 
         [Tooltip("Maximum events to store locally")]
         [Range(100, 5000)]
         [SerializeField] private int maxLocalStorageEvents = 1000;
 
-        [Header("Provider Settings")]
-        [Tooltip("Enable console logging provider (Editor/Debug only)")]
-        [SerializeField] private bool enableConsoleProvider = true;
+        [Header("External Providers")]
+        [Tooltip("Enable Unity Analytics provider (requires Unity Analytics package)")]
+        [SerializeField] private bool enableUnityAnalytics = false;
 
-        [Tooltip("Enable local file storage provider")]
-        [SerializeField] private bool enableLocalStorageProvider = true;
+        [Tooltip("Enable Firebase Analytics provider (requires Firebase SDK)")]
+        [SerializeField] private bool enableFirebaseAnalytics = false;
 
-        // Public Properties
+        // Public Properties - General
         public bool EnableAnalytics => enableAnalytics;
         public bool EnableDebugLogs => enableDebugLogs;
+
+        // Public Properties - Batching
         public bool EnableBatching => enableBatching;
         public float BatchFlushInterval => batchFlushInterval;
         public int MaxBatchSize => maxBatchSize;
+
+        // Public Properties - Privacy
         public bool CollectDeviceInfo => collectDeviceInfo;
         public bool CollectSessionData => collectSessionData;
         public bool CollectDetailedMetrics => collectDetailedMetrics;
-        public bool EnableLocalStorage => enableLocalStorage;
-        public int MaxLocalStorageEvents => maxLocalStorageEvents;
+
+        // Public Properties - Built-in Providers
         public bool EnableConsoleProvider => enableConsoleProvider;
         public bool EnableLocalStorageProvider => enableLocalStorageProvider;
+        public int MaxLocalStorageEvents => maxLocalStorageEvents;
+
+        // Public Properties - External Providers
+        public bool EnableUnityAnalytics => enableUnityAnalytics;
+        public bool EnableFirebaseAnalytics => enableFirebaseAnalytics;
 
         /// <summary>
-        /// Apply settings to the AnalyticsManager
+        /// Create default settings instance when no settings asset is assigned.
+        /// For production, assign AnalyticsSettings from GameSettings/Analytics via Inspector.
         /// </summary>
-        public void ApplyToManager(AnalyticsManager manager)
+        public static AnalyticsSettings CreateDefault()
         {
-            if (manager == null) return;
-
-            manager.SetEnabled(enableAnalytics);
-            manager.SetDebugLogging(enableDebugLogs);
+            var settings = CreateInstance<AnalyticsSettings>();
+            Debug.LogWarning("[Analytics] No AnalyticsSettings assigned. Using default settings. " +
+                           "Create one via Assets > Create > PlayFrame > Analytics > Analytics Settings " +
+                           "and place in GameSettings/Analytics folder.");
+            return settings;
         }
 
         private void OnValidate()

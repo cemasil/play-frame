@@ -9,15 +9,13 @@ namespace PlayFrame.Systems.Analytics
     /// Central analytics manager that coordinates multiple analytics providers.
     /// Implements the facade pattern for simplified analytics API.
     /// Thread-safe and performant with batching support.
+    /// Configuration is loaded from AnalyticsSettings ScriptableObject.
     /// </summary>
     public class AnalyticsManager : PersistentSingleton<AnalyticsManager>
     {
         [Header("Settings")]
-        [SerializeField] private bool enableAnalytics = true;
-        [SerializeField] private bool enableDebugLogs = false;
-        [SerializeField] private bool batchEvents = true;
-        [SerializeField] private float batchFlushInterval = 30f;
-        [SerializeField] private int maxBatchSize = 50;
+        [Tooltip("Optional: Assign settings directly. If null, loads from Resources/AnalyticsSettings")]
+        [SerializeField] private AnalyticsSettings settings;
 
         private readonly List<IAnalyticsProvider> _providers = new List<IAnalyticsProvider>();
         private readonly Queue<AnalyticsEvent> _eventQueue = new Queue<AnalyticsEvent>();
@@ -30,10 +28,22 @@ namespace PlayFrame.Systems.Analytics
         private float _lastFlushTime;
         private bool _isInitialized;
 
+        // Cached settings for runtime access
+        private bool _enableAnalytics;
+        private bool _enableDebugLogs;
+        private bool _enableBatching;
+        private float _batchFlushInterval;
+        private int _maxBatchSize;
+
+        /// <summary>
+        /// Current analytics settings
+        /// </summary>
+        public AnalyticsSettings Settings => settings;
+
         /// <summary>
         /// Whether analytics collection is enabled
         /// </summary>
-        public bool IsEnabled => enableAnalytics;
+        public bool IsEnabled => _enableAnalytics;
 
         /// <summary>
         /// Current session ID
@@ -47,15 +57,34 @@ namespace PlayFrame.Systems.Analytics
 
         protected override void OnSingletonAwake()
         {
-            InitializeDefaultProviders();
+            LoadSettings();
+            InitializeProviders();
             _isInitialized = true;
+        }
+
+        private void LoadSettings()
+        {
+            // Use assigned reference or create default
+            if (settings == null)
+            {
+                settings = AnalyticsSettings.CreateDefault();
+            }
+
+            // Cache settings for runtime performance
+            _enableAnalytics = settings.EnableAnalytics;
+            _enableDebugLogs = settings.EnableDebugLogs;
+            _enableBatching = settings.EnableBatching;
+            _batchFlushInterval = settings.BatchFlushInterval;
+            _maxBatchSize = settings.MaxBatchSize;
+
+            LogDebug("Analytics settings loaded");
         }
 
         private void Update()
         {
-            if (!enableAnalytics || !batchEvents) return;
+            if (!_enableAnalytics || !_enableBatching) return;
 
-            if (Time.time - _lastFlushTime >= batchFlushInterval)
+            if (Time.time - _lastFlushTime >= _batchFlushInterval)
             {
                 FlushEventQueue();
                 _lastFlushTime = Time.time;
@@ -91,19 +120,37 @@ namespace PlayFrame.Systems.Analytics
         #region Provider Management
 
         /// <summary>
-        /// Initialize default analytics providers
+        /// Initialize providers based on settings
         /// </summary>
-        private void InitializeDefaultProviders()
+        private void InitializeProviders()
         {
-            // Add console provider for development
+            // Console provider (Editor/Debug only)
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            RegisterProvider(new ConsoleAnalyticsProvider(enableDebugLogs));
+            if (settings.EnableConsoleProvider)
+            {
+                RegisterProvider(new ConsoleAnalyticsProvider(_enableDebugLogs));
+            }
 #endif
 
-            // Add local storage provider for offline analytics
-            RegisterProvider(new LocalStorageAnalyticsProvider());
+            // Local storage provider
+            if (settings.EnableLocalStorageProvider)
+            {
+                RegisterProvider(new LocalStorageAnalyticsProvider());
+            }
 
-            LogDebug("Analytics providers initialized");
+            // Unity Analytics provider
+            if (settings.EnableUnityAnalytics)
+            {
+                RegisterProvider(new UnityAnalyticsProvider());
+            }
+
+            // Firebase Analytics provider
+            if (settings.EnableFirebaseAnalytics)
+            {
+                RegisterProvider(new FirebaseAnalyticsProvider());
+            }
+
+            LogDebug($"Analytics initialized with {_providers.Count} provider(s)");
         }
 
         /// <summary>
@@ -187,7 +234,7 @@ namespace PlayFrame.Systems.Analytics
         /// </summary>
         public void StartSession(string gameName, string gameVersion = "1.0.0")
         {
-            if (!enableAnalytics) return;
+            if (!_enableAnalytics) return;
 
             _sessionStartTime = Time.time;
             _levelsPlayedThisSession = 0;
@@ -205,7 +252,7 @@ namespace PlayFrame.Systems.Analytics
         /// </summary>
         public void EndSession()
         {
-            if (!enableAnalytics || string.IsNullOrEmpty(_currentSessionId)) return;
+            if (!_enableAnalytics || string.IsNullOrEmpty(_currentSessionId)) return;
 
             float sessionDuration = Time.time - _sessionStartTime;
             var sessionEvent = new SessionEndEvent(
@@ -230,7 +277,7 @@ namespace PlayFrame.Systems.Analytics
         /// </summary>
         public void TrackLevelStart(string gameName, int levelNumber, string difficulty = "normal", int attemptNumber = 1)
         {
-            if (!enableAnalytics) return;
+            if (!_enableAnalytics) return;
 
             var levelEvent = new LevelStartedEvent(gameName, levelNumber, "", difficulty, attemptNumber);
             DispatchToProviders(p => p.TrackLevelStarted(levelEvent));
@@ -252,7 +299,7 @@ namespace PlayFrame.Systems.Analytics
             string difficulty = "normal",
             int matchCount = 0)
         {
-            if (!enableAnalytics) return;
+            if (!_enableAnalytics) return;
 
             _levelsPlayedThisSession++;
             _totalScoreThisSession += score;
@@ -288,7 +335,7 @@ namespace PlayFrame.Systems.Analytics
             int retryCount = 0,
             string difficulty = "normal")
         {
-            if (!enableAnalytics) return;
+            if (!_enableAnalytics) return;
 
             _levelsPlayedThisSession++;
 
@@ -312,7 +359,7 @@ namespace PlayFrame.Systems.Analytics
         /// </summary>
         public void TrackLevelRetry(string gameName, int levelNumber, int retryNumber, float timeSinceLastAttempt = 0f)
         {
-            if (!enableAnalytics) return;
+            if (!_enableAnalytics) return;
 
             var retryEvent = new LevelRetryEvent(gameName, levelNumber, retryNumber, timeSinceLastAttempt);
             TrackEvent(retryEvent);
@@ -328,7 +375,7 @@ namespace PlayFrame.Systems.Analytics
         /// </summary>
         public void TrackGameMove(string gameName, string moveType, int moveNumber, bool wasSuccessful, int pointsEarned = 0)
         {
-            if (!enableAnalytics) return;
+            if (!_enableAnalytics) return;
 
             var moveEvent = new GameMoveEvent(gameName, moveType, moveNumber, wasSuccessful, pointsEarned);
             TrackEvent(moveEvent);
@@ -339,7 +386,7 @@ namespace PlayFrame.Systems.Analytics
         /// </summary>
         public void TrackMatchMade(string gameName, int matchSize, string matchType = "normal", int comboCount = 1, int pointsEarned = 0)
         {
-            if (!enableAnalytics) return;
+            if (!_enableAnalytics) return;
 
             var matchEvent = new MatchMadeEvent(gameName, matchSize, matchType, comboCount, pointsEarned);
             TrackEvent(matchEvent);
@@ -350,7 +397,7 @@ namespace PlayFrame.Systems.Analytics
         /// </summary>
         public void TrackGamePaused(string gameName, float playTimeSeconds, string pauseReason = "user_initiated")
         {
-            if (!enableAnalytics) return;
+            if (!_enableAnalytics) return;
 
             var pauseEvent = new GamePausedEvent(gameName, playTimeSeconds, pauseReason);
             TrackEvent(pauseEvent);
@@ -362,7 +409,7 @@ namespace PlayFrame.Systems.Analytics
         /// </summary>
         public void TrackGameResumed(string gameName, float pauseDurationSeconds)
         {
-            if (!enableAnalytics) return;
+            if (!_enableAnalytics) return;
 
             var resumeEvent = new GameResumedEvent(gameName, pauseDurationSeconds);
             TrackEvent(resumeEvent);
@@ -378,7 +425,7 @@ namespace PlayFrame.Systems.Analytics
         /// </summary>
         public void TrackHighScore(string gameName, int newHighScore, int previousHighScore, int levelNumber = 0)
         {
-            if (!enableAnalytics) return;
+            if (!_enableAnalytics) return;
 
             var highScoreEvent = new HighScoreEvent(gameName, newHighScore, previousHighScore, levelNumber);
             TrackEvent(highScoreEvent);
@@ -390,7 +437,7 @@ namespace PlayFrame.Systems.Analytics
         /// </summary>
         public void TrackMilestone(string milestoneId, string milestoneName, string gameName, int valueReached = 0)
         {
-            if (!enableAnalytics) return;
+            if (!_enableAnalytics) return;
 
             var milestoneEvent = new MilestoneReachedEvent(milestoneId, milestoneName, gameName, valueReached);
             TrackEvent(milestoneEvent);
@@ -406,7 +453,7 @@ namespace PlayFrame.Systems.Analytics
         /// </summary>
         public void TrackUIInteraction(string elementId, string elementType, string screenName, string interactionType = "click")
         {
-            if (!enableAnalytics) return;
+            if (!_enableAnalytics) return;
 
             var uiEvent = new UIInteractionEvent(elementId, elementType, screenName, interactionType);
             TrackEvent(uiEvent);
@@ -417,7 +464,7 @@ namespace PlayFrame.Systems.Analytics
         /// </summary>
         public void TrackScreenView(string screenName, string previousScreen = "", float timeOnPreviousScreen = 0f)
         {
-            if (!enableAnalytics) return;
+            if (!_enableAnalytics) return;
 
             var screenEvent = new ScreenViewEvent(screenName, previousScreen, timeOnPreviousScreen);
             TrackEvent(screenEvent);
@@ -433,7 +480,7 @@ namespace PlayFrame.Systems.Analytics
         /// </summary>
         public void SetUserProperty(string propertyName, string value)
         {
-            if (!enableAnalytics) return;
+            if (!_enableAnalytics) return;
 
             DispatchToProviders(p => p.SetUserProperty(propertyName, value));
             LogDebug($"User property set: {propertyName} = {value}");
@@ -448,9 +495,9 @@ namespace PlayFrame.Systems.Analytics
         /// </summary>
         public void TrackEvent(AnalyticsEvent analyticsEvent)
         {
-            if (!enableAnalytics || analyticsEvent == null) return;
+            if (!_enableAnalytics || analyticsEvent == null) return;
 
-            if (batchEvents)
+            if (_enableBatching)
             {
                 QueueEvent(analyticsEvent);
             }
@@ -465,7 +512,7 @@ namespace PlayFrame.Systems.Analytics
         /// </summary>
         public void TrackEvent(string eventName, Dictionary<string, object> parameters = null)
         {
-            if (!enableAnalytics) return;
+            if (!_enableAnalytics) return;
 
             var analyticsEvent = new AnalyticsEvent(eventName);
             if (parameters != null)
@@ -485,7 +532,7 @@ namespace PlayFrame.Systems.Analytics
             {
                 _eventQueue.Enqueue(analyticsEvent);
 
-                if (_eventQueue.Count >= maxBatchSize)
+                if (_eventQueue.Count >= _maxBatchSize)
                 {
                     FlushEventQueue();
                 }
@@ -497,7 +544,7 @@ namespace PlayFrame.Systems.Analytics
         /// </summary>
         public void FlushEventQueue()
         {
-            if (!enableAnalytics) return;
+            if (!_enableAnalytics) return;
 
             lock (_lockObject)
             {
@@ -538,7 +585,7 @@ namespace PlayFrame.Systems.Analytics
 
         private void LogDebug(string message)
         {
-            if (enableDebugLogs)
+            if (_enableDebugLogs)
             {
                 Debug.Log($"[Analytics] {message}");
             }
@@ -559,20 +606,29 @@ namespace PlayFrame.Systems.Analytics
         #region Public Settings
 
         /// <summary>
-        /// Enable or disable analytics collection
+        /// Enable or disable analytics collection at runtime
         /// </summary>
         public void SetEnabled(bool enabled)
         {
-            enableAnalytics = enabled;
+            _enableAnalytics = enabled;
             LogDebug($"Analytics {(enabled ? "enabled" : "disabled")}");
         }
 
         /// <summary>
-        /// Enable or disable debug logging
+        /// Enable or disable debug logging at runtime
         /// </summary>
         public void SetDebugLogging(bool enabled)
         {
-            enableDebugLogs = enabled;
+            _enableDebugLogs = enabled;
+        }
+
+        /// <summary>
+        /// Reload settings from ScriptableObject (useful after changing settings at runtime)
+        /// </summary>
+        public void ReloadSettings()
+        {
+            LoadSettings();
+            LogDebug("Analytics settings reloaded");
         }
 
         #endregion

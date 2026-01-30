@@ -6,6 +6,7 @@ using PlayFrame.Systems.Audio;
 using PlayFrame.Systems.Events;
 using PlayFrame.Systems.Input;
 using PlayFrame.Systems.Localization;
+using PlayFrame.Systems.Analytics;
 
 namespace PlayFrame.Systems.Bootstrap
 {
@@ -26,6 +27,7 @@ namespace PlayFrame.Systems.Bootstrap
         [SerializeField] private GameObject sceneLoaderPrefab;
         [SerializeField] private GameObject inputManagerPrefab;
         [SerializeField] private GameObject localizationManagerPrefab;
+        [SerializeField] private GameObject analyticsManagerPrefab;
 
         [Header("Next Scene")]
         [SerializeField] private string nextSceneName = SceneNames.MAIN_MENU;
@@ -85,6 +87,10 @@ namespace PlayFrame.Systems.Bootstrap
 
             EnsureManagerFromPrefab<LocalizationManager>(localizationManagerPrefab);
             _ = LocalizationManager.Instance;
+            yield return null;
+
+            EnsureManagerFromPrefab<AnalyticsManager>(analyticsManagerPrefab);
+            _ = AnalyticsManager.Instance;
             yield return null;
 
             EnsureManagerFromPrefab<SceneLoader>(sceneLoaderPrefab);
