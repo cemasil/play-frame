@@ -1,12 +1,11 @@
 using UnityEngine;
-using PlayFrame.Core;
 
 namespace PlayFrame.UI.Base
 {
     /// <summary>
     /// Base class for all UI panels
     /// </summary>
-    public abstract class UIPanel : MonoBehaviour, IInitializable, IUpdatable
+    public abstract class UIPanel : MonoBehaviour
     {
         [SerializeField] protected CanvasGroup canvasGroup;
         [SerializeField] protected bool hideOnAwake = false;

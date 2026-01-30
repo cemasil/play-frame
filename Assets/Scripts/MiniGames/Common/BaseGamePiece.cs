@@ -1,5 +1,4 @@
 using UnityEngine;
-using PlayFrame.Core;
 
 namespace PlayFrame.MiniGames.Common
 {
@@ -9,7 +8,7 @@ namespace PlayFrame.MiniGames.Common
     /// this represents individual interactive elements within a game.
     /// </summary>
     [RequireComponent(typeof(RectTransform))]
-    public abstract class BaseGamePiece : MonoBehaviour, IInitializable
+    public abstract class BaseGamePiece : MonoBehaviour
     {
         protected RectTransform rectTransform;
         protected bool isInitialized = false;

@@ -1,5 +1,4 @@
 using UnityEngine;
-using PlayFrame.Core;
 using PlayFrame.Core.StateMachine;
 using PlayFrame.Systems.Analytics;
 
@@ -8,7 +7,7 @@ namespace PlayFrame.MiniGames.Common
     /// <summary>
     /// Base class for all mini-games with built-in state machine and analytics support
     /// </summary>
-    public abstract class BaseGame : MonoBehaviour, IInitializable, IUpdatable
+    public abstract class BaseGame : MonoBehaviour
     {
         protected StateMachine<GameState> StateMachine { get; private set; }
 
