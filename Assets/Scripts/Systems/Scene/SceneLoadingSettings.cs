@@ -95,23 +95,16 @@ namespace PlayFrame.Systems.Scene
             return rawProgress >= progressCompletionThreshold;
         }
 
-        #region Default Instance
-        private static SceneLoadingSettings _default;
-
         /// <summary>
-        /// Returns default settings if no custom settings are provided
+        /// Create default settings instance when no settings asset is assigned.
+        /// For production, assign SceneLoadingSettings via Inspector.
         /// </summary>
-        public static SceneLoadingSettings Default
+        public static SceneLoadingSettings CreateDefault()
         {
-            get
-            {
-                if (_default == null)
-                {
-                    _default = CreateInstance<SceneLoadingSettings>();
-                }
-                return _default;
-            }
+            var settings = CreateInstance<SceneLoadingSettings>();
+            Debug.LogWarning("[SceneLoadingSettings] No SceneLoadingSettings assigned. Using default settings. " +
+                           "Create one via Assets > Create > PlayFrame > Scene Loading Settings.");
+            return settings;
         }
-        #endregion
     }
 }

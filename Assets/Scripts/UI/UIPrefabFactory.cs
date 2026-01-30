@@ -6,47 +6,61 @@ namespace PlayFrame.UI
 {
     /// <summary>
     /// Factory for creating common UI elements from prefabs.
-    /// Requires UIPrefabSettings to be initialized via UIManager or SetSettings().
+    /// Requires UIPrefabSettings to be initialized via SetSettings() at startup.
     /// </summary>
     public static class UIPrefabFactory
     {
         private static UIPrefabSettings _settings;
+        private static bool _isInitialized;
 
         /// <summary>
-        /// Set the prefab settings (called by UIManager or at startup)
+        /// Whether the factory has been initialized with settings
+        /// </summary>
+        public static bool IsInitialized => _isInitialized && _settings != null;
+
+        /// <summary>
+        /// Current settings reference
+        /// </summary>
+        public static UIPrefabSettings Settings => _settings;
+
+        /// <summary>
+        /// Set the prefab settings (called by UIBootstrap at startup)
         /// </summary>
         public static void SetSettings(UIPrefabSettings settings)
         {
+            if (settings == null)
+            {
+                Debug.LogError("[UIPrefabFactory] Cannot set null settings!");
+                return;
+            }
+
             _settings = settings;
-            UIPrefabSettings.SetInstance(settings);
+            _isInitialized = true;
         }
 
-        private static UIPrefabSettings Settings
+        /// <summary>
+        /// Get settings with lazy initialization fallback
+        /// </summary>
+        private static UIPrefabSettings GetSettings()
         {
-            get
+            if (_settings == null)
             {
-                if (_settings == null)
-                {
-                    _settings = UIPrefabSettings.Instance;
-                    if (_settings == null)
-                    {
-                        Debug.LogError("[UIPrefabFactory] UIPrefabSettings not initialized. " +
-                            "Call UIPrefabFactory.SetSettings() or ensure UIManager has settings assigned.");
-                    }
-                }
-                return _settings;
+                Debug.LogError("[UIPrefabFactory] UIPrefabSettings not initialized. " +
+                    "Call UIPrefabFactory.SetSettings() during initialization (e.g., in UIBootstrap).");
             }
+            return _settings;
         }
 
         public static Button CreateButton(string text, Transform parent)
         {
-            if (Settings?.ThemedButtonPrefab == null)
+            var settings = GetSettings();
+            if (settings?.ThemedButtonPrefab == null)
             {
                 Debug.LogWarning("[UIPrefabFactory] ThemedButton prefab not assigned in UIPrefabSettings");
                 return null;
             }
 
-            var button = Object.Instantiate(Settings.ThemedButtonPrefab, parent);
+            var button = Object.Instantiate(settings.ThemedButtonPrefab, parent);
             var buttonText = button.GetComponentInChildren<TextMeshProUGUI>();
             if (buttonText != null)
                 buttonText.text = text;
@@ -56,18 +70,20 @@ namespace PlayFrame.UI
 
         public static GameObject CreatePanel(Transform parent)
         {
-            if (Settings?.ThemedPanelPrefab == null)
+            var settings = GetSettings();
+            if (settings?.ThemedPanelPrefab == null)
             {
                 Debug.LogWarning("[UIPrefabFactory] ThemedPanel prefab not assigned in UIPrefabSettings");
                 return null;
             }
 
-            return Object.Instantiate(Settings.ThemedPanelPrefab, parent);
+            return Object.Instantiate(settings.ThemedPanelPrefab, parent);
         }
 
         public static TextMeshProUGUI CreateText(string content, Transform parent, TextType textType = TextType.Body)
         {
-            var prefab = Settings?.GetTextPrefab(textType);
+            var settings = GetSettings();
+            var prefab = settings?.GetTextPrefab(textType);
             if (prefab == null)
             {
                 Debug.LogWarning($"[UIPrefabFactory] Text prefab for {textType} not assigned in UIPrefabSettings");
@@ -78,9 +94,9 @@ namespace PlayFrame.UI
             text.text = content;
 
             var themedElement = text.GetComponent<ThemedUIElement>();
-            if (themedElement != null && Settings?.DefaultTheme != null)
+            if (themedElement != null && settings?.DefaultTheme != null)
             {
-                themedElement.SetTheme(Settings.DefaultTheme);
+                themedElement.SetTheme(settings.DefaultTheme);
             }
 
             return text;
@@ -88,13 +104,14 @@ namespace PlayFrame.UI
 
         public static GameObject CreateGameCard(string gameName, int highScore, Color color, Transform parent)
         {
-            if (Settings?.GameCardPrefab == null)
+            var settings = GetSettings();
+            if (settings?.GameCardPrefab == null)
             {
                 Debug.LogWarning("[UIPrefabFactory] GameCard prefab not assigned in UIPrefabSettings");
                 return null;
             }
 
-            var card = Object.Instantiate(Settings.GameCardPrefab, parent);
+            var card = Object.Instantiate(settings.GameCardPrefab, parent);
 
             var nameTMP = card.transform.Find("GameName")?.GetComponent<TextMeshProUGUI>();
             if (nameTMP == null)

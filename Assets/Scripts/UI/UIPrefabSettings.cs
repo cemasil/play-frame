@@ -53,32 +53,17 @@ namespace PlayFrame.UI
             };
         }
 
-        // Singleton instance for easy access
-        private static UIPrefabSettings _instance;
-
         /// <summary>
-        /// Get the singleton instance.
-        /// Must be set via SetInstance() at startup (e.g., in GameBootstrap).
+        /// Create default settings instance when no settings asset is assigned.
+        /// For production, assign UIPrefabSettings from GameSettings/UI via Inspector.
         /// </summary>
-        public static UIPrefabSettings Instance
+        public static UIPrefabSettings CreateDefault()
         {
-            get
-            {
-                if (_instance == null)
-                {
-                    Debug.LogWarning("[UIPrefabSettings] Instance not set. " +
-                        "Call UIPrefabSettings.SetInstance() during initialization.");
-                }
-                return _instance;
-            }
-        }
-
-        /// <summary>
-        /// Set the singleton instance (called by UIManager)
-        /// </summary>
-        public static void SetInstance(UIPrefabSettings settings)
-        {
-            _instance = settings;
+            var settings = CreateInstance<UIPrefabSettings>();
+            Debug.LogWarning("[UIPrefabSettings] No UIPrefabSettings assigned. Using default settings. " +
+                           "Create one via Assets > Create > PlayFrame > UI > UI Prefab Settings " +
+                           "and place in GameSettings/UI folder.");
+            return settings;
         }
 
         private void OnValidate()

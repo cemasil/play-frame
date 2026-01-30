@@ -14,6 +14,7 @@ namespace PlayFrame.Systems.Scene
     public class SceneLoaderManager : PersistentSingleton<SceneLoaderManager>
     {
         [Header("Settings")]
+        [Tooltip("Optional: Assign settings directly. If null, uses default settings")]
         [SerializeField] private SceneLoadingSettings settings;
 
         private bool _isLoading;
@@ -23,7 +24,23 @@ namespace PlayFrame.Systems.Scene
         public bool IsLoading => _isLoading;
         public float CurrentProgress => _displayProgress;
 
-        private SceneLoadingSettings Settings => settings != null ? settings : SceneLoadingSettings.Default;
+        /// <summary>
+        /// Current scene loading settings
+        /// </summary>
+        public SceneLoadingSettings Settings => settings;
+
+        protected override void OnSingletonAwake()
+        {
+            LoadSettings();
+        }
+
+        private void LoadSettings()
+        {
+            if (settings == null)
+            {
+                settings = SceneLoadingSettings.CreateDefault();
+            }
+        }
 
         public void LoadScene(string sceneName, Action onComplete = null)
         {

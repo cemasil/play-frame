@@ -36,8 +36,11 @@ namespace PlayFrame.UI
         {
             if (theme == null)
             {
-                // Try to get default theme from UIPrefabSettings
-                theme = UIPrefabSettings.Instance?.DefaultTheme;
+                // Try to get default theme from UIPrefabFactory
+                if (UIPrefabFactory.IsInitialized)
+                {
+                    theme = UIPrefabFactory.Settings?.DefaultTheme;
+                }
                 if (theme == null) return;
             }
 

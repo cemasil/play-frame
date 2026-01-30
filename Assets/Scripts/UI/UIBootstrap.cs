@@ -1,5 +1,4 @@
 using UnityEngine;
-using PlayFrame.UI;
 
 namespace PlayFrame.UI
 {
@@ -10,7 +9,7 @@ namespace PlayFrame.UI
     public class UIBootstrap : MonoBehaviour
     {
         [Header("UI Settings")]
-        [Tooltip("UI Prefab settings from GameSettings/UI")]
+        [Tooltip("Optional: Assign settings directly. If null, uses default settings")]
         [SerializeField] private UIPrefabSettings uiPrefabSettings;
 
         private void Awake()
@@ -27,9 +26,9 @@ namespace PlayFrame.UI
             }
             else
             {
-                Debug.LogWarning("[UIBootstrap] UIPrefabSettings not assigned. " +
-                    "Create one via Assets > Create > PlayFrame > UI > UI Prefab Settings " +
-                    "and place in GameSettings/UI folder.");
+                // Create default settings if not assigned
+                var defaultSettings = UIPrefabSettings.CreateDefault();
+                UIPrefabFactory.SetSettings(defaultSettings);
             }
         }
     }
