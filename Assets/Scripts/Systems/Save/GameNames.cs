@@ -1,4 +1,4 @@
-namespace PlayFrame.Systems.SaveSystem
+namespace PlayFrame.Systems.Save
 {
     /// <summary>
     /// Centralized game name constants

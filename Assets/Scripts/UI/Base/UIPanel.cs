@@ -1,7 +1,7 @@
 using UnityEngine;
 using PlayFrame.Core;
 
-namespace PlayFrame.Systems.UI
+namespace PlayFrame.UI.Base
 {
     /// <summary>
     /// Base class for all UI panels

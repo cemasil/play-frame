@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-using PlayFrame.Systems.SaveSystem;
+using PlayFrame.Systems.Save;
 
 namespace PlayFrame.Tests.EditMode.Systems
 {

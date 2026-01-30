@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using PlayFrame.Core.Events;
-using PlayFrame.Systems.UI;
+using PlayFrame.UI.Base;
 
 namespace PlayFrame.UI.Panels
 {

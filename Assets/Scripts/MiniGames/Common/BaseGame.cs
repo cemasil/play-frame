@@ -105,12 +105,12 @@ namespace PlayFrame.MiniGames.Common
         protected virtual void RegisterStates()
         {
             // Default simple states - games can override with custom implementations
-            StateMachine.RegisterState(GameState.Initializing, new SimpleState(OnStateEnterInitializing, null, null));
-            StateMachine.RegisterState(GameState.Ready, new SimpleState(OnStateEnterReady, null, null));
-            StateMachine.RegisterState(GameState.Playing, new SimpleState(OnStateEnterPlaying, OnStateUpdatePlaying, OnStateExitPlaying));
-            StateMachine.RegisterState(GameState.Processing, new SimpleState(OnStateEnterProcessing, null, OnStateExitProcessing));
-            StateMachine.RegisterState(GameState.Paused, new SimpleState(OnStateEnterPaused, null, OnStateExitPaused));
-            StateMachine.RegisterState(GameState.GameOver, new SimpleState(OnStateEnterGameOver, null, null));
+            StateMachine.RegisterState(GameState.Initializing, new State(OnStateEnterInitializing, null, null));
+            StateMachine.RegisterState(GameState.Ready, new State(OnStateEnterReady, null, null));
+            StateMachine.RegisterState(GameState.Playing, new State(OnStateEnterPlaying, OnStateUpdatePlaying, OnStateExitPlaying));
+            StateMachine.RegisterState(GameState.Processing, new State(OnStateEnterProcessing, null, OnStateExitProcessing));
+            StateMachine.RegisterState(GameState.Paused, new State(OnStateEnterPaused, null, OnStateExitPaused));
+            StateMachine.RegisterState(GameState.GameOver, new State(OnStateEnterGameOver, null, null));
         }
 
         public void Initialize()
@@ -379,26 +379,5 @@ namespace PlayFrame.MiniGames.Common
         }
 
         #endregion
-    }
-
-    /// <summary>
-    /// Simple state implementation using delegates
-    /// </summary>
-    internal class SimpleState : IState
-    {
-        private readonly System.Action _onEnter;
-        private readonly System.Action _onUpdate;
-        private readonly System.Action _onExit;
-
-        public SimpleState(System.Action onEnter, System.Action onUpdate, System.Action onExit)
-        {
-            _onEnter = onEnter;
-            _onUpdate = onUpdate;
-            _onExit = onExit;
-        }
-
-        public void Enter() => _onEnter?.Invoke();
-        public void Update() => _onUpdate?.Invoke();
-        public void Exit() => _onExit?.Invoke();
     }
 }

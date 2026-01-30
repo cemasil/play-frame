@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace PlayFrame.Systems.SceneManagement
+namespace PlayFrame.Systems.Scene
 {
     /// <summary>
     /// Configuration settings for scene loading behavior.

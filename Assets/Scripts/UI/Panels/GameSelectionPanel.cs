@@ -1,10 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
-using PlayFrame.Systems.SceneManagement;
-using PlayFrame.Systems.SaveSystem;
-using PlayFrame.Systems.UI;
-using PlayFrame.UI.Prefabs;
+using PlayFrame.Systems.Scene;
+using PlayFrame.Systems.Save;
+using PlayFrame.UI;
 using PlayFrame.MiniGames;
+using PlayFrame.UI.Base;
 
 namespace PlayFrame.UI.Panels
 {

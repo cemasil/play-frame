@@ -1,5 +1,5 @@
 using UnityEngine;
-using PlayFrame.UI.Prefabs;
+using PlayFrame.UI;
 
 namespace PlayFrame.UI
 {

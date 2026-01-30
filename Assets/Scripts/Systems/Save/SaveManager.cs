@@ -3,7 +3,7 @@ using UnityEngine;
 using PlayFrame.Core;
 using PlayFrame.Core.Events;
 
-namespace PlayFrame.Systems.SaveSystem
+namespace PlayFrame.Systems.Save
 {
     /// <summary>
     /// Manages saving and loading game data using PlayerPrefs.

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace PlayFrame.Systems.SaveSystem
+namespace PlayFrame.Systems.Save
 {
     [Serializable]
     public class SaveData

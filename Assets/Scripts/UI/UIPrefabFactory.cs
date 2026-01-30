@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-namespace PlayFrame.UI.Prefabs
+namespace PlayFrame.UI
 {
     /// <summary>
     /// Factory for creating common UI elements from prefabs.

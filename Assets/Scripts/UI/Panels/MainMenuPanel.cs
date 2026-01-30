@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
-using PlayFrame.Systems.SceneManagement;
-using PlayFrame.Systems.UI;
+using PlayFrame.Systems.Scene;
+using PlayFrame.UI.Base;
 
 namespace PlayFrame.UI.Panels
 {

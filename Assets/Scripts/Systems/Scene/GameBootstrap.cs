@@ -1,14 +1,14 @@
 using System.Collections;
 using UnityEngine;
 using PlayFrame.Core.Events;
-using PlayFrame.Systems.SceneManagement;
-using PlayFrame.Systems.SaveSystem;
+using PlayFrame.Systems.Scene;
+using PlayFrame.Systems.Save;
 using PlayFrame.Systems.Audio;
 using PlayFrame.Systems.Input;
 using PlayFrame.Systems.Localization;
 using PlayFrame.Systems.Analytics;
 
-namespace PlayFrame.Systems.Bootstrap
+namespace PlayFrame.Systems.Scene
 {
     /// <summary>
     /// Bootstrap scene controller - initializes all managers and services.

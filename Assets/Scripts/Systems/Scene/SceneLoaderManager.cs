@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 using PlayFrame.Core;
 using PlayFrame.Core.Events;
 
-namespace PlayFrame.Systems.SceneManagement
+namespace PlayFrame.Systems.Scene
 {
     /// <summary>
     /// Handles scene loading with progress tracking and events.

@@ -1,4 +1,4 @@
-namespace PlayFrame.Systems.SceneManagement
+namespace PlayFrame.Systems.Scene
 {
     public static class SceneNames
     {

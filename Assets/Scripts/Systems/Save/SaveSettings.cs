@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace PlayFrame.Systems.SaveSystem
+namespace PlayFrame.Systems.Save
 {
     /// <summary>
     /// ScriptableObject for configuring save system settings.
