@@ -93,8 +93,8 @@ namespace PlayFrame.Systems.Bootstrap
             _ = AnalyticsManager.Instance;
             yield return null;
 
-            EnsureManagerFromPrefab<SceneLoader>(sceneLoaderPrefab);
-            _ = SceneLoader.Instance;
+            EnsureManagerFromPrefab<SceneLoaderManager>(sceneLoaderPrefab);
+            _ = SceneLoaderManager.Instance;
             yield return null;
         }
 
@@ -142,9 +142,9 @@ namespace PlayFrame.Systems.Bootstrap
 
         private void LoadNextScene()
         {
-            if (SceneLoader.HasInstance)
+            if (SceneLoaderManager.HasInstance)
             {
-                SceneLoader.Instance.LoadScene(nextSceneName);
+                SceneLoaderManager.Instance.LoadScene(nextSceneName);
             }
             else
             {

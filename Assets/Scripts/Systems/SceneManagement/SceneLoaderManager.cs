@@ -11,7 +11,7 @@ namespace PlayFrame.Systems.SceneManagement
     /// Handles scene loading with progress tracking and events.
     /// Uses SceneLoadingSettings for configurable timing parameters.
     /// </summary>
-    public class SceneLoader : PersistentSingleton<SceneLoader>
+    public class SceneLoaderManager : PersistentSingleton<SceneLoaderManager>
     {
         [Header("Settings")]
         [SerializeField] private SceneLoadingSettings settings;

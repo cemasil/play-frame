@@ -462,19 +462,19 @@ namespace PlayFrame.MiniGames.Match3
 
         private void OnBackClicked()
         {
-            SceneLoader.Instance.LoadScene(SceneNames.GAME_SELECTION);
+            SceneLoaderManager.Instance.LoadScene(SceneNames.GAME_SELECTION);
         }
 
         private void OnRestartClicked()
         {
             // Track retry before reloading
             TrackLevelRetried();
-            SceneLoader.Instance.LoadScene(SceneNames.MATCH3);
+            SceneLoaderManager.Instance.LoadScene(SceneNames.MATCH3);
         }
 
         private void OnMenuClicked()
         {
-            SceneLoader.Instance.LoadScene(SceneNames.MAIN_MENU);
+            SceneLoaderManager.Instance.LoadScene(SceneNames.MAIN_MENU);
         }
     }
 }
