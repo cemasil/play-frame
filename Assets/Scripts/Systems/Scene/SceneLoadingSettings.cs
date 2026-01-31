@@ -1,4 +1,6 @@
 using UnityEngine;
+using PlayFrame.Core.Logging;
+using ILogger = PlayFrame.Core.Logging.ILogger;
 
 namespace PlayFrame.Systems.Scene
 {
@@ -9,6 +11,7 @@ namespace PlayFrame.Systems.Scene
     [CreateAssetMenu(fileName = "SceneLoadingSettings", menuName = "PlayFrame/Scene Loading Settings")]
     public class SceneLoadingSettings : ScriptableObject
     {
+        private static readonly ILogger _logger = LoggerFactory.CreateScene("SceneLoadingSettings");
         [Header("Timing")]
         [Tooltip("Delay before starting the actual scene load (seconds)")]
         [SerializeField, Range(0f, 1f)] private float preLoadDelay = 0.1f;
@@ -102,7 +105,7 @@ namespace PlayFrame.Systems.Scene
         public static SceneLoadingSettings CreateDefault()
         {
             var settings = CreateInstance<SceneLoadingSettings>();
-            Debug.LogWarning("[SceneLoadingSettings] No SceneLoadingSettings assigned. Using default settings. " +
+            _logger.LogWarning("No SceneLoadingSettings assigned. Using default settings. " +
                            "Create one via Assets > Create > PlayFrame > Scene Loading Settings.");
             return settings;
         }

@@ -1,4 +1,6 @@
 using UnityEngine;
+using PlayFrame.Core.Logging;
+using ILogger = PlayFrame.Core.Logging.ILogger;
 
 namespace PlayFrame.Core
 {
@@ -9,6 +11,7 @@ namespace PlayFrame.Core
     /// </summary>
     public class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
     {
+        private static readonly ILogger _logger = LoggerFactory.CreateCore("MonoSingleton");
         private static T _instance;
         private static bool _applicationIsQuitting = false;
         private static readonly object _lock = new object();
@@ -27,7 +30,7 @@ namespace PlayFrame.Core
             {
                 if (_applicationIsQuitting)
                 {
-                    Debug.LogWarning($"[MonoSingleton] Instance of {typeof(T)} already destroyed. Returning null.");
+                    _logger.LogWarning($"Instance of {typeof(T)} already destroyed. Returning null.");
                     return null;
                 }
 

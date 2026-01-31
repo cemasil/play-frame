@@ -1,5 +1,7 @@
 using System;
 using UnityEngine;
+using PlayFrame.Core.Logging;
+using ILogger = PlayFrame.Core.Logging.ILogger;
 
 namespace PlayFrame.Systems.Localization
 {
@@ -25,6 +27,9 @@ namespace PlayFrame.Systems.Localization
     [CreateAssetMenu(fileName = "NewLanguage", menuName = "PlayFrame/Localization/String Table")]
     public class LocalizedStringTable : ScriptableObject
     {
+        private static ILogger _logger;
+        private static ILogger Logger => _logger ??= LoggerFactory.CreateLocalization("Localization");
+
         [Header("Language Info")]
         [Tooltip("Language code (e.g., 'en', 'tr', 'de')")]
         [SerializeField] private string languageCode = "en";
@@ -60,7 +65,7 @@ namespace PlayFrame.Systems.Localization
                 return value;
 
 #if UNITY_EDITOR
-            Debug.LogWarning($"[Localization] Missing key '{key}' in {displayName} ({languageCode})");
+            Logger.LogWarning($"Missing key '{key}' in {displayName} ({languageCode})");
 #endif
             return $"[{key}]";
         }
@@ -78,7 +83,7 @@ namespace PlayFrame.Systems.Localization
             }
             catch (FormatException)
             {
-                Debug.LogError($"[Localization] Format error for key '{key}' with {args.Length} arguments");
+                Logger.LogError($"Format error for key '{key}' with {args.Length} arguments");
                 return format;
             }
         }
@@ -112,7 +117,7 @@ namespace PlayFrame.Systems.Localization
 
                 if (_lookupCache.ContainsKey(entry.key))
                 {
-                    Debug.LogWarning($"[Localization] Duplicate key '{entry.key}' in {displayName}");
+                    Logger.LogWarning($"Duplicate key '{entry.key}' in {displayName}");
                     continue;
                 }
 

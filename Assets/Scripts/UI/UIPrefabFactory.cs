@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using PlayFrame.Core.Logging;
+using ILogger = PlayFrame.Core.Logging.ILogger;
 
 namespace PlayFrame.UI
 {
@@ -12,6 +14,9 @@ namespace PlayFrame.UI
     {
         private static UIPrefabSettings _settings;
         private static bool _isInitialized;
+        private static ILogger _logger;
+
+        private static ILogger Logger => _logger ??= LoggerFactory.CreateUI("UIPrefabFactory");
 
         /// <summary>
         /// Whether the factory has been initialized with settings
@@ -30,7 +35,7 @@ namespace PlayFrame.UI
         {
             if (settings == null)
             {
-                Debug.LogError("[UIPrefabFactory] Cannot set null settings!");
+                Logger.LogError("Cannot set null settings!");
                 return;
             }
 
@@ -45,7 +50,7 @@ namespace PlayFrame.UI
         {
             if (_settings == null)
             {
-                Debug.LogError("[UIPrefabFactory] UIPrefabSettings not initialized. " +
+                Logger.LogError("UIPrefabSettings not initialized. " +
                     "Call UIPrefabFactory.SetSettings() during initialization (e.g., in UIBootstrap).");
             }
             return _settings;
@@ -56,7 +61,7 @@ namespace PlayFrame.UI
             var settings = GetSettings();
             if (settings?.ThemedButtonPrefab == null)
             {
-                Debug.LogWarning("[UIPrefabFactory] ThemedButton prefab not assigned in UIPrefabSettings");
+                Logger.LogWarning("ThemedButton prefab not assigned in UIPrefabSettings");
                 return null;
             }
 
@@ -73,7 +78,7 @@ namespace PlayFrame.UI
             var settings = GetSettings();
             if (settings?.ThemedPanelPrefab == null)
             {
-                Debug.LogWarning("[UIPrefabFactory] ThemedPanel prefab not assigned in UIPrefabSettings");
+                Logger.LogWarning("ThemedPanel prefab not assigned in UIPrefabSettings");
                 return null;
             }
 
@@ -86,7 +91,7 @@ namespace PlayFrame.UI
             var prefab = settings?.GetTextPrefab(textType);
             if (prefab == null)
             {
-                Debug.LogWarning($"[UIPrefabFactory] Text prefab for {textType} not assigned in UIPrefabSettings");
+                Logger.LogWarning($"Text prefab for {textType} not assigned in UIPrefabSettings");
                 return null;
             }
 
@@ -107,7 +112,7 @@ namespace PlayFrame.UI
             var settings = GetSettings();
             if (settings?.GameCardPrefab == null)
             {
-                Debug.LogWarning("[UIPrefabFactory] GameCard prefab not assigned in UIPrefabSettings");
+                Logger.LogWarning("GameCard prefab not assigned in UIPrefabSettings");
                 return null;
             }
 

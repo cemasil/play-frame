@@ -1,10 +1,11 @@
 using UnityEngine;
 using UnityEngine.UI;
+using PlayFrame.Core.Logging;
 using PlayFrame.Systems.Scene;
 using PlayFrame.Systems.Save;
-using PlayFrame.UI;
 using PlayFrame.MiniGames;
 using PlayFrame.UI.Base;
+using ILogger = PlayFrame.Core.Logging.ILogger;
 
 namespace PlayFrame.UI.Panels
 {
@@ -14,8 +15,12 @@ namespace PlayFrame.UI.Panels
         [SerializeField] private Transform gameContainer;
         [SerializeField] private Button backButton;
 
+        private ILogger _logger;
+
         protected override void OnInitialize()
         {
+            _logger = LoggerFactory.CreateUI("GameSelectionPanel");
+
             if (backButton != null)
                 backButton.onClick.AddListener(OnBackClicked);
 
@@ -26,7 +31,7 @@ namespace PlayFrame.UI.Panels
         {
             if (gameContainer == null)
             {
-                Debug.LogError("[GameSelectionPanel] Game Container is not assigned!");
+                _logger.LogError("Game Container is not assigned!");
                 return;
             }
 
@@ -45,7 +50,7 @@ namespace PlayFrame.UI.Panels
 
                 if (card == null)
                 {
-                    Debug.LogWarning($"[GameSelectionPanel] Failed to create card for {game.displayName}");
+                    _logger.LogWarning($"Failed to create card for {game.displayName}");
                     continue;
                 }
 

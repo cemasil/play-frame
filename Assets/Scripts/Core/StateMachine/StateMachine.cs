@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using PlayFrame.Core.Logging;
 
 namespace PlayFrame.Core.StateMachine
 {
@@ -9,6 +10,7 @@ namespace PlayFrame.Core.StateMachine
     /// <typeparam name="TState">Enum type for states</typeparam>
     public class StateMachine<TState> where TState : Enum
     {
+        private static readonly ILogger _logger = LoggerFactory.CreateCore("StateMachine");
         private readonly Dictionary<TState, IState> _states = new Dictionary<TState, IState>();
         private IState _currentState;
         private TState _currentStateKey;
@@ -31,7 +33,7 @@ namespace PlayFrame.Core.StateMachine
         {
             if (_states.ContainsKey(stateKey))
             {
-                UnityEngine.Debug.LogWarning($"[StateMachine] State '{stateKey}' already registered. Replacing.");
+                _logger.LogWarning($"State '{stateKey}' already registered. Replacing.");
             }
             _states[stateKey] = state;
         }
@@ -43,7 +45,7 @@ namespace PlayFrame.Core.StateMachine
         {
             if (!_states.TryGetValue(stateKey, out var state))
             {
-                UnityEngine.Debug.LogError($"[StateMachine] State '{stateKey}' not found!");
+                _logger.LogError($"State '{stateKey}' not found!");
                 return;
             }
 
@@ -71,7 +73,7 @@ namespace PlayFrame.Core.StateMachine
 
             if (!_states.TryGetValue(newStateKey, out var newState))
             {
-                UnityEngine.Debug.LogError($"[StateMachine] State '{newStateKey}' not found!");
+                _logger.LogError($"State '{newStateKey}' not found!");
                 return;
             }
 

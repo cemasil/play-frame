@@ -2,6 +2,8 @@ using System;
 using UnityEngine;
 using PlayFrame.Core;
 using PlayFrame.Core.Events;
+using PlayFrame.Core.Logging;
+using ILogger = PlayFrame.Core.Logging.ILogger;
 
 namespace PlayFrame.Systems.Save
 {
@@ -20,13 +22,15 @@ namespace PlayFrame.Systems.Save
         private bool _isInitialized = false;
         private float _lastAutoSaveTime;
 
+        // Logging
+        private ILogger _logger;
+
         // Cached settings for runtime access
         private string _saveKey;
         private bool _prettyPrintJson;
         private bool _enableAutoSave;
         private float _autoSaveInterval;
         private bool _enableBackup;
-        private bool _enableDebugLogs;
         private bool _logSaveContents;
 
         public SaveData CurrentSaveData => _currentSaveData;
@@ -47,16 +51,18 @@ namespace PlayFrame.Systems.Save
                 settings = SaveSettings.CreateDefault();
             }
 
+            // Initialize logger using factory with global settings integration
+            _logger = LoggerFactory.CreateSave("SaveManager");
+
             // Cache settings for runtime performance
             _saveKey = settings.SaveKey;
             _prettyPrintJson = settings.PrettyPrintJson;
             _enableAutoSave = settings.EnableAutoSave;
             _autoSaveInterval = settings.AutoSaveInterval;
             _enableBackup = settings.EnableBackup;
-            _enableDebugLogs = settings.EnableDebugLogs;
             _logSaveContents = settings.LogSaveContents;
 
-            LogDebug("Save settings loaded");
+            _logger.Log("Save settings loaded");
         }
 
         private void Update()
@@ -65,7 +71,7 @@ namespace PlayFrame.Systems.Save
 
             if (Time.time - _lastAutoSaveTime >= _autoSaveInterval)
             {
-                LogDebug("Auto-saving...");
+                _logger.Log("Auto-saving...");
                 SaveGame();
                 _lastAutoSaveTime = Time.time;
             }
@@ -75,7 +81,7 @@ namespace PlayFrame.Systems.Save
         {
             if (pauseStatus && _isInitialized && settings.SaveOnApplicationPause)
             {
-                LogDebug("Saving on application pause...");
+                _logger.Log("Saving on application pause...");
                 SaveGame();
             }
         }
@@ -85,7 +91,7 @@ namespace PlayFrame.Systems.Save
         {
             if (_isInitialized && settings.SaveOnApplicationQuit)
             {
-                LogDebug("Saving on application quit...");
+                _logger.Log("Saving on application quit...");
                 SaveGame();
             }
             base.OnApplicationQuit();
@@ -95,7 +101,7 @@ namespace PlayFrame.Systems.Save
         {
             if (_isInitialized && settings.SaveOnApplicationQuit)
             {
-                LogDebug("Saving on application quit...");
+                _logger.Log("Saving on application quit...");
                 SaveGame();
             }
         }
@@ -123,10 +129,10 @@ namespace PlayFrame.Systems.Save
                 PlayerPrefs.SetString(_saveKey, json);
                 PlayerPrefs.Save();
 
-                LogDebug("Game saved successfully");
+                _logger.Log("Game saved successfully");
                 if (_logSaveContents)
                 {
-                    LogDebug($"[SaveManager] Save contents:\n{json}");
+                    _logger.Log($"Save contents:\n{json}");
                 }
 
                 if (_isInitialized && EventManager.HasInstance)
@@ -136,7 +142,7 @@ namespace PlayFrame.Systems.Save
             }
             catch (Exception e)
             {
-                Debug.LogError($"[SaveManager] Failed to save game: {e.Message}");
+                _logger.LogError($"Failed to save game: {e.Message}");
             }
         }
 
@@ -151,11 +157,11 @@ namespace PlayFrame.Systems.Save
                     // Validate data if enabled
                     if (settings.ValidateOnLoad && !ValidateSaveData(json))
                     {
-                        Debug.LogWarning("[SaveManager] Save data validation failed");
+                        _logger.LogWarning("Save data validation failed");
 
                         if (settings.RestoreFromBackupOnError)
                         {
-                            LogDebug("Attempting to restore from backup...");
+                            _logger.Log("Attempting to restore from backup...");
                             if (RestoreFromBackup())
                             {
                                 return;
@@ -171,15 +177,15 @@ namespace PlayFrame.Systems.Save
                     _currentSaveData = JsonUtility.FromJson<SaveData>(json);
                     _currentSaveData.InitializeDictionary();
 
-                    LogDebug("Game loaded successfully");
+                    _logger.Log("Game loaded successfully");
                     if (_logSaveContents)
                     {
-                        LogDebug($"[SaveManager] Loaded contents:\n{json}");
+                        _logger.Log($"Loaded contents:\n{json}");
                     }
                 }
                 else
                 {
-                    LogDebug("No save data found, creating new save");
+                    _logger.Log("No save data found, creating new save");
                     _currentSaveData = new SaveData();
                     SaveGame();
                 }
@@ -191,11 +197,11 @@ namespace PlayFrame.Systems.Save
             }
             catch (Exception e)
             {
-                Debug.LogError($"[SaveManager] Failed to load game: {e.Message}");
+                _logger.LogError($"Failed to load game: {e.Message}");
 
                 if (settings.RestoreFromBackupOnError)
                 {
-                    LogDebug("Attempting to restore from backup after error...");
+                    _logger.Log("Attempting to restore from backup after error...");
                     if (!RestoreFromBackup())
                     {
                         _currentSaveData = new SaveData();
@@ -230,11 +236,11 @@ namespace PlayFrame.Systems.Save
                 }
 
                 PlayerPrefs.SetString(settings.BackupKey, currentData);
-                LogDebug("Backup created");
+                _logger.Log("Backup created");
             }
             catch (Exception e)
             {
-                Debug.LogWarning($"[SaveManager] Failed to create backup: {e.Message}");
+                _logger.LogWarning($"Failed to create backup: {e.Message}");
             }
         }
 
@@ -259,18 +265,18 @@ namespace PlayFrame.Systems.Save
                             // Save restored data as main save
                             SaveGame();
 
-                            LogDebug($"[SaveManager] Successfully restored from backup slot {i}");
+                            _logger.Log($"Successfully restored from backup slot {i}");
                             return true;
                         }
                     }
                     catch (Exception e)
                     {
-                        Debug.LogWarning($"[SaveManager] Failed to restore from backup slot {i}: {e.Message}");
+                        _logger.LogWarning($"Failed to restore from backup slot {i}: {e.Message}");
                     }
                 }
             }
 
-            Debug.LogWarning("[SaveManager] No valid backup found");
+            _logger.LogWarning("No valid backup found");
             return false;
         }
 
@@ -307,7 +313,7 @@ namespace PlayFrame.Systems.Save
             PlayerPrefs.Save();
             _currentSaveData = new SaveData();
 
-            LogDebug("Save data deleted");
+            _logger.Log("Save data deleted");
         }
 
         public bool HasSaveData()
@@ -368,14 +374,6 @@ namespace PlayFrame.Systems.Save
         public void ReloadSettings()
         {
             LoadSettings();
-        }
-
-        private void LogDebug(string message)
-        {
-            if (_enableDebugLogs)
-            {
-                Debug.Log($"[SaveManager] {message}");
-            }
         }
     }
 }

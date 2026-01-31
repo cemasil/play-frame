@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using PlayFrame.Core.Logging;
+using ILogger = PlayFrame.Core.Logging.ILogger;
 
 namespace PlayFrame.UI
 {
@@ -12,6 +14,9 @@ namespace PlayFrame.UI
     [CreateAssetMenu(fileName = "UIPrefabSettings", menuName = "PlayFrame/UI/UI Prefab Settings")]
     public class UIPrefabSettings : ScriptableObject
     {
+        private static ILogger _logger;
+        private static ILogger Logger => _logger ??= LoggerFactory.CreateUI("UIPrefabSettings");
+
         [Header("Default Theme")]
         [Tooltip("Default UI theme used when no theme is specified")]
         [SerializeField] private UITheme defaultTheme;
@@ -60,7 +65,7 @@ namespace PlayFrame.UI
         public static UIPrefabSettings CreateDefault()
         {
             var settings = CreateInstance<UIPrefabSettings>();
-            Debug.LogWarning("[UIPrefabSettings] No UIPrefabSettings assigned. Using default settings. " +
+            Logger.LogWarning("No UIPrefabSettings assigned. Using default settings. " +
                            "Create one via Assets > Create > PlayFrame > UI > UI Prefab Settings " +
                            "and place in GameSettings/UI folder.");
             return settings;
@@ -70,7 +75,7 @@ namespace PlayFrame.UI
         {
             if (defaultTheme == null)
             {
-                Debug.LogWarning("[UIPrefabSettings] Default theme is not assigned!");
+                Logger.LogWarning("Default theme is not assigned!");
             }
         }
     }

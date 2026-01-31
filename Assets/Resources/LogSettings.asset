@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01912a29f427e41a2b8c215a8d98399c, type: 3}
+  m_Name: LogSettings
+  m_EditorClassIdentifier: PlayFrame.Core::PlayFrame.Core.Logging.LogSettings
+  enableAllLogs: 1
+  useModuleOverrides: 0
+  enableAnalyticsLogs: 1
+  enableSaveLogs: 1
+  enableLocalizationLogs: 1
+  enableSceneLogs: 1
+  enableUILogs: 1
+  enableEventLogs: 1
+  enableGameLogs: 1
+  enableCoreLogs: 1

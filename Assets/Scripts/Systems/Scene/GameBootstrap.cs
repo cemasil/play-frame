@@ -1,12 +1,13 @@
 using System.Collections;
 using UnityEngine;
 using PlayFrame.Core.Events;
-using PlayFrame.Systems.Scene;
+using PlayFrame.Core.Logging;
 using PlayFrame.Systems.Save;
 using PlayFrame.Systems.Audio;
 using PlayFrame.Systems.Input;
 using PlayFrame.Systems.Localization;
 using PlayFrame.Systems.Analytics;
+using ILogger = PlayFrame.Core.Logging.ILogger;
 
 namespace PlayFrame.Systems.Scene
 {
@@ -35,16 +36,18 @@ namespace PlayFrame.Systems.Scene
 
         private float _startTime;
         private bool _isInitialized;
+        private ILogger _logger;
 
         private void Start()
         {
+            _logger = LoggerFactory.CreateScene("Bootstrap");
             _startTime = Time.time;
             StartCoroutine(InitializeGame());
         }
 
         private IEnumerator InitializeGame()
         {
-            Debug.Log("[Bootstrap] Starting game initialization...");
+            _logger.Log("Starting game initialization...");
 
             yield return InitializeManagers();
 
@@ -55,7 +58,7 @@ namespace PlayFrame.Systems.Scene
             yield return AdditionalInitialization();
 
             _isInitialized = true;
-            Debug.Log("[Bootstrap] Game initialization complete!");
+            _logger.Log("Game initialization complete!");
 
             float elapsed = Time.time - _startTime;
             if (elapsed < minimumSplashDuration)
@@ -68,7 +71,7 @@ namespace PlayFrame.Systems.Scene
 
         private IEnumerator InitializeManagers()
         {
-            Debug.Log("[Bootstrap] Initializing managers...");
+            _logger.Log("Initializing managers...");
 
             EnsureManagerFromPrefab<EventManager>(eventManager);
             _ = EventManager.Instance;
@@ -103,20 +106,20 @@ namespace PlayFrame.Systems.Scene
         {
             if (FindFirstObjectByType<T>() != null)
             {
-                Debug.Log($"[Bootstrap] {typeof(T).Name} already exists.");
+                _logger.Log($"{typeof(T).Name} already exists.");
                 return;
             }
 
             if (prefab != null)
             {
                 Instantiate(prefab);
-                Debug.Log($"[Bootstrap] {typeof(T).Name} instantiated from prefab.");
+                _logger.Log($"{typeof(T).Name} instantiated from prefab.");
             }
         }
 
         private IEnumerator LoadSavedData()
         {
-            Debug.Log("[Bootstrap] Loading saved data...");
+            _logger.Log("Loading saved data...");
 
             var saveManager = SaveManager.Instance;
             saveManager.LoadGame();
@@ -126,7 +129,7 @@ namespace PlayFrame.Systems.Scene
 
         private IEnumerator InitializeAudio()
         {
-            Debug.Log("[Bootstrap] Initializing audio...");
+            _logger.Log("Initializing audio...");
 
             var audioManager = AudioManager.Instance;
 

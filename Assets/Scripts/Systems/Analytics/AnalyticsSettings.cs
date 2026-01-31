@@ -1,4 +1,6 @@
 using UnityEngine;
+using PlayFrame.Core.Logging;
+using ILogger = PlayFrame.Core.Logging.ILogger;
 
 namespace PlayFrame.Systems.Analytics
 {
@@ -10,6 +12,7 @@ namespace PlayFrame.Systems.Analytics
     [CreateAssetMenu(fileName = "AnalyticsSettings", menuName = "PlayFrame/Analytics/Analytics Settings")]
     public class AnalyticsSettings : ScriptableObject
     {
+        private static readonly ILogger _logger = LoggerFactory.CreateAnalytics("AnalyticsSettings");
 
         [Header("General Settings")]
         [Tooltip("Enable/disable analytics collection globally")]
@@ -88,7 +91,7 @@ namespace PlayFrame.Systems.Analytics
         public static AnalyticsSettings CreateDefault()
         {
             var settings = CreateInstance<AnalyticsSettings>();
-            Debug.LogWarning("[Analytics] No AnalyticsSettings assigned. Using default settings. " +
+            _logger.LogWarning("No AnalyticsSettings assigned. Using default settings. " +
                            "Create one via Assets > Create > PlayFrame > Analytics > Analytics Settings " +
                            "and place in GameSettings/Analytics folder.");
             return settings;

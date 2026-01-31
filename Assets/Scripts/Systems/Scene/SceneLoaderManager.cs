@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using PlayFrame.Core;
 using PlayFrame.Core.Events;
+using PlayFrame.Core.Logging;
+using ILogger = PlayFrame.Core.Logging.ILogger;
 
 namespace PlayFrame.Systems.Scene
 {
@@ -20,6 +22,7 @@ namespace PlayFrame.Systems.Scene
         private bool _isLoading;
         private float _displayProgress;
         private float _loadStartTime;
+        private ILogger _logger;
 
         public bool IsLoading => _isLoading;
         public float CurrentProgress => _displayProgress;
@@ -31,6 +34,7 @@ namespace PlayFrame.Systems.Scene
 
         protected override void OnSingletonAwake()
         {
+            _logger = LoggerFactory.CreateScene("SceneLoader");
             LoadSettings();
         }
 
@@ -46,7 +50,7 @@ namespace PlayFrame.Systems.Scene
         {
             if (_isLoading)
             {
-                Debug.LogWarning($"[SceneLoader] Already loading a scene. Ignoring request for: {sceneName}");
+                _logger.LogWarning($"Already loading a scene. Ignoring request for: {sceneName}");
                 return;
             }
 

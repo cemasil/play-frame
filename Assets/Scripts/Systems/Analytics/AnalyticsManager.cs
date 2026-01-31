@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using PlayFrame.Core;
+using PlayFrame.Core.Logging;
+using ILogger = PlayFrame.Core.Logging.ILogger;
 
 namespace PlayFrame.Systems.Analytics
 {
@@ -28,9 +30,11 @@ namespace PlayFrame.Systems.Analytics
         private float _lastFlushTime;
         private bool _isInitialized;
 
+        // Logging
+        private ILogger _logger;
+
         // Cached settings for runtime access
         private bool _enableAnalytics;
-        private bool _enableDebugLogs;
         private bool _enableBatching;
         private float _batchFlushInterval;
         private int _maxBatchSize;
@@ -70,14 +74,16 @@ namespace PlayFrame.Systems.Analytics
                 settings = AnalyticsSettings.CreateDefault();
             }
 
+            // Initialize logger using factory with global settings integration
+            _logger = LoggerFactory.CreateAnalytics("Analytics");
+
             // Cache settings for runtime performance
             _enableAnalytics = settings.EnableAnalytics;
-            _enableDebugLogs = settings.EnableDebugLogs;
             _enableBatching = settings.EnableBatching;
             _batchFlushInterval = settings.BatchFlushInterval;
             _maxBatchSize = settings.MaxBatchSize;
 
-            LogDebug("Analytics settings loaded");
+            _logger.Log("Analytics settings loaded");
         }
 
         private void Update()
@@ -128,7 +134,7 @@ namespace PlayFrame.Systems.Analytics
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (settings.EnableConsoleProvider)
             {
-                RegisterProvider(new ConsoleAnalyticsProvider(_enableDebugLogs));
+                RegisterProvider(new ConsoleAnalyticsProvider(settings.EnableDebugLogs));
             }
 #endif
 
@@ -150,7 +156,7 @@ namespace PlayFrame.Systems.Analytics
                 RegisterProvider(new FirebaseAnalyticsProvider());
             }
 
-            LogDebug($"Analytics initialized with {_providers.Count} provider(s)");
+            _logger.Log($"Analytics initialized with {_providers.Count} provider(s)");
         }
 
         /// <summary>
@@ -160,7 +166,7 @@ namespace PlayFrame.Systems.Analytics
         {
             if (provider == null)
             {
-                LogWarning("Attempted to register null analytics provider");
+                _logger.LogWarning("Attempted to register null analytics provider");
                 return;
             }
 
@@ -168,13 +174,13 @@ namespace PlayFrame.Systems.Analytics
             {
                 if (_providers.Exists(p => p.ProviderId == provider.ProviderId))
                 {
-                    LogWarning($"Analytics provider '{provider.ProviderId}' is already registered");
+                    _logger.LogWarning($"Analytics provider '{provider.ProviderId}' is already registered");
                     return;
                 }
 
                 provider.Initialize();
                 _providers.Add(provider);
-                LogDebug($"Registered analytics provider: {provider.ProviderId}");
+                _logger.Log($"Registered analytics provider: {provider.ProviderId}");
             }
         }
 
@@ -190,7 +196,7 @@ namespace PlayFrame.Systems.Analytics
                 {
                     provider.Shutdown();
                     _providers.Remove(provider);
-                    LogDebug($"Unregistered analytics provider: {providerId}");
+                    _logger.Log($"Unregistered analytics provider: {providerId}");
                 }
             }
         }
@@ -218,7 +224,7 @@ namespace PlayFrame.Systems.Analytics
                     }
                     catch (Exception ex)
                     {
-                        LogError($"Error shutting down provider {provider.ProviderId}: {ex.Message}");
+                        _logger.LogError($"Error shutting down provider {provider.ProviderId}: {ex.Message}");
                     }
                 }
                 _providers.Clear();
@@ -244,7 +250,7 @@ namespace PlayFrame.Systems.Analytics
             _currentSessionId = sessionEvent.SessionId;
 
             DispatchToProviders(p => p.TrackSessionStart(sessionEvent));
-            LogDebug($"Session started: {_currentSessionId}");
+            _logger.Log($"Session started: {_currentSessionId}");
         }
 
         /// <summary>
@@ -263,7 +269,7 @@ namespace PlayFrame.Systems.Analytics
             );
 
             DispatchToProviders(p => p.TrackSessionEnd(sessionEvent));
-            LogDebug($"Session ended: {_currentSessionId}, Duration: {sessionDuration:F1}s");
+            _logger.Log($"Session ended: {_currentSessionId}, Duration: {sessionDuration:F1}s");
 
             _currentSessionId = null;
         }
@@ -281,7 +287,7 @@ namespace PlayFrame.Systems.Analytics
 
             var levelEvent = new LevelStartedEvent(gameName, levelNumber, "", difficulty, attemptNumber);
             DispatchToProviders(p => p.TrackLevelStarted(levelEvent));
-            LogDebug($"Level started: {gameName} - Level {levelNumber}");
+            _logger.Log($"Level started: {gameName} - Level {levelNumber}");
         }
 
         /// <summary>
@@ -319,7 +325,7 @@ namespace PlayFrame.Systems.Analytics
             );
 
             DispatchToProviders(p => p.TrackLevelCompleted(levelEvent));
-            LogDebug($"Level completed: {gameName} - Level {levelNumber}, Score: {score}, Time: {completionTimeSeconds:F1}s");
+            _logger.Log($"Level completed: {gameName} - Level {levelNumber}, Score: {score}, Time: {completionTimeSeconds:F1}s");
         }
 
         /// <summary>
@@ -351,7 +357,7 @@ namespace PlayFrame.Systems.Analytics
             );
 
             DispatchToProviders(p => p.TrackLevelFailed(levelEvent));
-            LogDebug($"Level failed: {gameName} - Level {levelNumber}, Reason: {failReason}");
+            _logger.Log($"Level failed: {gameName} - Level {levelNumber}, Reason: {failReason}");
         }
 
         /// <summary>
@@ -363,7 +369,7 @@ namespace PlayFrame.Systems.Analytics
 
             var retryEvent = new LevelRetryEvent(gameName, levelNumber, retryNumber, timeSinceLastAttempt);
             TrackEvent(retryEvent);
-            LogDebug($"Level retry: {gameName} - Level {levelNumber}, Retry #{retryNumber}");
+            _logger.Log($"Level retry: {gameName} - Level {levelNumber}, Retry #{retryNumber}");
         }
 
         #endregion
@@ -401,7 +407,7 @@ namespace PlayFrame.Systems.Analytics
 
             var pauseEvent = new GamePausedEvent(gameName, playTimeSeconds, pauseReason);
             TrackEvent(pauseEvent);
-            LogDebug($"Game paused: {gameName}");
+            _logger.Log($"Game paused: {gameName}");
         }
 
         /// <summary>
@@ -413,7 +419,7 @@ namespace PlayFrame.Systems.Analytics
 
             var resumeEvent = new GameResumedEvent(gameName, pauseDurationSeconds);
             TrackEvent(resumeEvent);
-            LogDebug($"Game resumed: {gameName}");
+            _logger.Log($"Game resumed: {gameName}");
         }
 
         #endregion
@@ -429,7 +435,7 @@ namespace PlayFrame.Systems.Analytics
 
             var highScoreEvent = new HighScoreEvent(gameName, newHighScore, previousHighScore, levelNumber);
             TrackEvent(highScoreEvent);
-            LogDebug($"New high score: {gameName} - {newHighScore} (was {previousHighScore})");
+            _logger.Log($"New high score: {gameName} - {newHighScore} (was {previousHighScore})");
         }
 
         /// <summary>
@@ -441,7 +447,7 @@ namespace PlayFrame.Systems.Analytics
 
             var milestoneEvent = new MilestoneReachedEvent(milestoneId, milestoneName, gameName, valueReached);
             TrackEvent(milestoneEvent);
-            LogDebug($"Milestone reached: {milestoneName} in {gameName}");
+            _logger.Log($"Milestone reached: {milestoneName} in {gameName}");
         }
 
         #endregion
@@ -468,7 +474,7 @@ namespace PlayFrame.Systems.Analytics
 
             var screenEvent = new ScreenViewEvent(screenName, previousScreen, timeOnPreviousScreen);
             TrackEvent(screenEvent);
-            LogDebug($"Screen view: {screenName}");
+            _logger.Log($"Screen view: {screenName}");
         }
 
         #endregion
@@ -483,7 +489,7 @@ namespace PlayFrame.Systems.Analytics
             if (!_enableAnalytics) return;
 
             DispatchToProviders(p => p.SetUserProperty(propertyName, value));
-            LogDebug($"User property set: {propertyName} = {value}");
+            _logger.Log($"User property set: {propertyName} = {value}");
         }
 
         #endregion
@@ -577,28 +583,10 @@ namespace PlayFrame.Systems.Analytics
                     }
                     catch (Exception ex)
                     {
-                        LogError($"Error dispatching to provider {provider.ProviderId}: {ex.Message}");
+                        _logger.LogError($"Error dispatching to provider {provider.ProviderId}: {ex.Message}");
                     }
                 }
             }
-        }
-
-        private void LogDebug(string message)
-        {
-            if (_enableDebugLogs)
-            {
-                Debug.Log($"[Analytics] {message}");
-            }
-        }
-
-        private void LogWarning(string message)
-        {
-            Debug.LogWarning($"[Analytics] {message}");
-        }
-
-        private void LogError(string message)
-        {
-            Debug.LogError($"[Analytics] {message}");
         }
 
         #endregion
@@ -611,7 +599,7 @@ namespace PlayFrame.Systems.Analytics
         public void SetEnabled(bool enabled)
         {
             _enableAnalytics = enabled;
-            LogDebug($"Analytics {(enabled ? "enabled" : "disabled")}");
+            _logger.Log($"Analytics {(enabled ? "enabled" : "disabled")}");
         }
 
         /// <summary>
@@ -619,7 +607,7 @@ namespace PlayFrame.Systems.Analytics
         /// </summary>
         public void SetDebugLogging(bool enabled)
         {
-            _enableDebugLogs = enabled;
+            _logger.IsEnabled = enabled;
         }
 
         /// <summary>
@@ -628,7 +616,7 @@ namespace PlayFrame.Systems.Analytics
         public void ReloadSettings()
         {
             LoadSettings();
-            LogDebug("Analytics settings reloaded");
+            _logger.Log("Analytics settings reloaded");
         }
 
         #endregion

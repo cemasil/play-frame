@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using PlayFrame.Core;
+using PlayFrame.Core.Logging;
+using ILogger = PlayFrame.Core.Logging.ILogger;
 
 namespace PlayFrame.MiniGames
 {
@@ -10,6 +12,7 @@ namespace PlayFrame.MiniGames
     /// </summary>
     public class GameRegistry : PersistentSingleton<GameRegistry>
     {
+        private static readonly ILogger _logger = LoggerFactory.CreateGame("GameRegistry");
         [Header("Game Configurations")]
         [Tooltip("Assign all GameConfig assets from GameSettings/Games folder")]
         [SerializeField] private List<GameConfig> gameConfigs = new List<GameConfig>();
@@ -28,14 +31,14 @@ namespace PlayFrame.MiniGames
         {
             if (gameConfigs == null || gameConfigs.Count == 0)
             {
-                Debug.LogWarning("[GameRegistry] No GameConfig assets assigned. " +
+                _logger.LogWarning("No GameConfig assets assigned. " +
                     "Please assign GameConfig assets from GameSettings/Games folder via Inspector.");
             }
             else
             {
                 // Remove any null entries
                 gameConfigs.RemoveAll(config => config == null);
-                Debug.Log($"[GameRegistry] Loaded {gameConfigs.Count} game(s)");
+                _logger.Log($"Loaded {gameConfigs.Count} game(s)");
             }
         }
 

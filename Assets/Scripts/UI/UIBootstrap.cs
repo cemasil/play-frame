@@ -1,4 +1,6 @@
 using UnityEngine;
+using PlayFrame.Core.Logging;
+using ILogger = PlayFrame.Core.Logging.ILogger;
 
 namespace PlayFrame.UI
 {
@@ -12,8 +14,11 @@ namespace PlayFrame.UI
         [Tooltip("Optional: Assign settings directly. If null, uses default settings")]
         [SerializeField] private UIPrefabSettings uiPrefabSettings;
 
+        private ILogger _logger;
+
         private void Awake()
         {
+            _logger = LoggerFactory.CreateUI("UIBootstrap");
             InitializeUI();
         }
 
@@ -22,7 +27,7 @@ namespace PlayFrame.UI
             if (uiPrefabSettings != null)
             {
                 UIPrefabFactory.SetSettings(uiPrefabSettings);
-                Debug.Log("[UIBootstrap] UI Prefab Settings initialized");
+                _logger.Log("UI Prefab Settings initialized");
             }
             else
             {

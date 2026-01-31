@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace PlayFrame.Systems.Analytics
 {
@@ -16,7 +15,12 @@ namespace PlayFrame.Systems.Analytics
     /// </summary>
     public class FirebaseAnalyticsProvider : BaseAnalyticsProvider
     {
-        public override string ProviderId => "firebase_analytics";
+        public override string ProviderId => "FirebaseAnalytics";
+
+        public FirebaseAnalyticsProvider()
+        {
+            InitializeLogger(false); // Disabled by default for stub
+        }
 
         public override void Initialize()
         {
@@ -24,14 +28,14 @@ namespace PlayFrame.Systems.Analytics
             // Firebase.FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task => {
             //     var dependencyStatus = task.Result;
             //     if (dependencyStatus == Firebase.DependencyStatus.Available) {
-            //         Debug.Log("[FirebaseAnalytics] Initialized successfully");
+            //         Logger.Log("Initialized successfully");
             //     } else {
-            //         Debug.LogError($"[FirebaseAnalytics] Could not resolve dependencies: {dependencyStatus}");
+            //         Logger.LogError($"Could not resolve dependencies: {dependencyStatus}");
             //         IsEnabled = false;
             //     }
             // });
-            
-            Debug.Log("[FirebaseAnalytics] Provider initialized (stub - configure Firebase to enable)");
+
+            Logger.Log("Provider initialized (stub - configure Firebase to enable)");
         }
 
         public override void TrackEvent(AnalyticsEvent analyticsEvent)

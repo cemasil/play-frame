@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace PlayFrame.Systems.Analytics
 {
@@ -15,14 +14,19 @@ namespace PlayFrame.Systems.Analytics
     /// </summary>
     public class UnityAnalyticsProvider : BaseAnalyticsProvider
     {
-        public override string ProviderId => "unity_analytics";
+        public override string ProviderId => "UnityAnalytics";
+
+        public UnityAnalyticsProvider()
+        {
+            InitializeLogger(false); // Disabled by default for stub
+        }
 
         public override void Initialize()
         {
             // Uncomment when Unity Analytics is configured:
             // Unity.Services.Analytics.AnalyticsService.Instance.StartDataCollection();
-            
-            Debug.Log("[UnityAnalytics] Provider initialized (stub - configure Unity Analytics to enable)");
+
+            Logger.Log("Provider initialized (stub - configure Unity Analytics to enable)");
         }
 
         public override void TrackEvent(AnalyticsEvent analyticsEvent)

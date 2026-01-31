@@ -1,4 +1,6 @@
 using UnityEngine;
+using PlayFrame.Core.Logging;
+using ILogger = PlayFrame.Core.Logging.ILogger;
 
 namespace PlayFrame.Systems.Save
 {
@@ -10,6 +12,7 @@ namespace PlayFrame.Systems.Save
     [CreateAssetMenu(fileName = "SaveSettings", menuName = "PlayFrame/Save System/Save Settings")]
     public class SaveSettings : ScriptableObject
     {
+        private static readonly ILogger _logger = LoggerFactory.CreateSave("SaveSettings");
         [Header("Save Configuration")]
         [Tooltip("The key used to store save data in PlayerPrefs")]
         [SerializeField] private string saveKey = "GameSaveData";
@@ -103,7 +106,7 @@ namespace PlayFrame.Systems.Save
         public static SaveSettings CreateDefault()
         {
             var settings = CreateInstance<SaveSettings>();
-            Debug.LogWarning("[SaveManager] No SaveSettings assigned. Using default settings. " +
+            _logger.LogWarning("No SaveSettings assigned. Using default settings. " +
                            "Create one via Assets > Create > PlayFrame > Save System > Save Settings " +
                            "and place in GameSettings/SaveSystem folder.");
             return settings;

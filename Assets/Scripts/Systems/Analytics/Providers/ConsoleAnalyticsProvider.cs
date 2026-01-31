@@ -1,5 +1,4 @@
 using System.Text;
-using UnityEngine;
 
 namespace PlayFrame.Systems.Analytics
 {
@@ -12,19 +11,17 @@ namespace PlayFrame.Systems.Analytics
         private readonly bool _verboseLogging;
         private readonly StringBuilder _stringBuilder = new StringBuilder();
 
-        public override string ProviderId => "console";
+        public override string ProviderId => "ConsoleAnalytics";
 
         public ConsoleAnalyticsProvider(bool verboseLogging = false)
         {
             _verboseLogging = verboseLogging;
+            InitializeLogger(verboseLogging);
         }
 
         public override void Initialize()
         {
-            if (_verboseLogging)
-            {
-                Debug.Log("[ConsoleAnalytics] Provider initialized");
-            }
+            Logger.Log("Provider initialized");
         }
 
         public override void TrackEvent(AnalyticsEvent analyticsEvent)
@@ -32,7 +29,7 @@ namespace PlayFrame.Systems.Analytics
             if (!_verboseLogging) return;
 
             _stringBuilder.Clear();
-            _stringBuilder.Append($"[ConsoleAnalytics] Event: {analyticsEvent.EventName}");
+            _stringBuilder.Append($"Event: {analyticsEvent.EventName}");
 
             if (analyticsEvent.Parameters.Count > 0)
             {
@@ -43,54 +40,48 @@ namespace PlayFrame.Systems.Analytics
                 }
             }
 
-            Debug.Log(_stringBuilder.ToString());
+            Logger.Log(_stringBuilder.ToString());
         }
 
         public override void TrackLevelCompleted(LevelCompletedEvent levelEvent)
         {
-            Debug.Log($"[ConsoleAnalytics] ✓ Level Completed: {levelEvent.GameName} - Level {levelEvent.LevelNumber} | " +
+            Logger.Log($"✓ Level Completed: {levelEvent.GameName} - Level {levelEvent.LevelNumber} | " +
                      $"Score: {levelEvent.Score}, Time: {levelEvent.CompletionTimeSeconds:F1}s, Moves: {levelEvent.MoveCount}, " +
                      $"Retries: {levelEvent.RetryCount}, NewHighScore: {levelEvent.IsNewHighScore}");
         }
 
         public override void TrackLevelStarted(LevelStartedEvent levelEvent)
         {
-            Debug.Log($"[ConsoleAnalytics] ► Level Started: {levelEvent.GameName} - Level {levelEvent.LevelNumber} | " +
+            Logger.Log($"► Level Started: {levelEvent.GameName} - Level {levelEvent.LevelNumber} | " +
                      $"Difficulty: {levelEvent.Difficulty}, Attempt: {levelEvent.AttemptNumber}");
         }
 
         public override void TrackLevelFailed(LevelFailedEvent levelEvent)
         {
-            Debug.Log($"[ConsoleAnalytics] ✗ Level Failed: {levelEvent.GameName} - Level {levelEvent.LevelNumber} | " +
+            Logger.Log($"✗ Level Failed: {levelEvent.GameName} - Level {levelEvent.LevelNumber} | " +
                      $"Reason: {levelEvent.FailReason}, Time: {levelEvent.PlayTimeSeconds:F1}s, Score: {levelEvent.Score}");
         }
 
         public override void TrackSessionStart(SessionStartEvent sessionEvent)
         {
-            Debug.Log($"[ConsoleAnalytics] ● Session Started: {sessionEvent.SessionId} | " +
+            Logger.Log($"● Session Started: {sessionEvent.SessionId} | " +
                      $"Game: {sessionEvent.GameName}, Version: {sessionEvent.GameVersion}, Platform: {sessionEvent.Platform}");
         }
 
         public override void TrackSessionEnd(SessionEndEvent sessionEvent)
         {
-            Debug.Log($"[ConsoleAnalytics] ○ Session Ended: {sessionEvent.SessionId} | " +
+            Logger.Log($"○ Session Ended: {sessionEvent.SessionId} | " +
                      $"Duration: {sessionEvent.SessionDurationSeconds:F1}s, Levels: {sessionEvent.LevelsPlayed}, Score: {sessionEvent.TotalScore}");
         }
 
         public override void SetUserProperty(string propertyName, string value)
         {
-            if (_verboseLogging)
-            {
-                Debug.Log($"[ConsoleAnalytics] User Property: {propertyName} = {value}");
-            }
+            Logger.Log($"User Property: {propertyName} = {value}");
         }
 
         public override void Shutdown()
         {
-            if (_verboseLogging)
-            {
-                Debug.Log("[ConsoleAnalytics] Provider shutdown");
-            }
+            Logger.Log("Provider shutdown");
         }
     }
 }

@@ -2,6 +2,7 @@
     "name": "PlayFrame.Systems.Editor",
     "rootNamespace": "PlayFrame.Systems.Editor",
     "references": [
+        "PlayFrame.Core",
         "PlayFrame.Systems",
         "Unity.TextMeshPro"
     ],

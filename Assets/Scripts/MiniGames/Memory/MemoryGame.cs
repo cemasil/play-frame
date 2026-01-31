@@ -4,12 +4,13 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using PlayFrame.Core.Pooling;
+using PlayFrame.Core.Logging;
 using PlayFrame.Systems.Audio;
 using PlayFrame.Systems.Scene;
 using PlayFrame.Systems.Save;
 using PlayFrame.Systems.Localization;
-using PlayFrame.Systems.Analytics;
 using PlayFrame.MiniGames.Common;
+using ILogger = PlayFrame.Core.Logging.ILogger;
 
 namespace PlayFrame.MiniGames.Memory
 {
@@ -18,6 +19,7 @@ namespace PlayFrame.MiniGames.Memory
     /// </summary>
     public class MemoryGame : BaseGame
     {
+        private static readonly ILogger _logger = LoggerFactory.CreateGame("MemoryGame");
         [Header("Grid Settings")]
         [SerializeField] private Transform gridContainer;
         [SerializeField] private int gridRows = 4;
@@ -109,14 +111,14 @@ namespace PlayFrame.MiniGames.Memory
         {
             if (cardPrefab == null)
             {
-                Debug.LogError("[MemoryGame] Card prefab is not assigned!");
+                _logger.LogError("Card prefab is not assigned!");
                 return;
             }
 
             var cardComponent = cardPrefab.GetComponent<MemoryCard>();
             if (cardComponent == null)
             {
-                Debug.LogError("[MemoryGame] Card prefab must have a MemoryCard component!");
+                _logger.LogError("Card prefab must have a MemoryCard component!");
                 return;
             }
 
@@ -176,7 +178,7 @@ namespace PlayFrame.MiniGames.Memory
         {
             if (cardColors.Length < totalPairs)
             {
-                Debug.LogError($"Not enough card colors! Need {totalPairs}, have {cardColors.Length}");
+                _logger.LogError($"Not enough card colors! Need {totalPairs}, have {cardColors.Length}");
                 return;
             }
 

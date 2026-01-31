@@ -2,6 +2,8 @@ using System;
 using UnityEngine;
 using PlayFrame.Core;
 using PlayFrame.Core.Events;
+using PlayFrame.Core.Logging;
+using ILogger = PlayFrame.Core.Logging.ILogger;
 
 namespace PlayFrame.Systems.Localization
 {
@@ -23,6 +25,7 @@ namespace PlayFrame.Systems.Localization
 
         private LocalizedStringTable _currentTable;
         private int _currentLanguageIndex;
+        private ILogger _logger;
 
         /// <summary>
         /// Event fired when language changes.
@@ -52,6 +55,7 @@ namespace PlayFrame.Systems.Localization
         protected override void OnSingletonAwake()
         {
             base.OnSingletonAwake();
+            _logger = LoggerFactory.CreateLocalization("Localization");
             InitializeLanguage();
         }
 
@@ -59,13 +63,13 @@ namespace PlayFrame.Systems.Localization
         {
             if (availableLanguages == null || availableLanguages.Length == 0)
             {
-                Debug.LogError("[LocalizationManager] No language tables assigned!");
+                _logger.LogError("No language tables assigned!");
                 return;
             }
 
             // Try to load saved language preference
             string savedLanguage = PlayerPrefs.GetString(LANGUAGE_PREF_KEY, string.Empty);
-            Debug.Log($"[LocalizationManager] Saved language: '{savedLanguage}', System language: {Application.systemLanguage}");
+            _logger.Log($"Saved language: '{savedLanguage}', System language: {Application.systemLanguage}");
 
             if (!string.IsNullOrEmpty(savedLanguage))
             {
@@ -75,34 +79,34 @@ namespace PlayFrame.Systems.Localization
                     if (availableLanguages[i] != null &&
                         availableLanguages[i].LanguageCode == savedLanguage)
                     {
-                        Debug.Log($"[LocalizationManager] Using saved language: {savedLanguage}");
+                        _logger.Log($"Using saved language: {savedLanguage}");
                         SetLanguageInternal(i, false);
                         return;
                     }
                 }
-                Debug.Log($"[LocalizationManager] Saved language '{savedLanguage}' not found in available languages");
+                _logger.Log($"Saved language '{savedLanguage}' not found in available languages");
             }
 
             // First launch - try system language
             if (useSystemLanguageOnFirstLaunch)
             {
                 string systemLang = GetSystemLanguageCode();
-                Debug.Log($"[LocalizationManager] Looking for system language: {systemLang}");
+                _logger.Log($"Looking for system language: {systemLang}");
                 for (int i = 0; i < availableLanguages.Length; i++)
                 {
                     if (availableLanguages[i] != null &&
                         availableLanguages[i].LanguageCode == systemLang)
                     {
-                        Debug.Log($"[LocalizationManager] Using system language: {systemLang}");
+                        _logger.Log($"Using system language: {systemLang}");
                         SetLanguageInternal(i, true);
                         return;
                     }
                 }
-                Debug.Log($"[LocalizationManager] System language '{systemLang}' not found, falling back to first language");
+                _logger.Log($"System language '{systemLang}' not found, falling back to first language");
             }
 
             // Fallback to first language
-            Debug.Log($"[LocalizationManager] Using first language: {availableLanguages[0]?.LanguageCode}");
+            _logger.Log($"Using first language: {availableLanguages[0]?.LanguageCode}");
             SetLanguageInternal(0, true);
         }
 
@@ -136,7 +140,7 @@ namespace PlayFrame.Systems.Localization
         {
             if (index < 0 || index >= availableLanguages.Length)
             {
-                Debug.LogError($"[LocalizationManager] Invalid language index: {index}");
+                _logger.LogError($"Invalid language index: {index}");
                 return;
             }
 
@@ -158,7 +162,7 @@ namespace PlayFrame.Systems.Localization
                 }
             }
 
-            Debug.LogWarning($"[LocalizationManager] Language not found: {languageCode}");
+            _logger.LogWarning($"Language not found: {languageCode}");
         }
 
         /// <summary>
@@ -174,7 +178,7 @@ namespace PlayFrame.Systems.Localization
         {
             if (availableLanguages[index] == null)
             {
-                Debug.LogError($"[LocalizationManager] Language table at index {index} is null!");
+                _logger.LogError($"Language table at index {index} is null!");
                 return;
             }
 
@@ -187,7 +191,7 @@ namespace PlayFrame.Systems.Localization
                 PlayerPrefs.Save();
             }
 
-            Debug.Log($"[LocalizationManager] Language set to: {_currentTable.DisplayName} ({_currentTable.LanguageCode})");
+            _logger.Log($"Language set to: {_currentTable.DisplayName} ({_currentTable.LanguageCode})");
 
             // Notify listeners
             OnLanguageChanged?.Invoke(_currentTable);

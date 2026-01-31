@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
+using PlayFrame.Core.Logging;
 
 namespace PlayFrame.Core.Events
 {
@@ -10,6 +10,7 @@ namespace PlayFrame.Core.Events
     /// </summary>
     public class EventManager : PersistentSingleton<EventManager>
     {
+        private static readonly ILogger _logger = LoggerFactory.CreateEvent("EventManager");
         private readonly Dictionary<string, Delegate> _eventDictionary = new Dictionary<string, Delegate>();
 
         #region Type-Safe Generic Events
@@ -75,7 +76,7 @@ namespace PlayFrame.Core.Events
             }
             else
             {
-                Debug.LogWarning($"[EventManager] Event '{gameEvent.Name}' has mismatched delegate type. Expected Action.");
+                _logger.LogWarning($"Event '{gameEvent.Name}' has mismatched delegate type. Expected Action.");
             }
         }
 
@@ -92,7 +93,7 @@ namespace PlayFrame.Core.Events
             }
             else
             {
-                Debug.LogWarning($"[EventManager] Event '{gameEvent.Name}' has mismatched delegate type. Expected Action<{typeof(T).Name}>.");
+                _logger.LogWarning($"Event '{gameEvent.Name}' has mismatched delegate type. Expected Action<{typeof(T).Name}>.");
             }
         }
 
@@ -109,7 +110,7 @@ namespace PlayFrame.Core.Events
             }
             else
             {
-                Debug.LogWarning($"[EventManager] Event '{gameEvent.Name}' has mismatched delegate type. Expected Action<{typeof(T1).Name}, {typeof(T2).Name}>.");
+                _logger.LogWarning($"Event '{gameEvent.Name}' has mismatched delegate type. Expected Action<{typeof(T1).Name}, {typeof(T2).Name}>.");
             }
         }
 

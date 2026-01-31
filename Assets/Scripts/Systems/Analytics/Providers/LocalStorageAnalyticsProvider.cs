@@ -19,7 +19,12 @@ namespace PlayFrame.Systems.Analytics
         private readonly object _lockObject = new object();
         private string _filePath;
 
-        public override string ProviderId => "local_storage";
+        public override string ProviderId => "LocalStorage";
+
+        public LocalStorageAnalyticsProvider()
+        {
+            InitializeLogger(true);
+        }
 
         public override void Initialize()
         {
@@ -215,7 +220,7 @@ namespace PlayFrame.Systems.Analytics
             }
             catch (Exception ex)
             {
-                Debug.LogWarning($"[LocalStorageAnalytics] Failed to load existing events: {ex.Message}");
+                Logger.LogWarning($"Failed to load existing events: {ex.Message}");
             }
         }
 
@@ -244,7 +249,7 @@ namespace PlayFrame.Systems.Analytics
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError($"[LocalStorageAnalytics] Failed to save events: {ex.Message}");
+                    Logger.LogError($"Failed to save events: {ex.Message}");
                 }
             }
         }
@@ -278,7 +283,7 @@ namespace PlayFrame.Systems.Analytics
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogWarning($"[LocalStorageAnalytics] Failed to delete file: {ex.Message}");
+                    Logger.LogWarning($"Failed to delete file: {ex.Message}");
                 }
             }
         }

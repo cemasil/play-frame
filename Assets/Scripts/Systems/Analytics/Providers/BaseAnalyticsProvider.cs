@@ -1,3 +1,6 @@
+using PlayFrame.Core.Logging;
+using ILogger = PlayFrame.Core.Logging.ILogger;
+
 namespace PlayFrame.Systems.Analytics
 {
     /// <summary>
@@ -9,6 +12,35 @@ namespace PlayFrame.Systems.Analytics
         public abstract string ProviderId { get; }
 
         public virtual bool IsEnabled { get; protected set; } = true;
+
+        /// <summary>
+        /// Logger instance for this provider. Set via SetLogger or in derived class constructor.
+        /// </summary>
+        protected ILogger Logger { get; private set; } = NullLogger.Instance;
+
+        /// <summary>
+        /// Set the logger for this provider
+        /// </summary>
+        public void SetLogger(ILogger logger)
+        {
+            Logger = logger ?? NullLogger.Instance;
+        }
+
+        /// <summary>
+        /// Create a logger for this provider using the factory with global settings
+        /// </summary>
+        protected void InitializeLogger()
+        {
+            Logger = LoggerFactory.CreateAnalytics(ProviderId);
+        }
+
+        /// <summary>
+        /// Create a logger with custom enable flag (still respects global master switch)
+        /// </summary>
+        protected void InitializeLogger(bool enableLogging)
+        {
+            Logger = LoggerFactory.CreateCustom(ProviderId, enableLogging);
+        }
 
         public virtual void Initialize()
         {

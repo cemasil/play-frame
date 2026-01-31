@@ -2,6 +2,8 @@
 using UnityEngine;
 using UnityEditor;
 using TMPro;
+using PlayFrame.Core.Logging;
+using ILogger = PlayFrame.Core.Logging.ILogger;
 
 namespace PlayFrame.Systems.Localization.Editor
 {
@@ -10,6 +12,8 @@ namespace PlayFrame.Systems.Localization.Editor
     /// </summary>
     public static class LocalizedTextEditorUtility
     {
+        private static readonly ILogger _logger = LoggerFactory.CreateLocalization("LocalizedTextEditor");
+
         [MenuItem("GameObject/Localization/Add LocalizedText", false, 0)]
         private static void AddLocalizedTextToSelected()
         {
@@ -18,18 +22,18 @@ namespace PlayFrame.Systems.Localization.Editor
                 TextMeshProUGUI text = obj.GetComponent<TextMeshProUGUI>();
                 if (text == null)
                 {
-                    Debug.LogWarning($"[Localization] {obj.name} has no TextMeshProUGUI component");
+                    _logger.LogWarning($"{obj.name} has no TextMeshProUGUI component");
                     continue;
                 }
 
                 if (obj.GetComponent<LocalizedText>() != null)
                 {
-                    Debug.Log($"[Localization] {obj.name} already has LocalizedText");
+                    _logger.Log($"{obj.name} already has LocalizedText");
                     continue;
                 }
 
                 LocalizedText localizedText = obj.AddComponent<LocalizedText>();
-                Debug.Log($"[Localization] Added LocalizedText to {obj.name}");
+                _logger.Log($"Added LocalizedText to {obj.name}");
 
                 // Try to guess key from object name
                 string guessedKey = GuessKeyFromName(obj.name);
@@ -38,7 +42,7 @@ namespace PlayFrame.Systems.Localization.Editor
                     SerializedObject so = new SerializedObject(localizedText);
                     so.FindProperty("localizationKey").stringValue = guessedKey;
                     so.ApplyModifiedProperties();
-                    Debug.Log($"[Localization] Auto-assigned key: {guessedKey}");
+                    _logger.Log($"Auto-assigned key: {guessedKey}");
                 }
             }
         }

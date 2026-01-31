@@ -4,12 +4,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using PlayFrame.Core.Pooling;
+using PlayFrame.Core.Logging;
 using PlayFrame.Systems.Audio;
 using PlayFrame.Systems.Scene;
 using PlayFrame.Systems.Save;
 using PlayFrame.Systems.Localization;
 using PlayFrame.Systems.Analytics;
 using PlayFrame.MiniGames.Common;
+using ILogger = PlayFrame.Core.Logging.ILogger;
 
 namespace PlayFrame.MiniGames.Match3
 {
@@ -18,6 +20,7 @@ namespace PlayFrame.MiniGames.Match3
     /// </summary>
     public class Match3Game : BaseGame
     {
+        private static readonly ILogger _logger = LoggerFactory.CreateGame("Match3Game");
         [Header("Grid Settings")]
         [SerializeField] private int gridWidth = 6;
         [SerializeField] private int gridHeight = 6;
@@ -108,14 +111,14 @@ namespace PlayFrame.MiniGames.Match3
         {
             if (gemPrefab == null)
             {
-                Debug.LogError("[Match3Game] Gem prefab is not assigned!");
+                _logger.LogError("Gem prefab is not assigned!");
                 return;
             }
 
             var gemComponent = gemPrefab.GetComponent<Gem>();
             if (gemComponent == null)
             {
-                Debug.LogError("[Match3Game] Gem prefab must have a Gem component!");
+                _logger.LogError("Gem prefab must have a Gem component!");
                 return;
             }
 
