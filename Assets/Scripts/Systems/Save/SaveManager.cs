@@ -126,7 +126,7 @@ namespace PlayFrame.Systems.Save
                 LogDebug("Game saved successfully");
                 if (_logSaveContents)
                 {
-                    Debug.Log($"[SaveManager] Save contents:\n{json}");
+                    LogDebug($"[SaveManager] Save contents:\n{json}");
                 }
 
                 if (_isInitialized && EventManager.HasInstance)
@@ -174,7 +174,7 @@ namespace PlayFrame.Systems.Save
                     LogDebug("Game loaded successfully");
                     if (_logSaveContents)
                     {
-                        Debug.Log($"[SaveManager] Loaded contents:\n{json}");
+                        LogDebug($"[SaveManager] Loaded contents:\n{json}");
                     }
                 }
                 else
@@ -259,7 +259,7 @@ namespace PlayFrame.Systems.Save
                             // Save restored data as main save
                             SaveGame();
 
-                            Debug.Log($"[SaveManager] Successfully restored from backup slot {i}");
+                            LogDebug($"[SaveManager] Successfully restored from backup slot {i}");
                             return true;
                         }
                     }
@@ -327,10 +327,10 @@ namespace PlayFrame.Systems.Save
             if (_currentSaveData.totalScore > _currentSaveData.highScore)
             {
                 _currentSaveData.highScore = _currentSaveData.totalScore;
-                TriggerEventSafe(CoreEvents.HighScoreUpdated, _currentSaveData.highScore);
+                EventManager.Instance.TriggerEvent(CoreEvents.HighScoreUpdated, _currentSaveData.highScore);
             }
 
-            TriggerEventSafe(CoreEvents.ScoreUpdated, _currentSaveData.totalScore);
+            EventManager.Instance.TriggerEvent(CoreEvents.ScoreUpdated, _currentSaveData.totalScore);
             SaveGame();
         }
 
@@ -368,17 +368,6 @@ namespace PlayFrame.Systems.Save
         public void ReloadSettings()
         {
             LoadSettings();
-        }
-
-        /// <summary>
-        /// Safely trigger a type-safe event only if EventManager is available
-        /// </summary>
-        private void TriggerEventSafe<T>(GameEvent<T> gameEvent, T parameter)
-        {
-            if (EventManager.HasInstance)
-            {
-                EventManager.Instance.TriggerEvent(gameEvent, parameter);
-            }
         }
 
         private void LogDebug(string message)
