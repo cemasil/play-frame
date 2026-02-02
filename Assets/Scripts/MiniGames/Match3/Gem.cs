@@ -1,41 +1,59 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
-using MiniGameFramework.MiniGames.Common;
+using PlayFrame.MiniGames.Common;
+using PlayFrame.Systems.Input;
 
-namespace MiniGameFramework.MiniGames.Match3
+namespace PlayFrame.MiniGames.Match3
 {
     /// <summary>
-    /// Represents a single gem on the Match3 grid
+    /// Represents a single gem on the Match3 grid.
+    /// Uses SwipeHandler for input abstraction.
     /// </summary>
-    public class Gem : BaseGame, IPointerDownHandler, IPointerUpHandler, IDragHandler
+    [RequireComponent(typeof(SwipeHandler))]
+    public class Gem : BaseGamePiece, ISwipeable
     {
-        public int X { get; set; }
-        public int Y { get; set; }
-        public int ColorIndex { get; set; }
+        public int X { get; private set; }
+        public int Y { get; private set; }
+        public int ColorIndex { get; private set; }
 
-        private Image image;
-        private Vector2 dragStartPos;
-        private bool isDragging = false;
-        private const float DRAG_THRESHOLD = 30f;
-
-        private System.Action<Gem, Vector2Int> onGemSwipe;
+        private Image _image;
+        private SwipeHandler _swipeHandler;
+        private Action<Gem, Vector2Int> _onGemSwipe;
 
         protected override void OnInitialize()
         {
-            image = GetComponent<Image>();
+            _image = GetComponent<Image>();
+            _swipeHandler = GetComponent<SwipeHandler>();
+
+            if (_swipeHandler == null)
+            {
+                _swipeHandler = gameObject.AddComponent<SwipeHandler>();
+            }
         }
 
-        public void OnSwipe(System.Action<Gem, Vector2Int> swipeCallback)
+        /// <summary>
+        /// Register callback for swipe events
+        /// </summary>
+        public void OnSwipeCallback(Action<Gem, Vector2Int> swipeCallback)
         {
-            onGemSwipe = swipeCallback;
+            _onGemSwipe = swipeCallback;
+        }
+
+        /// <summary>
+        /// Called by ISwipeable interface when swipe is detected
+        /// </summary>
+        public void OnSwipe(SwipeDirection direction)
+        {
+            var directionVector = SwipeHandler.GetDirectionVector(direction);
+            _onGemSwipe?.Invoke(this, directionVector);
         }
 
         public void SetColor(Color color, int colorIndex)
         {
-            if (image != null)
+            if (_image != null)
             {
-                image.color = color;
+                _image.color = color;
                 ColorIndex = colorIndex;
             }
         }
@@ -46,39 +64,27 @@ namespace MiniGameFramework.MiniGames.Match3
             Y = y;
         }
 
-        public void OnPointerDown(PointerEventData eventData)
+        public override void SetVisualState(PieceVisualState state)
         {
-            dragStartPos = eventData.position;
-            isDragging = true;
-        }
-
-        public void OnDrag(PointerEventData eventData)
-        {
-            if (!isDragging) return;
-
-            Vector2 dragDelta = eventData.position - dragStartPos;
-
-            if (dragDelta.magnitude > DRAG_THRESHOLD)
+            switch (state)
             {
-                Vector2Int direction = Vector2Int.zero;
-
-                if (Mathf.Abs(dragDelta.x) > Mathf.Abs(dragDelta.y))
-                {
-                    direction = dragDelta.x > 0 ? Vector2Int.right : Vector2Int.left;
-                }
-                else
-                {
-                    direction = dragDelta.y > 0 ? Vector2Int.down : Vector2Int.up;
-                }
-
-                onGemSwipe?.Invoke(this, direction);
-                isDragging = false;
+                case PieceVisualState.Selected:
+                    // Add selection visual (e.g., scale up, glow)
+                    break;
+                case PieceVisualState.Normal:
+                    // Reset to normal state
+                    break;
             }
         }
 
-        public void OnPointerUp(PointerEventData eventData)
+        public override void ResetPiece()
         {
-            isDragging = false;
+            _onGemSwipe = null;
+        }
+
+        protected override void OnCleanup()
+        {
+            _onGemSwipe = null;
         }
     }
 }

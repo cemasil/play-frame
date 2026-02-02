@@ -3,18 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using MiniGameFramework.Systems.SceneManagement;
-using MiniGameFramework.Systems.SaveSystem;
-using MiniGameFramework.MiniGames.Common;
-using UnityEditor.SearchService;
+using PlayFrame.Core.Pooling;
+using PlayFrame.Core.Logging;
+using PlayFrame.Systems.Audio;
+using PlayFrame.Systems.Scene;
+using PlayFrame.Systems.Save;
+using PlayFrame.Systems.Localization;
+using PlayFrame.MiniGames.Common;
+using ILogger = PlayFrame.Core.Logging.ILogger;
 
-namespace MiniGameFramework.MiniGames.Memory
+namespace PlayFrame.MiniGames.Memory
 {
     /// <summary>
-    /// Main Memory game controller
+    /// Main Memory game controller with analytics integration
     /// </summary>
     public class MemoryGame : BaseGame
     {
+        private static readonly ILogger _logger = LoggerFactory.CreateGame("MemoryGame");
         [Header("Grid Settings")]
         [SerializeField] private Transform gridContainer;
         [SerializeField] private int gridRows = 4;
@@ -46,20 +51,40 @@ namespace MiniGameFramework.MiniGames.Memory
         [SerializeField] private float mismatchHideDuration = 1f;
         [SerializeField] private int pointsPerMatch = 100;
 
+        [Header("Pool Settings")]
+        [SerializeField] private int initialPoolSize = 16;
+        [SerializeField] private int maxPoolSize = 64;
+
+        [Header("Audio")]
+        [SerializeField] private SFXCollection sfxCollection;
+        [SerializeField] private MusicCollection musicCollection;
+        [SerializeField] private AudioClip flipSound;
+        [SerializeField] private AudioClip matchSound;
+        [SerializeField] private AudioClip mismatchSound;
+        [SerializeField] private AudioClip gameMusic;
+
+        private ObjectPool<MemoryCard> cardPool;
         private List<MemoryCard> cards = new List<MemoryCard>();
         private MemoryCard firstCard = null;
         private MemoryCard secondCard = null;
-        private bool isProcessing = false;
 
         private int moves = 0;
         private int matchedPairs = 0;
         private int totalPairs;
         private int currentScore = 0;
         private float gameTime = 0f;
-        private bool isGameActive = false;
+
+        #region Analytics Override Properties
+
+        protected override string GameName => GameNames.MEMORY;
+        protected override string Difficulty => $"{gridRows}x{gridColumns}";
+
+        #endregion
 
         protected override void OnInitialize()
         {
+            InitializePool();
+
             if (backButton != null)
                 backButton.onClick.AddListener(OnBackClicked);
 
@@ -75,7 +100,53 @@ namespace MiniGameFramework.MiniGames.Memory
             totalPairs = gridRows * gridColumns / 2;
             CreateGrid();
             UpdateUI();
-            isGameActive = true;
+        }
+
+        protected override void OnGameStart()
+        {
+            PlayGameMusic();
+        }
+
+        private void InitializePool()
+        {
+            if (cardPrefab == null)
+            {
+                _logger.LogError("Card prefab is not assigned!");
+                return;
+            }
+
+            var cardComponent = cardPrefab.GetComponent<MemoryCard>();
+            if (cardComponent == null)
+            {
+                _logger.LogError("Card prefab must have a MemoryCard component!");
+                return;
+            }
+
+            cardPool = new ObjectPool<MemoryCard>(
+                cardComponent,
+                gridContainer,
+                initialPoolSize,
+                maxPoolSize,
+                onCreate: OnCardCreated,
+                onGet: OnCardGet,
+                onRelease: OnCardRelease
+            );
+        }
+
+        private void OnCardCreated(MemoryCard card)
+        {
+            // Called when a new card is instantiated
+        }
+
+        private void OnCardGet(MemoryCard card)
+        {
+            card.gameObject.SetActive(true);
+        }
+
+        private void OnCardRelease(MemoryCard card)
+        {
+            card.ResetPiece();
+            card.gameObject.SetActive(false);
         }
 
         protected override void Cleanup()
@@ -88,11 +159,15 @@ namespace MiniGameFramework.MiniGames.Memory
 
             if (menuButton != null)
                 menuButton.onClick.RemoveListener(OnMenuClicked);
+
+            // Clear all pooled cards
+            cards.Clear();
+            cardPool?.Clear();
         }
 
         protected override void OnUpdate()
         {
-            if (isGameActive)
+            if (IsPlaying)
             {
                 gameTime += Time.deltaTime;
                 UpdateTimeDisplay();
@@ -103,7 +178,7 @@ namespace MiniGameFramework.MiniGames.Memory
         {
             if (cardColors.Length < totalPairs)
             {
-                Debug.LogError($"Not enough card colors! Need {totalPairs}, have {cardColors.Length}");
+                _logger.LogError($"Not enough card colors! Need {totalPairs}, have {cardColors.Length}");
                 return;
             }
 
@@ -118,14 +193,13 @@ namespace MiniGameFramework.MiniGames.Memory
 
             for (int i = 0; i < cardIds.Count; i++)
             {
-                GameObject cardObj = Instantiate(cardPrefab, gridContainer);
-                MemoryCard card = cardObj.GetComponent<MemoryCard>();
+                MemoryCard card = cardPool.Get();
 
                 if (card != null)
                 {
                     int cardId = cardIds[i];
                     Color cardColor = cardColors[cardId];
-                    card.Initialize(cardId, cardColor, OnCardClicked);
+                    card.Setup(cardId, cardColor, OnCardClicked);
                     cards.Add(card);
                 }
             }
@@ -133,10 +207,11 @@ namespace MiniGameFramework.MiniGames.Memory
 
         private void OnCardClicked(MemoryCard clickedCard)
         {
-            if (isProcessing || clickedCard.IsRevealed || clickedCard.IsMatched)
+            if (!CanAcceptInput || clickedCard.IsRevealed || clickedCard.IsMatched)
                 return;
 
             clickedCard.Reveal();
+            PlayFlipSound();
 
             if (firstCard == null)
             {
@@ -153,13 +228,14 @@ namespace MiniGameFramework.MiniGames.Memory
 
         private IEnumerator CheckMatchRoutine()
         {
-            isProcessing = true;
+            BeginProcessing();
             SetAllCardsInteractable(false);
 
             yield return new WaitForSeconds(cardRevealDuration);
 
             if (firstCard.CardId == secondCard.CardId)
             {
+                PlayMatchSound();
                 firstCard.SetMatched();
                 secondCard.SetMatched();
                 matchedPairs++;
@@ -169,21 +245,26 @@ namespace MiniGameFramework.MiniGames.Memory
 
                 if (matchedPairs >= totalPairs)
                 {
-                    isGameActive = false;
                     yield return new WaitForSeconds(0.5f);
+                    EndGame();
                     ShowGameOver();
+                }
+                else
+                {
+                    EndProcessing();
                 }
             }
             else
             {
+                PlayMismatchSound();
                 yield return new WaitForSeconds(mismatchHideDuration);
                 firstCard.Hide();
                 secondCard.Hide();
+                EndProcessing();
             }
 
             firstCard = null;
             secondCard = null;
-            isProcessing = false;
             SetAllCardsInteractable(true);
         }
 
@@ -209,10 +290,10 @@ namespace MiniGameFramework.MiniGames.Memory
         private void UpdateUI()
         {
             if (movesText != null)
-                movesText.text = $"Moves: {moves}";
+                movesText.text = LocalizationManager.Get(LocalizationKeys.MOVES, moves);
 
             if (scoreText != null)
-                scoreText.text = $"Score: {currentScore}";
+                scoreText.text = LocalizationManager.Get(LocalizationKeys.SCORE, currentScore);
         }
 
         private void UpdateTimeDisplay()
@@ -221,7 +302,7 @@ namespace MiniGameFramework.MiniGames.Memory
             {
                 int minutes = Mathf.FloorToInt(gameTime / 60f);
                 int seconds = Mathf.FloorToInt(gameTime % 60f);
-                timeText.text = $"Time: {minutes}:{seconds:00}";
+                timeText.text = LocalizationManager.Get(LocalizationKeys.TIME, $"{minutes}:{seconds:00}");
             }
         }
 
@@ -230,49 +311,145 @@ namespace MiniGameFramework.MiniGames.Memory
             int totalSeconds = Mathf.FloorToInt(gameTime);
             int savedBestTime = SaveManager.Instance.GetGameHighScore(GameNames.MEMORY);
 
-            if (savedBestTime == 0 || totalSeconds < savedBestTime)
+            bool isNewHighScore = (savedBestTime == 0 || totalSeconds < savedBestTime);
+
+            if (isNewHighScore)
             {
+                // Track high score before updating
+                TrackHighScore(totalSeconds, savedBestTime);
                 SaveManager.Instance.UpdateGameHighScore(GameNames.MEMORY, totalSeconds);
                 savedBestTime = totalSeconds;
             }
+
+            // Track level completion with analytics
+            TrackLevelCompleted(
+                score: currentScore,
+                moveCount: moves,
+                isNewHighScore: isNewHighScore,
+                stars: CalculateStars(),
+                matchCount: matchedPairs
+            );
+
+            // Play win sound
+            PlayWinSound();
 
             if (gameOverPanel != null)
                 gameOverPanel.SetActive(true);
 
             if (resultText != null)
-                resultText.text = "You Win!";
+                resultText.text = LocalizationManager.Get(LocalizationKeys.YOU_WIN);
 
             if (finalTimeText != null)
             {
                 int minutes = totalSeconds / 60;
                 int seconds = totalSeconds % 60;
-                finalTimeText.text = $"Time: {minutes}:{seconds:00}";
+                finalTimeText.text = LocalizationManager.Get(LocalizationKeys.TIME, $"{minutes}:{seconds:00}");
             }
 
             if (finalMovesText != null)
-                finalMovesText.text = $"Moves: {moves}";
+                finalMovesText.text = LocalizationManager.Get(LocalizationKeys.MOVES, moves);
 
             if (highScoreText != null)
             {
                 int bestMinutes = savedBestTime / 60;
                 int bestSeconds = savedBestTime % 60;
-                highScoreText.text = $"Best Time: {bestMinutes}:{bestSeconds:00}";
+                highScoreText.text = LocalizationManager.Get(LocalizationKeys.BEST_TIME, $"{bestMinutes}:{bestSeconds:00}");
             }
         }
 
+        /// <summary>
+        /// Calculate stars based on performance (moves vs optimal)
+        /// </summary>
+        private int CalculateStars()
+        {
+            // Optimal moves = total pairs (one move per pair if perfect memory)
+            int optimalMoves = totalPairs;
+            float moveRatio = (float)moves / optimalMoves;
+
+            if (moveRatio <= 1.5f) return 3; // Excellent
+            if (moveRatio <= 2.5f) return 2; // Good
+            return 1; // Completed
+        }
+
+        #region Audio Methods
+
+        private void PlayGameMusic()
+        {
+            if (gameMusic != null && AudioManager.HasInstance)
+            {
+                AudioManager.Instance.PlayMusic(gameMusic);
+            }
+            else if (musicCollection != null)
+            {
+                musicCollection.PlayRandomGameTrack();
+            }
+        }
+
+        private void PlayFlipSound()
+        {
+            if (flipSound != null && AudioManager.HasInstance)
+            {
+                AudioManager.Instance.PlaySFX(flipSound);
+            }
+            else if (sfxCollection != null)
+            {
+                sfxCollection.Play(sfxCollection.swap);
+            }
+        }
+
+        private void PlayMatchSound()
+        {
+            if (matchSound != null && AudioManager.HasInstance)
+            {
+                AudioManager.Instance.PlaySFX(matchSound);
+            }
+            else if (sfxCollection != null)
+            {
+                sfxCollection.PlayMatch();
+            }
+        }
+
+        private void PlayMismatchSound()
+        {
+            if (mismatchSound != null && AudioManager.HasInstance)
+            {
+                AudioManager.Instance.PlaySFX(mismatchSound);
+            }
+            else if (sfxCollection != null)
+            {
+                sfxCollection.PlayMismatch();
+            }
+        }
+
+        private void PlayWinSound()
+        {
+            if (sfxCollection != null)
+            {
+                sfxCollection.PlayWin();
+            }
+            else if (musicCollection != null)
+            {
+                musicCollection.PlayVictory();
+            }
+        }
+
+        #endregion
+
         private void OnBackClicked()
         {
-            SceneLoader.Instance.LoadScene(SceneNames.GAME_SELECTION);
+            SceneLoaderManager.Instance.LoadScene(SceneNames.GAME_SELECTION);
         }
 
         private void OnRestartClicked()
         {
-            SceneLoader.Instance.LoadScene(SceneNames.MEMORY);
+            // Track retry before reloading
+            TrackLevelRetried();
+            SceneLoaderManager.Instance.LoadScene(SceneNames.MEMORY);
         }
 
         private void OnMenuClicked()
         {
-            SceneLoader.Instance.LoadScene(SceneNames.MAIN_MENU);
+            SceneLoaderManager.Instance.LoadScene(SceneNames.MAIN_MENU);
         }
     }
 }

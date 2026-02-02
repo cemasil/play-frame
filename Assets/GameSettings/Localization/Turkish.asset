@@ -1,0 +1,78 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c262bb7cf59624e73a4e7c5b142b7137, type: 3}
+  m_Name: Turkish
+  m_EditorClassIdentifier: 
+  languageCode: tr
+  displayName: Turkish
+  nativeDisplayName: "T\xFCrk\xE7e"
+  entries:
+  - key: ui.moves
+    value: 'Hamle: {0}'
+  - key: ui.score
+    value: 'Puan: {0}'
+  - key: ui.time
+    value: "S\xFCre: {0}"
+  - key: ui.target
+    value: 'Hedef: {0}'
+  - key: ui.best_time
+    value: "En \u0130yi S\xFCre: {0}"
+  - key: ui.high_score
+    value: "En Y\xFCksek: {0}"
+  - key: ui.final_score
+    value: "Final Puan\u0131: {0}"
+  - key: ui.pairs
+    value: "\xC7iftler: {0}/{1}"
+  - key: ui.main_menu
+    value: Anasayfa
+  - key: ui.select_game
+    value: "Oyun Se\xE7"
+  - key: ui.loading
+    value: "Y\xFCkleniyor..."
+  - key: result.win
+    value: "Kazand\u0131n!"
+  - key: result.game_over
+    value: Oyun Bitti!
+  - key: result.level_complete
+    value: "B\xF6l\xFCm Tamamland\u0131!"
+  - key: result.new_high_score
+    value: Yeni Rekor!
+  - key: button.play
+    value: Oyna
+  - key: button.restart
+    value: "Yeniden Ba\u015Flat"
+  - key: button.resume
+    value: Devam Et
+  - key: button.pause
+    value: Duraklat
+  - key: button.quit
+    value: "\xC7\u0131k\u0131\u015F"
+  - key: button.main_menu
+    value: "Ana Men\xFC"
+  - key: button.settings
+    value: Ayarlar
+  - key: button.next_level
+    value: "Sonraki B\xF6l\xFCm"
+  - key: button.try_again
+    value: Tekrar Dene
+  - key: button.back
+    value: Geri
+  - key: settings.music
+    value: "M\xFCzik"
+  - key: settings.sfx
+    value: Ses Efektleri
+  - key: settings.language
+    value: Dil
+  - key: game.match3
+    value: "3'l\xFC E\u015Fle\u015Ftir"
+  - key: game.memory
+    value: "Haf\u0131za Oyunu"

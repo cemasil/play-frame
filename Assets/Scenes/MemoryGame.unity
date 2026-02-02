@@ -542,6 +542,14 @@ MonoBehaviour:
   cardRevealDuration: 0.5
   mismatchHideDuration: 1
   pointsPerMatch: 100
+  initialPoolSize: 16
+  maxPoolSize: 64
+  sfxCollection: {fileID: 0}
+  musicCollection: {fileID: 0}
+  flipSound: {fileID: 0}
+  matchSound: {fileID: 0}
+  mismatchSound: {fileID: 0}
+  gameMusic: {fileID: 0}
 --- !u!1001 &678302747
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -959,6 +967,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3635139512081961803, guid: 7d5f4db6b88364018a2c26ce18435d7e, type: 3}
+      propertyPath: localizationKey
+      value: button.main_menu
+      objectReference: {fileID: 0}
     - target: {fileID: 6315403498327997584, guid: 7d5f4db6b88364018a2c26ce18435d7e, type: 3}
       propertyPath: m_text
       value: Main Menu
@@ -1196,6 +1208,10 @@ PrefabInstance:
     - target: {fileID: 2816332478555480610, guid: 7d5f4db6b88364018a2c26ce18435d7e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3635139512081961803, guid: 7d5f4db6b88364018a2c26ce18435d7e, type: 3}
+      propertyPath: localizationKey
+      value: button.back
       objectReference: {fileID: 0}
     - target: {fileID: 6315403498327997584, guid: 7d5f4db6b88364018a2c26ce18435d7e, type: 3}
       propertyPath: m_text
@@ -2112,6 +2128,10 @@ PrefabInstance:
     - target: {fileID: 2816332478555480610, guid: 7d5f4db6b88364018a2c26ce18435d7e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3635139512081961803, guid: 7d5f4db6b88364018a2c26ce18435d7e, type: 3}
+      propertyPath: localizationKey
+      value: button.restart
       objectReference: {fileID: 0}
     - target: {fileID: 6315403498327997584, guid: 7d5f4db6b88364018a2c26ce18435d7e, type: 3}
       propertyPath: m_text

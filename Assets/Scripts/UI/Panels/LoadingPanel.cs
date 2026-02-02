@@ -1,10 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using MiniGameFramework.Systems.UI;
-using MiniGameFramework.Systems.Events;
+using PlayFrame.Core.Events;
+using PlayFrame.UI.Base;
 
-namespace MiniGameFramework.UI.Panels
+namespace PlayFrame.UI.Panels
 {
     /// <summary>
     /// Loading Panel - Listens to scene loading events and displays progress
@@ -23,9 +23,9 @@ namespace MiniGameFramework.UI.Panels
 
         protected override void OnInitialize()
         {
-            EventManager.Instance.Subscribe(GameEvents.SCENE_LOAD_STARTED, OnSceneLoadStarted);
-            EventManager.Instance.Subscribe(GameEvents.SCENE_LOAD_PROGRESS, OnSceneLoadProgress);
-            EventManager.Instance.Subscribe(GameEvents.SCENE_LOAD_COMPLETED, OnSceneLoadCompleted);
+            EventManager.Instance.Subscribe(CoreEvents.SceneLoadStarted, OnSceneLoadStarted);
+            EventManager.Instance.Subscribe(CoreEvents.SceneLoadProgress, OnSceneLoadProgress);
+            EventManager.Instance.Subscribe(CoreEvents.SceneLoadCompleted, OnSceneLoadCompleted);
         }
 
         protected override void OnShow()
@@ -52,12 +52,9 @@ namespace MiniGameFramework.UI.Panels
             targetProgress = 0f;
         }
 
-        private void OnSceneLoadProgress(object progressObj)
+        private void OnSceneLoadProgress(float progress)
         {
-            if (progressObj is float progress)
-            {
-                targetProgress = progress * 100f;
-            }
+            targetProgress = progress * 100f;
         }
 
         private void OnSceneLoadCompleted()
@@ -92,9 +89,12 @@ namespace MiniGameFramework.UI.Panels
 
         protected override void OnCleanup()
         {
-            EventManager.Instance.Unsubscribe(GameEvents.SCENE_LOAD_STARTED, OnSceneLoadStarted);
-            EventManager.Instance.Unsubscribe(GameEvents.SCENE_LOAD_PROGRESS, OnSceneLoadProgress);
-            EventManager.Instance.Unsubscribe(GameEvents.SCENE_LOAD_COMPLETED, OnSceneLoadCompleted);
+            if (EventManager.HasInstance)
+            {
+                EventManager.Instance.Unsubscribe(CoreEvents.SceneLoadStarted, OnSceneLoadStarted);
+                EventManager.Instance.Unsubscribe(CoreEvents.SceneLoadProgress, OnSceneLoadProgress);
+                EventManager.Instance.Unsubscribe(CoreEvents.SceneLoadCompleted, OnSceneLoadCompleted);
+            }
         }
     }
 }

@@ -3,17 +3,24 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using MiniGameFramework.Systems.SceneManagement;
-using MiniGameFramework.Systems.SaveSystem;
-using MiniGameFramework.MiniGames.Common;
+using PlayFrame.Core.Pooling;
+using PlayFrame.Core.Logging;
+using PlayFrame.Systems.Audio;
+using PlayFrame.Systems.Scene;
+using PlayFrame.Systems.Save;
+using PlayFrame.Systems.Localization;
+using PlayFrame.Systems.Analytics;
+using PlayFrame.MiniGames.Common;
+using ILogger = PlayFrame.Core.Logging.ILogger;
 
-namespace MiniGameFramework.MiniGames.Match3
+namespace PlayFrame.MiniGames.Match3
 {
     /// <summary>
-    /// Main Match3 game controller
+    /// Main Match3 game controller with analytics integration
     /// </summary>
     public class Match3Game : BaseGame
     {
+        private static readonly ILogger _logger = LoggerFactory.CreateGame("Match3Game");
         [Header("Grid Settings")]
         [SerializeField] private int gridWidth = 6;
         [SerializeField] private int gridHeight = 6;
@@ -23,6 +30,10 @@ namespace MiniGameFramework.MiniGames.Match3
         [Header("Prefabs")]
         [SerializeField] private GameObject gemPrefab;
         [SerializeField] private Transform gridContainer;
+
+        [Header("Pool Settings")]
+        [SerializeField] private int initialPoolSize = 36;
+        [SerializeField] private int maxPoolSize = 100;
 
         [Header("Colors")]
         [SerializeField] private Color[] gemColors = new Color[5];
@@ -46,13 +57,32 @@ namespace MiniGameFramework.MiniGames.Match3
         [SerializeField] private int targetScore = 500;
         [SerializeField] private int pointsPerGem = 10;
 
+        [Header("Audio")]
+        [SerializeField] private SFXCollection sfxCollection;
+        [SerializeField] private MusicCollection musicCollection;
+        [SerializeField] private AudioClip swapSound;
+        [SerializeField] private AudioClip matchSound;
+        [SerializeField] private AudioClip noMatchSound;
+        [SerializeField] private AudioClip gameMusic;
+
         private Match3Grid match3Grid;
+        private ObjectPool<Gem> gemPool;
         private int currentScore = 0;
         private int remainingMoves;
-        private bool isProcessing = false;
+        private int totalMatchesMade = 0;
+        private int totalMovesMade = 0;
+
+        #region Analytics Override Properties
+
+        protected override string GameName => GameNames.MATCH3;
+        protected override string Difficulty => $"{gridWidth}x{gridHeight}_target{targetScore}";
+
+        #endregion
 
         protected override void OnInitialize()
         {
+            InitializePool();
+
             if (backButton != null)
                 backButton.onClick.AddListener(OnBackClicked);
 
@@ -72,6 +102,53 @@ namespace MiniGameFramework.MiniGames.Match3
             UpdateUI();
         }
 
+        protected override void OnGameStart()
+        {
+            PlayGameMusic();
+        }
+
+        private void InitializePool()
+        {
+            if (gemPrefab == null)
+            {
+                _logger.LogError("Gem prefab is not assigned!");
+                return;
+            }
+
+            var gemComponent = gemPrefab.GetComponent<Gem>();
+            if (gemComponent == null)
+            {
+                _logger.LogError("Gem prefab must have a Gem component!");
+                return;
+            }
+
+            gemPool = new ObjectPool<Gem>(
+                gemComponent,
+                gridContainer,
+                initialPoolSize,
+                maxPoolSize,
+                onCreate: OnGemCreated,
+                onGet: OnGemGet,
+                onRelease: OnGemRelease
+            );
+        }
+
+        private void OnGemCreated(Gem gem)
+        {
+            // Called when a new gem is instantiated
+        }
+
+        private void OnGemGet(Gem gem)
+        {
+            gem.gameObject.SetActive(true);
+        }
+
+        private void OnGemRelease(Gem gem)
+        {
+            gem.ResetPiece();
+            gem.gameObject.SetActive(false);
+        }
+
         protected override void Cleanup()
         {
             if (backButton != null)
@@ -82,6 +159,9 @@ namespace MiniGameFramework.MiniGames.Match3
 
             if (menuButton != null)
                 menuButton.onClick.RemoveListener(OnMenuClicked);
+
+            // Clear all pooled gems
+            gemPool?.Clear();
         }
 
         private void FillGrid()
@@ -110,22 +190,21 @@ namespace MiniGameFramework.MiniGames.Match3
 
         private void CreateGemAt(int x, int y, Vector2 position)
         {
-            GameObject gemObj = Instantiate(gemPrefab, gridContainer);
-            RectTransform rectTransform = gemObj.GetComponent<RectTransform>();
+            Gem gem = gemPool.Get();
+            RectTransform rectTransform = gem.RectTransform;
             rectTransform.anchoredPosition = position;
 
-            Gem gem = gemObj.GetComponent<Gem>();
             int colorIndex = Random.Range(0, gemColors.Length);
             gem.SetColor(gemColors[colorIndex], colorIndex);
             gem.SetPosition(x, y);
-            gem.OnSwipe(HandleGemSwipe);
+            gem.OnSwipeCallback(HandleGemSwipe);
 
             match3Grid.SetGem(x, y, gem);
         }
 
         private void HandleGemSwipe(Gem gem, Vector2Int direction)
         {
-            if (isProcessing || remainingMoves <= 0) return;
+            if (!CanAcceptInput || remainingMoves <= 0) return;
 
             int targetX = gem.X + direction.x;
             int targetY = gem.Y + direction.y;
@@ -140,7 +219,8 @@ namespace MiniGameFramework.MiniGames.Match3
 
         private IEnumerator SwapAndMatchRoutine(Gem gem1, Gem gem2)
         {
-            isProcessing = true;
+            BeginProcessing();
+            PlaySwapSound();
 
             Vector2 pos1 = gem1.GetComponent<RectTransform>().anchoredPosition;
             Vector2 pos2 = gem2.GetComponent<RectTransform>().anchoredPosition;
@@ -153,16 +233,25 @@ namespace MiniGameFramework.MiniGames.Match3
             match3Grid.SwapGems(gem1, gem2);
             List<Gem> matches = match3Grid.FindMatchesForGems(gem1, gem2);
             remainingMoves--;
+            totalMovesMade++;
 
             if (matches.Count > 0)
             {
+                PlayMatchSound();
+                totalMatchesMade++;
+
+                // Track the match
+                int matchPoints = matches.Count * pointsPerGem;
+                TrackMatchMade(matches.Count, "normal", 1, matchPoints);
+                TrackGameMove("swap", totalMovesMade, true, matchPoints);
+
                 foreach (Gem gem in matches)
                 {
                     match3Grid.RemoveGem(gem);
-                    Destroy(gem.gameObject);
+                    gemPool.Release(gem);
                 }
 
-                currentScore += matches.Count * pointsPerGem;
+                currentScore += matchPoints;
 
                 yield return new WaitForSeconds(0.2f);
 
@@ -170,6 +259,9 @@ namespace MiniGameFramework.MiniGames.Match3
             }
             else
             {
+                PlayNoMatchSound();
+                TrackGameMove("swap", totalMovesMade, false, 0);
+
                 yield return new WaitForSeconds(0.2f);
 
                 StartCoroutine(MoveGemTo(gem1, pos2, pos1));
@@ -184,10 +276,13 @@ namespace MiniGameFramework.MiniGames.Match3
 
             if (remainingMoves <= 0)
             {
+                EndGame();
                 ShowGameOver();
             }
-
-            isProcessing = false;
+            else
+            {
+                EndProcessing();
+            }
         }
 
         private IEnumerator MoveGemTo(Gem gem, Vector2 startPos, Vector2 targetPos)
@@ -217,13 +312,13 @@ namespace MiniGameFramework.MiniGames.Match3
         private void UpdateUI()
         {
             if (movesText != null)
-                movesText.text = $"Moves: {remainingMoves}";
+                movesText.text = LocalizationManager.Get(LocalizationKeys.MOVES, remainingMoves);
 
             if (scoreText != null)
-                scoreText.text = $"Score: {currentScore}";
+                scoreText.text = LocalizationManager.Get(LocalizationKeys.SCORE, currentScore);
 
             if (targetText != null)
-                targetText.text = $"Target: {targetScore}";
+                targetText.text = LocalizationManager.Get("ui.target", targetScore);
         }
 
         private void ShowGameOver()
@@ -231,38 +326,158 @@ namespace MiniGameFramework.MiniGames.Match3
             bool isWin = currentScore >= targetScore;
             int savedHighScore = SaveManager.Instance.GetGameHighScore(GameNames.MATCH3);
 
-            if (currentScore > savedHighScore)
+            bool isNewHighScore = currentScore > savedHighScore;
+
+            if (isNewHighScore)
             {
+                // Track high score before updating
+                TrackHighScore(currentScore, savedHighScore);
                 SaveManager.Instance.UpdateGameHighScore(GameNames.MATCH3, currentScore);
                 savedHighScore = currentScore;
             }
+
+            // Track analytics based on win/loss
+            if (isWin)
+            {
+                TrackLevelCompleted(
+                    score: currentScore,
+                    moveCount: totalMovesMade,
+                    isNewHighScore: isNewHighScore,
+                    stars: CalculateStars(),
+                    matchCount: totalMatchesMade
+                );
+            }
+            else
+            {
+                TrackLevelFailed(
+                    failReason: FailReasons.OUT_OF_MOVES,
+                    score: currentScore,
+                    moveCount: totalMovesMade
+                );
+            }
+
+            // Play win/lose sound
+            if (isWin)
+                PlayWinSound();
+            else
+                PlayLoseSound();
 
             if (gameOverPanel != null)
                 gameOverPanel.SetActive(true);
 
             if (resultText != null)
-                resultText.text = isWin ? "You Win!" : "Game Over!";
+                resultText.text = isWin
+                    ? LocalizationManager.Get(LocalizationKeys.YOU_WIN)
+                    : LocalizationManager.Get(LocalizationKeys.GAME_OVER);
 
             if (finalScoreText != null)
-                finalScoreText.text = $"Final Score: {currentScore}";
+                finalScoreText.text = LocalizationManager.Get(LocalizationKeys.FINAL_SCORE, currentScore);
 
             if (highScoreText != null)
-                highScoreText.text = $"Best: {savedHighScore}";
+                highScoreText.text = LocalizationManager.Get(LocalizationKeys.HIGH_SCORE, savedHighScore);
         }
+
+        /// <summary>
+        /// Calculate stars based on performance
+        /// </summary>
+        private int CalculateStars()
+        {
+            if (currentScore >= targetScore * 2) return 3; // Double target
+            if (currentScore >= targetScore * 1.5f) return 2; // 50% over target
+            return 1; // Met target
+        }
+
+        #region Audio Methods
+
+        private void PlayGameMusic()
+        {
+            if (gameMusic != null && AudioManager.HasInstance)
+            {
+                AudioManager.Instance.PlayMusic(gameMusic);
+            }
+            else if (musicCollection != null)
+            {
+                musicCollection.PlayRandomGameTrack();
+            }
+        }
+
+        private void PlaySwapSound()
+        {
+            if (swapSound != null && AudioManager.HasInstance)
+            {
+                AudioManager.Instance.PlaySFX(swapSound);
+            }
+            else if (sfxCollection != null)
+            {
+                sfxCollection.Play(sfxCollection.swap);
+            }
+        }
+
+        private void PlayMatchSound()
+        {
+            if (matchSound != null && AudioManager.HasInstance)
+            {
+                AudioManager.Instance.PlaySFX(matchSound);
+            }
+            else if (sfxCollection != null)
+            {
+                sfxCollection.PlayMatch();
+            }
+        }
+
+        private void PlayNoMatchSound()
+        {
+            if (noMatchSound != null && AudioManager.HasInstance)
+            {
+                AudioManager.Instance.PlaySFX(noMatchSound);
+            }
+            else if (sfxCollection != null)
+            {
+                sfxCollection.PlayMismatch();
+            }
+        }
+
+        private void PlayWinSound()
+        {
+            if (sfxCollection != null)
+            {
+                sfxCollection.PlayWin();
+            }
+            else if (musicCollection != null)
+            {
+                musicCollection.PlayVictory();
+            }
+        }
+
+        private void PlayLoseSound()
+        {
+            if (sfxCollection != null)
+            {
+                sfxCollection.PlayLose();
+            }
+            else if (musicCollection != null)
+            {
+                musicCollection.PlayDefeat();
+            }
+        }
+
+        #endregion
 
         private void OnBackClicked()
         {
-            SceneLoader.Instance.LoadScene(SceneNames.GAME_SELECTION);
+            SceneLoaderManager.Instance.LoadScene(SceneNames.GAME_SELECTION);
         }
 
         private void OnRestartClicked()
         {
-            SceneLoader.Instance.LoadScene(SceneNames.MATCH3);
+            // Track retry before reloading
+            TrackLevelRetried();
+            SceneLoaderManager.Instance.LoadScene(SceneNames.MATCH3);
         }
 
         private void OnMenuClicked()
         {
-            SceneLoader.Instance.LoadScene(SceneNames.MAIN_MENU);
+            SceneLoaderManager.Instance.LoadScene(SceneNames.MAIN_MENU);
         }
     }
 }

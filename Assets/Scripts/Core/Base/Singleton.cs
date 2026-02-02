@@ -1,4 +1,4 @@
-namespace MiniGameFramework.Core
+namespace PlayFrame.Core
 {
     /// <summary>
     /// Generic Singleton pattern for non-MonoBehaviour classes

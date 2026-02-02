@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e2d52570a54c4a8287d694e3e078b4a, type: 3}
+  m_Name: UIPrefabSettings
+  m_EditorClassIdentifier: PlayFrame.UI::PlayFrame.UI.UIPrefabSettings
+  defaultTheme: {fileID: 11400000, guid: af58b730faa514be69197bf05046a360, type: 2}
+  themedButtonPrefab: {fileID: 7286401776670378334, guid: 7d5f4db6b88364018a2c26ce18435d7e, type: 3}
+  themedPanelPrefab: {fileID: 6631411620314778455, guid: fa91029eaeb23436fbfcea349e2928f3, type: 3}
+  themedTextBodyPrefab: {fileID: 8539734777059870074, guid: 99ae6761ee4584783ae8642cd5e62952, type: 3}
+  themedTextHeaderPrefab: {fileID: 1512418625051859097, guid: bfbee3b1715104d6ab12348dee7854f9, type: 3}
+  themedTextTitlePrefab: {fileID: 6960784110151754653, guid: 3d093d9b1ae5c4dbb853ef76e9509678, type: 3}
+  gameCardPrefab: {fileID: 2967150561211310558, guid: 0996ed6b5a5f94ab3a578499db6a46df, type: 3}

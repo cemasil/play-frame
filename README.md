@@ -1,4 +1,4 @@
-# Mini Game Framework
+# PlayFrame
 
 A Unity framework I built for creating simple mini-games with clean architecture. Currently has two working games: Match3 and Memory Card matching.
 
@@ -85,7 +85,7 @@ Configure in Inspector:
 
 **3. Implement game logic**
 ```csharp
-using MiniGameFramework.MiniGames;
+using PlayFrame.MiniGames;
 
 public class PuzzleGame : MonoBehaviour
 {

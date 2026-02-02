@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 696b5634f67424ba2a8a8d687c66c068, type: 3}
+  m_Name: AnalyticsSettings
+  m_EditorClassIdentifier: PlayFrame.Systems::PlayFrame.Systems.Analytics.AnalyticsSettings
+  enableAnalytics: 1
+  enableDebugLogs: 0
+  enableBatching: 1
+  batchFlushInterval: 30
+  maxBatchSize: 50
+  collectDeviceInfo: 1
+  collectSessionData: 1
+  collectDetailedMetrics: 1
+  enableConsoleProvider: 1
+  enableLocalStorageProvider: 1
+  maxLocalStorageEvents: 1000
+  enableUnityAnalytics: 0
+  enableFirebaseAnalytics: 0

@@ -1,41 +1,63 @@
 using System.Collections.Generic;
 using UnityEngine;
-using MiniGameFramework.Core;
+using PlayFrame.Core;
+using PlayFrame.Core.Logging;
+using ILogger = PlayFrame.Core.Logging.ILogger;
 
-namespace MiniGameFramework.MiniGames
+namespace PlayFrame.MiniGames
 {
     /// <summary>
-    /// Registry for all available mini-games
-    /// Automatically finds all GameConfig assets in Resources/Games/
+    /// Registry for all available mini-games.
+    /// Assign GameConfig assets via Inspector from GameSettings/Games/
     /// </summary>
     public class GameRegistry : PersistentSingleton<GameRegistry>
     {
-        private List<GameConfig> _availableGames;
-        public List<GameConfig> AvailableGames => _availableGames;
+        private static readonly ILogger _logger = LoggerFactory.CreateGame("GameRegistry");
+        [Header("Game Configurations")]
+        [Tooltip("Assign all GameConfig assets from GameSettings/Games folder")]
+        [SerializeField] private List<GameConfig> gameConfigs = new List<GameConfig>();
 
-        protected override void Awake()
+        public List<GameConfig> AvailableGames => gameConfigs;
+
+        protected override void OnSingletonAwake()
         {
-            base.Awake();
-            LoadGames();
+            ValidateConfigs();
         }
 
         /// <summary>
-        /// Load all game configs from Resources/Games/
+        /// Validate that configs are assigned
         /// </summary>
-        private void LoadGames()
+        private void ValidateConfigs()
         {
-            _availableGames = new List<GameConfig>();
-            var configs = Resources.LoadAll<GameConfig>("Games");
-
-            foreach (var config in configs)
+            if (gameConfigs == null || gameConfigs.Count == 0)
             {
-                _availableGames.Add(config);
+                _logger.LogWarning("No GameConfig assets assigned. " +
+                    "Please assign GameConfig assets from GameSettings/Games folder via Inspector.");
+            }
+            else
+            {
+                // Remove any null entries
+                gameConfigs.RemoveAll(config => config == null);
+                _logger.Log($"Loaded {gameConfigs.Count} game(s)");
             }
         }
 
         public GameConfig GetGameConfig(string gameName)
         {
-            return _availableGames.Find(g => g.gameName == gameName);
+            return gameConfigs.Find(g => g.gameName == gameName);
         }
+
+        /// <summary>
+        /// Check if a game is available
+        /// </summary>
+        public bool HasGame(string gameName)
+        {
+            return gameConfigs.Exists(g => g.gameName == gameName);
+        }
+
+        /// <summary>
+        /// Get game count
+        /// </summary>
+        public int GameCount => gameConfigs?.Count ?? 0;
     }
 }

@@ -1,12 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
-using MiniGameFramework.Systems.SceneManagement;
-using MiniGameFramework.Systems.SaveSystem;
-using MiniGameFramework.Systems.UI;
-using MiniGameFramework.UI.Prefabs;
-using MiniGameFramework.MiniGames;
+using PlayFrame.Core.Logging;
+using PlayFrame.Systems.Scene;
+using PlayFrame.Systems.Save;
+using PlayFrame.MiniGames;
+using PlayFrame.UI.Base;
+using ILogger = PlayFrame.Core.Logging.ILogger;
 
-namespace MiniGameFramework.UI.Panels
+namespace PlayFrame.UI.Panels
 {
     public class GameSelectionPanel : UIPanel
     {
@@ -14,8 +15,12 @@ namespace MiniGameFramework.UI.Panels
         [SerializeField] private Transform gameContainer;
         [SerializeField] private Button backButton;
 
+        private ILogger _logger;
+
         protected override void OnInitialize()
         {
+            _logger = LoggerFactory.CreateUI("GameSelectionPanel");
+
             if (backButton != null)
                 backButton.onClick.AddListener(OnBackClicked);
 
@@ -26,7 +31,7 @@ namespace MiniGameFramework.UI.Panels
         {
             if (gameContainer == null)
             {
-                Debug.LogError("[GameSelectionPanel] Game Container is not assigned!");
+                _logger.LogError("Game Container is not assigned!");
                 return;
             }
 
@@ -35,6 +40,7 @@ namespace MiniGameFramework.UI.Panels
             foreach (var game in games)
             {
                 int highScore = SaveManager.Instance.GetGameHighScore(game.gameName);
+
                 var card = UIPrefabFactory.CreateGameCard(
                     game.displayName,
                     highScore,
@@ -44,23 +50,22 @@ namespace MiniGameFramework.UI.Panels
 
                 if (card == null)
                 {
-                    Debug.LogWarning($"[GameSelectionPanel] Failed to create card for {game.displayName}");
+                    _logger.LogWarning($"Failed to create card for {game.displayName}");
                     continue;
                 }
 
                 var playButton = card.GetComponentInChildren<Button>();
                 if (playButton != null)
                 {
-                    playButton.onClick.AddListener(() =>
-                        SceneLoader.Instance.LoadScene(game.sceneName)
-                    );
+                    string sceneName = game.sceneName; // Capture for lambda
+                    playButton.onClick.AddListener(() => SceneLoaderManager.Instance.LoadScene(sceneName));
                 }
             }
         }
 
         private void OnBackClicked()
         {
-            SceneLoader.Instance.LoadScene(SceneNames.MAIN_MENU);
+            SceneLoaderManager.Instance.LoadScene(SceneNames.MAIN_MENU);
         }
 
         protected override void OnCleanup()

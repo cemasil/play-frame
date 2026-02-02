@@ -1,9 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
-using MiniGameFramework.Systems.SceneManagement;
-using MiniGameFramework.Systems.UI;
+using PlayFrame.Systems.Scene;
+using PlayFrame.UI.Base;
 
-namespace MiniGameFramework.UI.Panels
+namespace PlayFrame.UI.Panels
 {
     public class MainMenuPanel : UIPanel
     {
@@ -22,7 +22,7 @@ namespace MiniGameFramework.UI.Panels
 
         private void OnPlayClicked()
         {
-            SceneLoader.Instance.LoadScene(SceneNames.GAME_SELECTION);
+            SceneLoaderManager.Instance.LoadScene(SceneNames.GAME_SELECTION);
         }
 
         private void OnQuitClicked()

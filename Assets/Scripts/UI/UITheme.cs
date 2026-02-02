@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-namespace MiniGameFramework.UI
+namespace PlayFrame.UI
 {
     /// <summary>
     /// UI Theme configuration using Scriptable Object

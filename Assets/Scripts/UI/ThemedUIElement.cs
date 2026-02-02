@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-namespace MiniGameFramework.UI
+namespace PlayFrame.UI
 {
     /// <summary>
     /// Helper component to automatically apply UI theme to elements
@@ -36,7 +36,11 @@ namespace MiniGameFramework.UI
         {
             if (theme == null)
             {
-                theme = Resources.Load<UITheme>("DefaultUITheme");
+                // Try to get default theme from UIPrefabFactory
+                if (UIPrefabFactory.IsInitialized)
+                {
+                    theme = UIPrefabFactory.Settings?.DefaultTheme;
+                }
                 if (theme == null) return;
             }
 

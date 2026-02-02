@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MiniGameFramework.MiniGames.Match3
+namespace PlayFrame.MiniGames.Match3
 {
     public class Match3Grid
     {
