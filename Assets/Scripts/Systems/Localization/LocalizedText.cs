@@ -1,6 +1,8 @@
 using UnityEngine;
 using TMPro;
-using System.Collections;
+using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 
 namespace PlayFrame.Systems.Localization
 {
@@ -24,6 +26,7 @@ namespace PlayFrame.Systems.Localization
 
         private TextMeshProUGUI _text;
         private bool _isSubscribed;
+        private CancellationTokenSource _waitForManagerCts;
 
         private void Awake()
         {
@@ -32,26 +35,36 @@ namespace PlayFrame.Systems.Localization
 
         private void OnEnable()
         {
+            CancelWaitForManagerTask();
             TrySubscribe();
             UpdateText();
 
             // If manager not ready yet, wait for it
             if (!LocalizationManager.HasInstance)
             {
-                StartCoroutine(WaitForLocalizationManager());
+                _waitForManagerCts = new CancellationTokenSource();
+                WaitForLocalizationManagerAsync(_waitForManagerCts.Token).Forget();
             }
         }
 
-        private IEnumerator WaitForLocalizationManager()
+        private async UniTaskVoid WaitForLocalizationManagerAsync(CancellationToken cancellationToken)
         {
-            // Wait until LocalizationManager is available
-            while (!LocalizationManager.HasInstance)
+            try
             {
-                yield return null;
-            }
+                while (!LocalizationManager.HasInstance)
+                {
+                    await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
+                }
 
-            TrySubscribe();
-            UpdateText();
+                if (!isActiveAndEnabled)
+                    return;
+
+                TrySubscribe();
+                UpdateText();
+            }
+            catch (OperationCanceledException)
+            {
+            }
         }
 
         private void TrySubscribe()
@@ -65,13 +78,28 @@ namespace PlayFrame.Systems.Localization
 
         private void OnDisable()
         {
-            StopAllCoroutines();
+            CancelWaitForManagerTask();
 
             if (_isSubscribed && LocalizationManager.HasInstance)
             {
                 LocalizationManager.Instance.OnLanguageChanged -= OnLanguageChanged;
                 _isSubscribed = false;
             }
+        }
+
+        private void OnDestroy()
+        {
+            CancelWaitForManagerTask();
+        }
+
+        private void CancelWaitForManagerTask()
+        {
+            if (_waitForManagerCts == null)
+                return;
+
+            _waitForManagerCts.Cancel();
+            _waitForManagerCts.Dispose();
+            _waitForManagerCts = null;
         }
 
         private void OnLanguageChanged(LocalizedStringTable newLanguage)

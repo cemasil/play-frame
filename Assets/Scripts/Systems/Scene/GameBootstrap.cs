@@ -1,5 +1,7 @@
-using System.Collections;
+using System;
+using System.Threading;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 using PlayFrame.Core.Events;
 using PlayFrame.Core.Logging;
 using PlayFrame.Systems.Save;
@@ -42,64 +44,74 @@ namespace PlayFrame.Systems.Scene
         {
             _logger = LoggerFactory.CreateScene("Bootstrap");
             _startTime = Time.time;
-            StartCoroutine(InitializeGame());
+            InitializeGameAsync(this.GetCancellationTokenOnDestroy()).Forget();
         }
 
-        private IEnumerator InitializeGame()
+        private async UniTaskVoid InitializeGameAsync(CancellationToken cancellationToken)
         {
-            _logger.Log("Starting game initialization...");
-
-            yield return InitializeManagers();
-
-            yield return LoadSavedData();
-
-            yield return InitializeAudio();
-
-            yield return AdditionalInitialization();
-
-            _isInitialized = true;
-            _logger.Log("Game initialization complete!");
-
-            float elapsed = Time.time - _startTime;
-            if (elapsed < minimumSplashDuration)
+            try
             {
-                yield return new WaitForSeconds(minimumSplashDuration - elapsed);
-            }
+                _logger.Log("Starting game initialization...");
 
-            LoadNextScene();
+                await InitializeManagersAsync(cancellationToken);
+
+                await LoadSavedDataAsync(cancellationToken);
+
+                await InitializeAudioAsync(cancellationToken);
+
+                await AdditionalInitialization(cancellationToken);
+
+                _isInitialized = true;
+                _logger.Log("Game initialization complete!");
+
+                float elapsed = Time.time - _startTime;
+                if (elapsed < minimumSplashDuration)
+                {
+                    await UniTask.WaitForSeconds(minimumSplashDuration - elapsed, cancellationToken: cancellationToken);
+                }
+
+                LoadNextScene();
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Bootstrap initialization failed: {ex}");
+            }
         }
 
-        private IEnumerator InitializeManagers()
+        private async UniTask InitializeManagersAsync(CancellationToken cancellationToken)
         {
             _logger.Log("Initializing managers...");
 
             EnsureManagerFromPrefab<EventManager>(eventManager);
             _ = EventManager.Instance;
-            yield return null;
+            await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
 
             EnsureManagerFromPrefab<SaveManager>(saveManagerPrefab);
             _ = SaveManager.Instance;
-            yield return null;
+            await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
 
             EnsureManagerFromPrefab<AudioManager>(audioManagerPrefab);
             _ = AudioManager.Instance;
-            yield return null;
+            await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
 
             EnsureManagerFromPrefab<InputManager>(inputManagerPrefab);
             _ = InputManager.Instance;
-            yield return null;
+            await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
 
             EnsureManagerFromPrefab<LocalizationManager>(localizationManagerPrefab);
             _ = LocalizationManager.Instance;
-            yield return null;
+            await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
 
             EnsureManagerFromPrefab<AnalyticsManager>(analyticsManagerPrefab);
             _ = AnalyticsManager.Instance;
-            yield return null;
+            await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
 
             EnsureManagerFromPrefab<SceneLoaderManager>(sceneLoaderPrefab);
             _ = SceneLoaderManager.Instance;
-            yield return null;
+            await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
         }
 
         private void EnsureManagerFromPrefab<T>(GameObject prefab) where T : MonoBehaviour
@@ -117,31 +129,31 @@ namespace PlayFrame.Systems.Scene
             }
         }
 
-        private IEnumerator LoadSavedData()
+        private async UniTask LoadSavedDataAsync(CancellationToken cancellationToken)
         {
             _logger.Log("Loading saved data...");
 
             var saveManager = SaveManager.Instance;
             saveManager.LoadGame();
 
-            yield return null;
+            await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
         }
 
-        private IEnumerator InitializeAudio()
+        private async UniTask InitializeAudioAsync(CancellationToken cancellationToken)
         {
             _logger.Log("Initializing audio...");
 
             var audioManager = AudioManager.Instance;
 
-            yield return null;
+            await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
         }
 
         /// <summary>
         /// Override this in a derived class for game-specific initialization
         /// </summary>
-        protected virtual IEnumerator AdditionalInitialization()
+        protected virtual UniTask AdditionalInitialization(CancellationToken cancellationToken)
         {
-            yield return null;
+            return UniTask.CompletedTask;
         }
 
         private void LoadNextScene()

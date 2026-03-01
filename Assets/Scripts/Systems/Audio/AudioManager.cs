@@ -1,5 +1,7 @@
 using System;
+using System.Threading;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 using PlayFrame.Core;
 using PlayFrame.Core.Events;
 using PlayFrame.Systems.Save;
@@ -25,6 +27,7 @@ namespace PlayFrame.Systems.Audio
         private float _sfxVolume = 1f;
         private bool _isMusicMuted;
         private bool _isSfxMuted;
+        private CancellationTokenSource _crossFadeCts;
 
         /// <summary>
         /// Current music volume (0-1)
@@ -150,33 +153,80 @@ namespace PlayFrame.Systems.Audio
         {
             if (clip == null) return;
 
-            StartCoroutine(CrossFadeMusic(clip, loop));
+            StartCrossFade(clip, loop);
         }
 
-        private System.Collections.IEnumerator CrossFadeMusic(AudioClip newClip, bool loop)
+        private void StartCrossFade(AudioClip newClip, bool loop)
         {
-            float startVolume = musicSource.volume;
+            CancelCrossFade();
+            _crossFadeCts = CancellationTokenSource.CreateLinkedTokenSource(this.GetCancellationTokenOnDestroy());
+            CrossFadeMusicAsync(newClip, loop, _crossFadeCts.Token).Forget();
+        }
 
-            // Fade out
-            while (musicSource.volume > 0)
+        private async UniTaskVoid CrossFadeMusicAsync(AudioClip newClip, bool loop, CancellationToken cancellationToken)
+        {
+            try
             {
-                musicSource.volume -= startVolume * Time.deltaTime / crossFadeDuration;
-                yield return null;
+                if (musicSource == null)
+                    return;
+
+                if (crossFadeDuration <= 0f)
+                {
+                    musicSource.clip = newClip;
+                    musicSource.loop = loop;
+                    musicSource.Play();
+                    musicSource.volume = GetEffectiveMusicVolume();
+                    return;
+                }
+
+                float startVolume = musicSource.volume;
+                float elapsed = 0f;
+
+                // Fade out
+                while (elapsed < crossFadeDuration)
+                {
+                    elapsed += Time.deltaTime;
+                    musicSource.volume = Mathf.Lerp(startVolume, 0f, elapsed / crossFadeDuration);
+                    await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
+                }
+
+                // Switch clip
+                musicSource.clip = newClip;
+                musicSource.loop = loop;
+                musicSource.Play();
+
+                float targetVolume = GetEffectiveMusicVolume();
+                elapsed = 0f;
+
+                // Fade in
+                while (elapsed < crossFadeDuration)
+                {
+                    elapsed += Time.deltaTime;
+                    musicSource.volume = Mathf.Lerp(0f, targetVolume, elapsed / crossFadeDuration);
+                    await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
+                }
+
+                musicSource.volume = targetVolume;
             }
-
-            // Switch clip
-            musicSource.clip = newClip;
-            musicSource.loop = loop;
-            musicSource.Play();
-
-            // Fade in
-            while (musicSource.volume < GetEffectiveMusicVolume())
+            catch (OperationCanceledException)
             {
-                musicSource.volume += startVolume * Time.deltaTime / crossFadeDuration;
-                yield return null;
             }
+        }
 
-            musicSource.volume = GetEffectiveMusicVolume();
+        protected override void OnDestroy()
+        {
+            CancelCrossFade();
+            base.OnDestroy();
+        }
+
+        private void CancelCrossFade()
+        {
+            if (_crossFadeCts == null)
+                return;
+
+            _crossFadeCts.Cancel();
+            _crossFadeCts.Dispose();
+            _crossFadeCts = null;
         }
 
         /// <summary>

@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using PlayFrame.Core.Events;
 using PlayFrame.UI.Base;
 
@@ -20,6 +23,7 @@ namespace PlayFrame.UI.Panels
         private float pulseTimer;
         private float targetProgress = 0f;
         private float currentProgress = 0f;
+        private CancellationTokenSource _hideDelayCts;
 
         protected override void OnInitialize()
         {
@@ -47,6 +51,7 @@ namespace PlayFrame.UI.Panels
 
         private void OnSceneLoadStarted()
         {
+            CancelPendingHide();
             Show();
             currentProgress = 0f;
             targetProgress = 0f;
@@ -60,13 +65,39 @@ namespace PlayFrame.UI.Panels
         private void OnSceneLoadCompleted()
         {
             targetProgress = 100f;
-            StartCoroutine(HideAfterDelay(0.5f));
+            StartHideAfterDelay(0.5f);
         }
 
-        private System.Collections.IEnumerator HideAfterDelay(float delay)
+        private void StartHideAfterDelay(float delay)
         {
-            yield return new WaitForSeconds(delay);
-            Hide();
+            CancelPendingHide();
+            _hideDelayCts = CancellationTokenSource.CreateLinkedTokenSource(this.GetCancellationTokenOnDestroy());
+            HideAfterDelayAsync(delay, _hideDelayCts.Token).Forget();
+        }
+
+        private async UniTaskVoid HideAfterDelayAsync(float delay, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await UniTask.WaitForSeconds(delay, cancellationToken: cancellationToken);
+                if (isActiveAndEnabled)
+                {
+                    Hide();
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
+        private void CancelPendingHide()
+        {
+            if (_hideDelayCts == null)
+                return;
+
+            _hideDelayCts.Cancel();
+            _hideDelayCts.Dispose();
+            _hideDelayCts = null;
         }
 
         public void SetProgress(float progress)
@@ -89,6 +120,8 @@ namespace PlayFrame.UI.Panels
 
         protected override void OnCleanup()
         {
+            CancelPendingHide();
+
             if (EventManager.HasInstance)
             {
                 EventManager.Instance.Unsubscribe(CoreEvents.SceneLoadStarted, OnSceneLoadStarted);

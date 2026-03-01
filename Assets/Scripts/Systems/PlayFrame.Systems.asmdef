@@ -3,7 +3,8 @@
     "rootNamespace": "PlayFrame.Systems",
     "references": [
         "PlayFrame.Core",
-        "Unity.TextMeshPro"
+        "Unity.TextMeshPro",
+        "UniTask"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

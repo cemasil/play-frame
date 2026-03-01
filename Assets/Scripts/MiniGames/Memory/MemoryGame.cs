@@ -1,8 +1,10 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Cysharp.Threading.Tasks;
 using PlayFrame.Core.Pooling;
 using PlayFrame.Core.Logging;
 using PlayFrame.Systems.Audio;
@@ -222,50 +224,68 @@ namespace PlayFrame.MiniGames.Memory
                 secondCard = clickedCard;
                 moves++;
                 UpdateUI();
-                StartCoroutine(CheckMatchRoutine());
+                CheckMatchAsync(this.GetCancellationTokenOnDestroy()).Forget();
             }
         }
 
-        private IEnumerator CheckMatchRoutine()
+        private async UniTaskVoid CheckMatchAsync(CancellationToken cancellationToken)
         {
             BeginProcessing();
             SetAllCardsInteractable(false);
-
-            yield return new WaitForSeconds(cardRevealDuration);
-
-            if (firstCard.CardId == secondCard.CardId)
+            try
             {
-                PlayMatchSound();
-                firstCard.SetMatched();
-                secondCard.SetMatched();
-                matchedPairs++;
+                await UniTask.WaitForSeconds(cardRevealDuration, cancellationToken: cancellationToken);
 
-                currentScore += pointsPerMatch;
-                UpdateUI();
+                if (firstCard == null || secondCard == null)
+                    return;
 
-                if (matchedPairs >= totalPairs)
+                if (firstCard.CardId == secondCard.CardId)
                 {
-                    yield return new WaitForSeconds(0.5f);
-                    EndGame();
-                    ShowGameOver();
+                    PlayMatchSound();
+                    firstCard.SetMatched();
+                    secondCard.SetMatched();
+                    matchedPairs++;
+
+                    currentScore += pointsPerMatch;
+                    UpdateUI();
+
+                    if (matchedPairs >= totalPairs)
+                    {
+                        await UniTask.WaitForSeconds(0.5f, cancellationToken: cancellationToken);
+                        EndGame();
+                        ShowGameOver();
+                    }
+                    else
+                    {
+                        EndProcessing();
+                    }
                 }
                 else
+                {
+                    PlayMismatchSound();
+                    await UniTask.WaitForSeconds(mismatchHideDuration, cancellationToken: cancellationToken);
+                    firstCard.Hide();
+                    secondCard.Hide();
+                    EndProcessing();
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            finally
+            {
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    firstCard = null;
+                    secondCard = null;
+                    SetAllCardsInteractable(true);
+                }
+
+                if (!IsGameOver && IsProcessing)
                 {
                     EndProcessing();
                 }
             }
-            else
-            {
-                PlayMismatchSound();
-                yield return new WaitForSeconds(mismatchHideDuration);
-                firstCard.Hide();
-                secondCard.Hide();
-                EndProcessing();
-            }
-
-            firstCard = null;
-            secondCard = null;
-            SetAllCardsInteractable(true);
         }
 
         private void SetAllCardsInteractable(bool interactable)
@@ -280,7 +300,7 @@ namespace PlayFrame.MiniGames.Memory
         {
             for (int i = list.Count - 1; i > 0; i--)
             {
-                int randomIndex = Random.Range(0, i + 1);
+                int randomIndex = UnityEngine.Random.Range(0, i + 1);
                 T temp = list[i];
                 list[i] = list[randomIndex];
                 list[randomIndex] = temp;
