@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1955c8440bb53479090bf1d250df2a4a, type: 3}
+  m_Name: GridConfig
+  m_EditorClassIdentifier: PlayFrame.Systems::PlayFrame.Systems.Grid.GridConfig
+  columns: 8
+  rows: 12
+  shape: 4
+  cellSize: 90
+  cellSpacing: 4
+  customCellMask: 000000000000000000000000000000000000000000000000000001010000000000000000010000000000000000010000000000000001000000000000010000000000010100000000000000000000000000000000000000000000000000000000
+  interactionMode: 4
+  multiSelectCount: 2
+  minChainLength: 3
+  allowDiagonals: 0
+  spawnMode: 0
+  spawnAnimationDuration: 0.3
+  spawnStaggerDelay: 0.05
+  useSpawnEasing: 1
+  visualConfig: {fileID: 11400000, guid: a7cc7e241651946cb94312707ae1d6ba, type: 2}
+  audioConfig: {fileID: 0}
+  defaultCellInteraction: -1

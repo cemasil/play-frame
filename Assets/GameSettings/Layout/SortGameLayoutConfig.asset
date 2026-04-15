@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0caf9ea8c82914d0b8a304be1c4db608, type: 3}
+  m_Name: SortGameLayoutConfig
+  m_EditorClassIdentifier: PlayFrame.Systems::PlayFrame.Systems.Layout.GameLayoutConfig
+  sizeMode: 0
+  topPanelSize: 0.12
+  showTopPanel: 1
+  topPadding:
+    left: 0
+    right: 0
+    top: 0
+    bottom: 0
+  centerPadding:
+    left: 0
+    right: 0
+    top: 0
+    bottom: 0
+  centerMinHeight: 0.5
+  bottomPanelSize: 0.1
+  showBottomPanel: 1
+  bottomPadding:
+    left: 0
+    right: 0
+    top: 0
+    bottom: 0
+  leftPanelSize: 0
+  showLeftPanel: 0
+  leftPadding:
+    left: 0
+    right: 0
+    top: 0
+    bottom: 0
+  rightPanelSize: 0
+  showRightPanel: 0
+  rightPadding:
+    left: 0
+    right: 0
+    top: 0
+    bottom: 0
+  backgroundColor: {r: 0.1, g: 0.1, b: 0.15, a: 1}
+  backgroundSprite: {fileID: 0}
+  respectSafeArea: 1

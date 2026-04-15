@@ -743,6 +743,7 @@ MonoBehaviour:
   gameConfigs:
   - {fileID: 11400000, guid: 71646b20a1aa249309742b6bef96c46c, type: 2}
   - {fileID: 11400000, guid: f028eb5e250b14909a5babf42d8dca8d, type: 2}
+  - {fileID: 11400000, guid: 21f0f1084257244f08ab16f00b5bae98, type: 2}
 --- !u!1 &1826771149
 GameObject:
   m_ObjectHideFlags: 0
@@ -897,6 +898,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6113717093084852641, guid: fa91029eaeb23436fbfcea349e2928f3, type: 3}
       propertyPath: m_Color.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6113717093084852641, guid: fa91029eaeb23436fbfcea349e2928f3, type: 3}
+      propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6631411620314778455, guid: fa91029eaeb23436fbfcea349e2928f3, type: 3}

@@ -366,7 +366,8 @@ Configurable game scene layout with zones for HUD, game area, controls, and side
 
 ### Setup
 
-1. **Create a GameLayoutConfig:** `Create → PlayFrame → Layout → Game Layout Config`
+1. **Create a GameLayoutConfig in `Assets → GameSettings → Layout`**:
+    - `Create → PlayFrame → Layout → Game Layout Config`
 2. **Add `GameLayoutManager`** to your game Canvas.
 3. **Assign RectTransforms** for each zone (top, center, bottom, left, right).
 4. **Assign the config** and it auto-applies on Awake.
@@ -517,11 +518,6 @@ Event-based analytics system. See `docs/ANALYTICS_SYSTEM.md` for full documentat
            StartGame(); // Explicit start
        }
 
-       protected override void OnGameEnd()
-       {
-           // Cleanup
-       }
-
        private void ConfigurePiece(GridPiece piece)
        {
            // Configure randomly
@@ -529,7 +525,8 @@ Event-based analytics system. See `docs/ANALYTICS_SYSTEM.md` for full documentat
    }
    ```
 
-3. **Create a GameConfig asset:** `Create → PlayFrame → Game → Game Config`
+3. Create a GameConfig asset in `Assets → GameSettings → Games`:
+   - `Create → PlayFrame → Game → Game Config`
    - Set gameName, displayName, sceneName, themeColor
 
 4. **Register in GameRegistry:** Add your GameConfig to `GameRegistry.Instance`
