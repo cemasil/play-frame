@@ -122,11 +122,23 @@ namespace PlayFrame.MiniGames.Common
         private void Start()
         {
             OnGameStart();
-            SetState(GameState.Playing);
+        }
 
-            // Track level start
+        /// <summary>
+        /// Call this to start the game (transitions to Playing state with analytics tracking).
+        /// Override AutoStartGame to call this automatically in Start().
+        /// </summary>
+        public void StartGame()
+        {
+            SetState(GameState.Playing);
             TrackLevelStarted();
         }
+
+        /// <summary>
+        /// Override to return true if the game should auto-start in Start().
+        /// Default is true for backward compatibility.
+        /// </summary>
+        protected virtual bool AutoStartGame => true;
 
         public void Update()
         {

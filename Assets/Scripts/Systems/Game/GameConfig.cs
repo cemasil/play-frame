@@ -1,13 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace PlayFrame.MiniGames
+namespace PlayFrame.Systems.Game
 {
     /// <summary>
-    /// Configuration for a mini-game
-    /// Create via: Assets -> Create -> MiniGames -> Game Config
+    /// Configuration for a game.
+    /// Create via: Assets -> Create -> PlayFrame -> Game Config
     /// </summary>
-    [CreateAssetMenu(fileName = "GameConfig", menuName = "MiniGames/Game Config", order = 1)]
+    [CreateAssetMenu(fileName = "GameConfig", menuName = "PlayFrame/Game Config", order = 1)]
     public class GameConfig : ScriptableObject
     {
         [Header("Game Info")]

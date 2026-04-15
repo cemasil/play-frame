@@ -11,6 +11,7 @@ using PlayFrame.Systems.Audio;
 using PlayFrame.Systems.Scene;
 using PlayFrame.Systems.Save;
 using PlayFrame.Systems.Localization;
+using PlayFrame.Systems.Game;
 using PlayFrame.MiniGames.Common;
 using ILogger = PlayFrame.Core.Logging.ILogger;
 
@@ -107,6 +108,7 @@ namespace PlayFrame.MiniGames.Memory
         protected override void OnGameStart()
         {
             PlayGameMusic();
+            StartGame();
         }
 
         private void InitializePool()

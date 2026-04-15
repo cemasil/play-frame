@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using PlayFrame.Core.Logging;
 using PlayFrame.Systems.Scene;
 using PlayFrame.Systems.Save;
-using PlayFrame.MiniGames;
+using PlayFrame.Systems.Game;
 using PlayFrame.UI.Base;
 using ILogger = PlayFrame.Core.Logging.ILogger;
 

@@ -1,13 +1,13 @@
 {
-    "name": "PlayFrame.UI",
-    "rootNamespace": "PlayFrame.UI",
+    "name": "PlayFrame.Systems.Grid.Editor",
+    "rootNamespace": "PlayFrame.Systems.Grid.Editor",
     "references": [
         "PlayFrame.Core",
-        "PlayFrame.Systems",
-        "Unity.TextMeshPro",
-        "UniTask"
+        "PlayFrame.Systems"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
