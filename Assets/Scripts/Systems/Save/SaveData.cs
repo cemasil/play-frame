@@ -12,6 +12,7 @@ namespace PlayFrame.Systems.Save
         public int gamesPlayed;
         public float musicVolume = 1f;
         public float sfxVolume = 1f;
+        public int hapticEnabled = 1;
         public string lastPlayedGame;
         public string saveDate;
 
@@ -25,6 +26,7 @@ namespace PlayFrame.Systems.Save
             gamesPlayed = 0;
             musicVolume = 1f;
             sfxVolume = 1f;
+            hapticEnabled = 1;
             lastPlayedGame = "";
             saveDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             _gameDataDictionary = new Dictionary<string, GameSaveData>();

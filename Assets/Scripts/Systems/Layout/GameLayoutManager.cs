@@ -13,7 +13,7 @@ namespace PlayFrame.Systems.Layout
     [RequireComponent(typeof(RectTransform))]
     public class GameLayoutManager : MonoBehaviour
     {
-        private static readonly ILogger _logger = LoggerFactory.CreateSystem("GameLayoutManager");
+        private static readonly ILogger _logger = LoggerFactory.CreateGame("GameLayoutManager");
 
         [Header("Configuration")]
         [SerializeField] private GameLayoutConfig layoutConfig;

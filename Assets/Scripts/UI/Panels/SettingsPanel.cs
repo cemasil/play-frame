@@ -158,7 +158,7 @@ namespace PlayFrame.UI.Panels
             if (SaveManager.HasInstance)
             {
                 // Store haptic preference in save data
-                SaveManager.Instance.CurrentSaveData.SetCustomData("haptic_enabled", isOn ? "1" : "0");
+                SaveManager.Instance.CurrentSaveData.hapticEnabled = isOn ? 1 : 0;
                 SaveManager.Instance.SaveGame();
             }
         }
