@@ -1,12 +1,13 @@
 {
-    "name": "PlayFrame.Systems",
-    "rootNamespace": "PlayFrame.Systems",
+    "name": "PlayFrame.Systems.Layout.Editor",
+    "rootNamespace": "PlayFrame.Systems.Layout.Editor",
     "references": [
         "PlayFrame.Core",
-        "Unity.TextMeshPro",
-        "UniTask"
+        "PlayFrame.Systems"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

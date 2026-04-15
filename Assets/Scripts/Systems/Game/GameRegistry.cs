@@ -4,7 +4,7 @@ using PlayFrame.Core;
 using PlayFrame.Core.Logging;
 using ILogger = PlayFrame.Core.Logging.ILogger;
 
-namespace PlayFrame.MiniGames
+namespace PlayFrame.Systems.Game
 {
     /// <summary>
     /// Registry for all available mini-games.

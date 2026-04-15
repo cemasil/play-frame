@@ -4,8 +4,8 @@
     "references": [
         "PlayFrame.Core",
         "PlayFrame.Systems",
-        "PlayFrame.MiniGames",
-        "Unity.TextMeshPro"
+        "Unity.TextMeshPro",
+        "UniTask"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

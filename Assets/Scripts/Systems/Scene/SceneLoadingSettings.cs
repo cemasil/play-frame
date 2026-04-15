@@ -40,48 +40,6 @@ namespace PlayFrame.Systems.Scene
         public bool SmoothProgress => smoothProgress;
         public float ProgressSmoothSpeed => progressSmoothSpeed;
 
-        #region Cached Wait Objects
-        private WaitForSecondsRealtime _preLoadWait;
-        private WaitForSecondsRealtime _postLoadWait;
-
-        /// <summary>
-        /// Get cached WaitForSecondsRealtime for pre-load delay
-        /// </summary>
-        public WaitForSecondsRealtime PreLoadWait
-        {
-            get
-            {
-                if (_preLoadWait == null && preLoadDelay > 0f)
-                {
-                    _preLoadWait = new WaitForSecondsRealtime(preLoadDelay);
-                }
-                return _preLoadWait;
-            }
-        }
-
-        /// <summary>
-        /// Get cached WaitForSecondsRealtime for post-load delay
-        /// </summary>
-        public WaitForSecondsRealtime PostLoadWait
-        {
-            get
-            {
-                if (_postLoadWait == null && postLoadDelay > 0f)
-                {
-                    _postLoadWait = new WaitForSecondsRealtime(postLoadDelay);
-                }
-                return _postLoadWait;
-            }
-        }
-
-        private void OnValidate()
-        {
-            // Invalidate cache when values change in Inspector
-            _preLoadWait = null;
-            _postLoadWait = null;
-        }
-        #endregion
-
         /// <summary>
         /// Normalize raw async progress (0-0.9) to display progress (0-1)
         /// </summary>

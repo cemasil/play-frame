@@ -1,7 +1,8 @@
 using System;
-using System.Collections;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Cysharp.Threading.Tasks;
 using PlayFrame.Core;
 using PlayFrame.Core.Events;
 using PlayFrame.Core.Logging;
@@ -54,88 +55,99 @@ namespace PlayFrame.Systems.Scene
                 return;
             }
 
-            StartCoroutine(LoadSceneAsync(sceneName, onComplete));
+            LoadSceneAsync(sceneName, onComplete, this.GetCancellationTokenOnDestroy()).Forget();
         }
 
-        private IEnumerator LoadSceneAsync(string sceneName, Action onComplete)
+        private async UniTaskVoid LoadSceneAsync(string sceneName, Action onComplete, CancellationToken cancellationToken)
         {
-            _isLoading = true;
-            _displayProgress = 0f;
-            _loadStartTime = Time.unscaledTime;
-
-            if (EventManager.HasInstance)
-                EventManager.Instance.TriggerEvent(CoreEvents.SceneLoadStarted);
-
-            // Pre-load delay (allows UI to show loading screen)
-            if (Settings.PreLoadDelay > 0f)
+            try
             {
-                yield return Settings.PreLoadWait;
-            }
+                _isLoading = true;
+                _displayProgress = 0f;
+                _loadStartTime = Time.unscaledTime;
 
-            AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(sceneName);
-            asyncOperation.allowSceneActivation = false;
-
-            float targetProgress = 0f;
-
-            while (!asyncOperation.isDone)
-            {
-                // Calculate normalized progress
-                targetProgress = Settings.NormalizeProgress(asyncOperation.progress);
-
-                // Smooth or instant progress update
-                if (Settings.SmoothProgress)
-                {
-                    _displayProgress = Mathf.MoveTowards(
-                        _displayProgress,
-                        targetProgress,
-                        Settings.ProgressSmoothSpeed * Time.unscaledDeltaTime
-                    );
-                }
-                else
-                {
-                    _displayProgress = targetProgress;
-                }
-
-                // Broadcast progress
                 if (EventManager.HasInstance)
-                    EventManager.Instance.TriggerEvent(CoreEvents.SceneLoadProgress, _displayProgress);
+                    EventManager.Instance.TriggerEvent(CoreEvents.SceneLoadStarted);
 
-                // Check if load is complete
-                if (Settings.IsLoadComplete(asyncOperation.progress))
+                // Pre-load delay (allows UI to show loading screen)
+                if (Settings.PreLoadDelay > 0f)
                 {
-                    // Ensure minimum load duration
-                    float elapsed = Time.unscaledTime - _loadStartTime;
-                    float remainingMinDuration = Settings.MinimumLoadDuration - elapsed;
-
-                    // Note: remainingMinDuration is dynamic, cannot cache
-                    if (remainingMinDuration > 0f)
-                    {
-                        yield return new WaitForSecondsRealtime(remainingMinDuration);
-                    }
-
-                    // Post-load delay (allows progress bar to reach 100%)
-                    if (Settings.PostLoadDelay > 0f)
-                    {
-                        yield return Settings.PostLoadWait;
-                    }
-
-                    // Ensure progress shows 100%
-                    _displayProgress = 1f;
-                    if (EventManager.HasInstance)
-                        EventManager.Instance.TriggerEvent(CoreEvents.SceneLoadProgress, 1f);
-
-                    asyncOperation.allowSceneActivation = true;
+                    await UniTask.WaitForSeconds(Settings.PreLoadDelay, true, cancellationToken: cancellationToken);
                 }
 
-                yield return null;
+                AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(sceneName);
+                asyncOperation.allowSceneActivation = false;
+
+                float targetProgress = 0f;
+
+                while (!asyncOperation.isDone)
+                {
+                    // Calculate normalized progress
+                    targetProgress = Settings.NormalizeProgress(asyncOperation.progress);
+
+                    // Smooth or instant progress update
+                    if (Settings.SmoothProgress)
+                    {
+                        _displayProgress = Mathf.MoveTowards(
+                            _displayProgress,
+                            targetProgress,
+                            Settings.ProgressSmoothSpeed * Time.unscaledDeltaTime
+                        );
+                    }
+                    else
+                    {
+                        _displayProgress = targetProgress;
+                    }
+
+                    // Broadcast progress
+                    if (EventManager.HasInstance)
+                        EventManager.Instance.TriggerEvent(CoreEvents.SceneLoadProgress, _displayProgress);
+
+                    // Check if load is complete
+                    if (Settings.IsLoadComplete(asyncOperation.progress))
+                    {
+                        // Ensure minimum load duration
+                        float elapsed = Time.unscaledTime - _loadStartTime;
+                        float remainingMinDuration = Settings.MinimumLoadDuration - elapsed;
+
+                        if (remainingMinDuration > 0f)
+                        {
+                            await UniTask.WaitForSeconds(remainingMinDuration, true, cancellationToken: cancellationToken);
+                        }
+
+                        // Post-load delay (allows progress bar to reach 100%)
+                        if (Settings.PostLoadDelay > 0f)
+                        {
+                            await UniTask.WaitForSeconds(Settings.PostLoadDelay, true, cancellationToken: cancellationToken);
+                        }
+
+                        // Ensure progress shows 100%
+                        _displayProgress = 1f;
+                        if (EventManager.HasInstance)
+                            EventManager.Instance.TriggerEvent(CoreEvents.SceneLoadProgress, 1f);
+
+                        asyncOperation.allowSceneActivation = true;
+                    }
+
+                    await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
+                }
+
+                if (EventManager.HasInstance)
+                    EventManager.Instance.TriggerEvent(CoreEvents.SceneLoadCompleted);
+
+                onComplete?.Invoke();
             }
-
-            _isLoading = false;
-
-            if (EventManager.HasInstance)
-                EventManager.Instance.TriggerEvent(CoreEvents.SceneLoadCompleted);
-
-            onComplete?.Invoke();
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Scene load failed for '{sceneName}': {ex}");
+            }
+            finally
+            {
+                _isLoading = false;
+            }
         }
 
         /// <summary>

@@ -1,8 +1,10 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Cysharp.Threading.Tasks;
 using PlayFrame.Core.Pooling;
 using PlayFrame.Core.Logging;
 using PlayFrame.Systems.Audio;
@@ -10,6 +12,7 @@ using PlayFrame.Systems.Scene;
 using PlayFrame.Systems.Save;
 using PlayFrame.Systems.Localization;
 using PlayFrame.Systems.Analytics;
+using PlayFrame.Systems.Game;
 using PlayFrame.MiniGames.Common;
 using ILogger = PlayFrame.Core.Logging.ILogger;
 
@@ -105,6 +108,7 @@ namespace PlayFrame.MiniGames.Match3
         protected override void OnGameStart()
         {
             PlayGameMusic();
+            StartGame();
         }
 
         private void InitializePool()
@@ -194,7 +198,7 @@ namespace PlayFrame.MiniGames.Match3
             RectTransform rectTransform = gem.RectTransform;
             rectTransform.anchoredPosition = position;
 
-            int colorIndex = Random.Range(0, gemColors.Length);
+            int colorIndex = UnityEngine.Random.Range(0, gemColors.Length);
             gem.SetColor(gemColors[colorIndex], colorIndex);
             gem.SetPosition(x, y);
             gem.OnSwipeCallback(HandleGemSwipe);
@@ -214,95 +218,111 @@ namespace PlayFrame.MiniGames.Match3
             Gem targetGem = match3Grid.GetGem(targetX, targetY);
             if (targetGem == null) return;
 
-            StartCoroutine(SwapAndMatchRoutine(gem, targetGem));
+            SwapAndMatchAsync(gem, targetGem, this.GetCancellationTokenOnDestroy()).Forget();
         }
 
-        private IEnumerator SwapAndMatchRoutine(Gem gem1, Gem gem2)
+        private async UniTaskVoid SwapAndMatchAsync(Gem gem1, Gem gem2, CancellationToken cancellationToken)
         {
             BeginProcessing();
-            PlaySwapSound();
-
-            Vector2 pos1 = gem1.GetComponent<RectTransform>().anchoredPosition;
-            Vector2 pos2 = gem2.GetComponent<RectTransform>().anchoredPosition;
-
-            StartCoroutine(MoveGemTo(gem1, pos1, pos2));
-            StartCoroutine(MoveGemTo(gem2, pos2, pos1));
-
-            yield return new WaitForSeconds(0.3f);
-
-            match3Grid.SwapGems(gem1, gem2);
-            List<Gem> matches = match3Grid.FindMatchesForGems(gem1, gem2);
-            remainingMoves--;
-            totalMovesMade++;
-
-            if (matches.Count > 0)
+            try
             {
-                PlayMatchSound();
-                totalMatchesMade++;
+                PlaySwapSound();
 
-                // Track the match
-                int matchPoints = matches.Count * pointsPerGem;
-                TrackMatchMade(matches.Count, "normal", 1, matchPoints);
-                TrackGameMove("swap", totalMovesMade, true, matchPoints);
+                Vector2 pos1 = gem1.GetComponent<RectTransform>().anchoredPosition;
+                Vector2 pos2 = gem2.GetComponent<RectTransform>().anchoredPosition;
 
-                foreach (Gem gem in matches)
-                {
-                    match3Grid.RemoveGem(gem);
-                    gemPool.Release(gem);
-                }
-
-                currentScore += matchPoints;
-
-                yield return new WaitForSeconds(0.2f);
-
-                FillGrid();
-            }
-            else
-            {
-                PlayNoMatchSound();
-                TrackGameMove("swap", totalMovesMade, false, 0);
-
-                yield return new WaitForSeconds(0.2f);
-
-                StartCoroutine(MoveGemTo(gem1, pos2, pos1));
-                StartCoroutine(MoveGemTo(gem2, pos1, pos2));
-
-                yield return new WaitForSeconds(0.3f);
+                await UniTask.WhenAll(
+                    MoveGemToAsync(gem1, pos1, pos2, cancellationToken),
+                    MoveGemToAsync(gem2, pos2, pos1, cancellationToken)
+                );
 
                 match3Grid.SwapGems(gem1, gem2);
-            }
+                List<Gem> matches = match3Grid.FindMatchesForGems(gem1, gem2);
+                remainingMoves--;
+                totalMovesMade++;
 
-            UpdateUI();
+                if (matches.Count > 0)
+                {
+                    PlayMatchSound();
+                    totalMatchesMade++;
 
-            if (remainingMoves <= 0)
-            {
-                EndGame();
-                ShowGameOver();
+                    // Track the match
+                    int matchPoints = matches.Count * pointsPerGem;
+                    TrackMatchMade(matches.Count, "normal", 1, matchPoints);
+                    TrackGameMove("swap", totalMovesMade, true, matchPoints);
+
+                    foreach (Gem gem in matches)
+                    {
+                        match3Grid.RemoveGem(gem);
+                        gemPool.Release(gem);
+                    }
+
+                    currentScore += matchPoints;
+
+                    await UniTask.WaitForSeconds(0.2f, cancellationToken: cancellationToken);
+
+                    FillGrid();
+                }
+                else
+                {
+                    PlayNoMatchSound();
+                    TrackGameMove("swap", totalMovesMade, false, 0);
+
+                    await UniTask.WaitForSeconds(0.2f, cancellationToken: cancellationToken);
+
+                    await UniTask.WhenAll(
+                        MoveGemToAsync(gem1, pos2, pos1, cancellationToken),
+                        MoveGemToAsync(gem2, pos1, pos2, cancellationToken)
+                    );
+
+                    match3Grid.SwapGems(gem1, gem2);
+                }
+
+                UpdateUI();
+
+                if (remainingMoves <= 0)
+                {
+                    EndGame();
+                    ShowGameOver();
+                }
+                else
+                {
+                    EndProcessing();
+                }
             }
-            else
+            catch (OperationCanceledException)
             {
-                EndProcessing();
+            }
+            finally
+            {
+                if (!IsGameOver && IsProcessing)
+                {
+                    EndProcessing();
+                }
             }
         }
 
-        private IEnumerator MoveGemTo(Gem gem, Vector2 startPos, Vector2 targetPos)
+        private async UniTask MoveGemToAsync(Gem gem, Vector2 startPos, Vector2 targetPos, CancellationToken cancellationToken)
         {
-            if (gem == null) yield break;
+            if (gem == null)
+                return;
 
             RectTransform rectTransform = gem.GetComponent<RectTransform>();
-            if (rectTransform == null) yield break;
+            if (rectTransform == null)
+                return;
 
             float duration = 0.3f;
             float elapsed = 0f;
 
             while (elapsed < duration)
             {
-                if (gem == null || rectTransform == null) yield break;
+                if (gem == null || rectTransform == null)
+                    return;
 
                 elapsed += Time.deltaTime;
                 float t = elapsed / duration;
                 rectTransform.anchoredPosition = Vector2.Lerp(startPos, targetPos, t);
-                yield return null;
+                await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
             }
 
             if (gem != null && rectTransform != null)
