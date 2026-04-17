@@ -1,0 +1,22 @@
+{
+    "name": "PlayFrame.UI.Editor",
+    "rootNamespace": "PlayFrame.UI.Editor",
+    "references": [
+        "PlayFrame.Core",
+        "PlayFrame.Systems",
+        "PlayFrame.UI",
+        "Unity.TextMeshPro",
+        "UniTask"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

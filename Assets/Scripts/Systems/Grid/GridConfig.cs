@@ -75,6 +75,29 @@ namespace PlayFrame.Systems.Grid
         [Tooltip("Default interaction capabilities for all cells")]
         public CellInteraction defaultCellInteraction = CellInteraction.All;
 
+        [Header("Board Layout")]
+        [Tooltip("Piece sprites available for this grid (index = piece type ID)")]
+        public Sprite[] pieceSprites;
+
+        [Tooltip("Use a predefined board layout instead of random piece placement")]
+        public bool useBoardLayout = false;
+
+        [Tooltip("Per-cell piece type ID. -1 = empty. Array is [row * columns + col].")]
+        [HideInInspector]
+        public int[] boardLayout;
+
+        /// <summary>
+        /// Get the piece type for a specific cell in the board layout.
+        /// Returns -1 if no layout is defined or cell is unset.
+        /// </summary>
+        public int GetBoardLayoutPieceType(int col, int row)
+        {
+            if (!useBoardLayout || boardLayout == null) return -1;
+            int index = row * columns + col;
+            if (index < 0 || index >= boardLayout.Length) return -1;
+            return boardLayout[index];
+        }
+
         /// <summary>
         /// Check if a cell position is valid for this grid configuration
         /// </summary>
@@ -188,6 +211,21 @@ namespace PlayFrame.Systems.Grid
                             newMask[i] = true;
                     }
                     customCellMask = newMask;
+                }
+            }
+
+            // Resize board layout when dimensions change
+            if (useBoardLayout)
+            {
+                int expectedSize = columns * rows;
+                if (boardLayout == null || boardLayout.Length != expectedSize)
+                {
+                    int[] newLayout = new int[expectedSize];
+                    for (int i = 0; i < expectedSize; i++)
+                        newLayout[i] = -1;
+                    if (boardLayout != null)
+                        Array.Copy(boardLayout, newLayout, Mathf.Min(boardLayout.Length, expectedSize));
+                    boardLayout = newLayout;
                 }
             }
         }

@@ -12,22 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1cb09f7b745c746d99434c85fbfd8f64, type: 3}
   m_Name: GridVisualConfig
   m_EditorClassIdentifier: PlayFrame.Systems::PlayFrame.Systems.Grid.GridVisualConfig
-  gridBackground: {fileID: 0}
-  gridBackgroundColor: {r: 0.9622642, g: 0.09531862, b: 0.09531862, a: 0.8}
-  gridPadding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 0
-    m_Bottom: 0
-  gridBorderSprite: {fileID: 0}
-  gridBorderColor: {r: 0.9716981, g: 0.8226876, b: 0.1054201, a: 0}
-  borderWidth: 0
-  dynamicBorder: 0
+  gridBackground: {fileID: -1270984432663039480, guid: 9a7a427a9048a464ebf3c8406b98f7f8, type: 3}
+  gridBackgroundColor: {r: 0.9607843, g: 0.09411763, b: 0.09411763, a: 1}
+  gridPaddingLeft: 10
+  gridPaddingRight: 10
+  gridPaddingTop: 10
+  gridPaddingBottom: 10
+  gridBorderSprite: {fileID: -8336593613326442670, guid: 39d0e1eb3c29e412e93664d6cfc65682, type: 3}
+  gridBorderColor: {r: 0.9716981, g: 0.8226876, b: 0.1054201, a: 1}
+  borderWidth: 10
+  dynamicBorder: 1
   cellBackground: {fileID: 0}
-  cellBackgroundColor: {r: 0.8207547, g: 0.37335852, b: 0.12001601, a: 0}
+  cellBackgroundColor: {r: 0.7337476, g: 0.1215686, b: 0.81960785, a: 1}
   cellCornerRadius: 0
   selectionOverlay: {fileID: 0}
-  selectionColor: {r: 0.24993552, g: 0.9056604, b: 0.046991818, a: 0}
+  selectionColor: {r: 0.24993552, g: 0.9056604, b: 0.046991818, a: 1}
   selectionScale: 1.013
   dragScale: 1.009
   dragAlpha: 0.3

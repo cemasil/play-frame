@@ -300,7 +300,10 @@ namespace PlayFrame.Systems.Grid.Editor
                 EditorGUILayout.LabelField("Grid Background", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(visualSO.FindProperty("gridBackground"));
                 EditorGUILayout.PropertyField(visualSO.FindProperty("gridBackgroundColor"));
-                EditorGUILayout.PropertyField(visualSO.FindProperty("gridPadding"));
+                EditorGUILayout.PropertyField(visualSO.FindProperty("gridPaddingLeft"));
+                EditorGUILayout.PropertyField(visualSO.FindProperty("gridPaddingRight"));
+                EditorGUILayout.PropertyField(visualSO.FindProperty("gridPaddingTop"));
+                EditorGUILayout.PropertyField(visualSO.FindProperty("gridPaddingBottom"));
 
                 EditorGUILayout.Space(5);
                 EditorGUILayout.LabelField("Grid Border", EditorStyles.boldLabel);

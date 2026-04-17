@@ -17,8 +17,14 @@ namespace PlayFrame.Systems.Grid
         [Tooltip("Background color/tint")]
         public Color gridBackgroundColor = new Color(0.1f, 0.1f, 0.1f, 0.8f);
 
-        [Tooltip("Padding around the grid content")]
-        public RectOffset gridPadding = new RectOffset(10, 10, 10, 10);
+        [Tooltip("Padding around the grid content (left, right, top, bottom)")]
+        public int gridPaddingLeft = 10;
+        public int gridPaddingRight = 10;
+        public int gridPaddingTop = 10;
+        public int gridPaddingBottom = 10;
+
+        /// <summary>Get padding as a RectOffset at runtime</summary>
+        public RectOffset GridPadding => new RectOffset(gridPaddingLeft, gridPaddingRight, gridPaddingTop, gridPaddingBottom);
 
         [Header("Grid Border/Frame")]
         [Tooltip("Border/frame sprite around the grid")]

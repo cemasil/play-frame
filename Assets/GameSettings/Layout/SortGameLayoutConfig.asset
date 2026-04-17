@@ -47,6 +47,6 @@ MonoBehaviour:
     right: 0
     top: 0
     bottom: 0
-  backgroundColor: {r: 0.1, g: 0.1, b: 0.15, a: 1}
+  backgroundColor: {r: 0.36622578, g: 0.05339978, b: 0.4528302, a: 1}
   backgroundSprite: {fileID: 0}
   respectSafeArea: 1

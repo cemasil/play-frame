@@ -178,9 +178,12 @@ namespace PlayFrame.Systems.Grid
                     _cells[col, row] = cell;
 
                     // Create cell background visual
-                    if (cell.IsActive && cellBackgroundPrefab != null)
+                    if (cell.IsActive)
                     {
-                        CreateCellBackground(cell);
+                        if (cellBackgroundPrefab != null)
+                            CreateCellBackground(cell);
+                        else if (config.visualConfig != null)
+                            CreateDefaultCellBackground(cell);
                     }
                 }
             }
@@ -208,6 +211,22 @@ namespace PlayFrame.Systems.Grid
             }
         }
 
+        private void CreateDefaultCellBackground(GridCell cell)
+        {
+            var bg = new GameObject($"Cell_{cell.Col}_{cell.Row}", typeof(RectTransform), typeof(Image));
+            bg.transform.SetParent(gridContainer, false);
+
+            var rt = bg.GetComponent<RectTransform>();
+            rt.anchoredPosition = cell.LocalPosition;
+            rt.sizeDelta = Vector2.one * config.cellSize;
+
+            var img = bg.GetComponent<Image>();
+            img.color = config.visualConfig.cellBackgroundColor;
+            img.raycastTarget = false;
+            if (config.visualConfig.cellBackground != null)
+                img.sprite = config.visualConfig.cellBackground;
+        }
+
         private void InitializePool()
         {
             if (piecePrefab == null)
@@ -232,40 +251,62 @@ namespace PlayFrame.Systems.Grid
             if (config.visualConfig == null) return;
 
             var vc = config.visualConfig;
+            Vector2 gridSize = config.GetGridPixelSize();
 
-            // Grid background
+            // Grid background — auto-create if not assigned
+            if (gridBackgroundImage == null && (vc.gridBackground != null || vc.gridBackgroundColor.a > 0f))
+            {
+                var bgGo = new GameObject("GridBackground", typeof(RectTransform), typeof(Image));
+                bgGo.transform.SetParent(gridContainer, false);
+                bgGo.transform.SetAsFirstSibling();
+                gridBackgroundImage = bgGo.GetComponent<Image>();
+                gridBackgroundImage.raycastTarget = false;
+            }
+
             if (gridBackgroundImage != null)
             {
                 gridBackgroundImage.color = vc.gridBackgroundColor;
                 if (vc.gridBackground != null)
                     gridBackgroundImage.sprite = vc.gridBackground;
+                else
+                    gridBackgroundImage.sprite = null;
 
-                // Size the background to fit the grid
                 var bgRt = gridBackgroundImage.GetComponent<RectTransform>();
                 if (bgRt != null)
                 {
-                    Vector2 gridSize = config.GetGridPixelSize();
+                    bgRt.anchoredPosition = Vector2.zero;
                     bgRt.sizeDelta = gridSize + new Vector2(
-                        vc.gridPadding.left + vc.gridPadding.right,
-                        vc.gridPadding.top + vc.gridPadding.bottom
+                        vc.gridPaddingLeft + vc.gridPaddingRight,
+                        vc.gridPaddingTop + vc.gridPaddingBottom
                     );
                 }
             }
 
-            // Grid border
+            // Grid border — auto-create if not assigned
+            if (gridBorderImage == null && vc.dynamicBorder && (vc.gridBorderSprite != null || vc.borderWidth > 0f))
+            {
+                var borderGo = new GameObject("GridBorder", typeof(RectTransform), typeof(Image));
+                borderGo.transform.SetParent(gridContainer, false);
+                borderGo.transform.SetAsFirstSibling();
+                gridBorderImage = borderGo.GetComponent<Image>();
+                gridBorderImage.raycastTarget = false;
+            }
+
             if (gridBorderImage != null && vc.dynamicBorder)
             {
                 gridBorderImage.color = vc.gridBorderColor;
                 if (vc.gridBorderSprite != null)
                     gridBorderImage.sprite = vc.gridBorderSprite;
+                else
+                    gridBorderImage.sprite = null;
 
                 var borderRt = gridBorderImage.GetComponent<RectTransform>();
                 if (borderRt != null)
                 {
-                    Vector2 gridSize = config.GetGridPixelSize();
+                    borderRt.anchoredPosition = Vector2.zero;
                     borderRt.sizeDelta = gridSize + new Vector2(
-                        vc.gridPadding.left + vc.gridPadding.right + vc.borderWidth * 2,
-                        vc.gridPadding.top + vc.gridPadding.bottom + vc.borderWidth * 2
+                        vc.gridPaddingLeft + vc.gridPaddingRight + vc.borderWidth * 2,
+                        vc.gridPaddingTop + vc.gridPaddingBottom + vc.borderWidth * 2
                     );
                 }
             }
@@ -332,6 +373,63 @@ namespace PlayFrame.Systems.Grid
                 OnPiecesSpawned?.Invoke(newPieces);
         }
 
+        /// <summary>
+        /// Place a single piece at a specific cell. Calls OnConfigurePiece.
+        /// Returns null if the cell is invalid, inactive, or already occupied.
+        /// </summary>
+        public GridPiece PlacePieceAt(int col, int row)
+        {
+            var cell = GetCell(col, row);
+            if (cell == null || !cell.IsActive || !cell.IsEmpty) return null;
+
+            var piece = SpawnPiece(col, row);
+            if (piece != null)
+            {
+                piece.SetPosition(cell.LocalPosition);
+                piece.SetScale(1f);
+                piece.SetAlpha(1f);
+            }
+            return piece;
+        }
+
+        /// <summary>
+        /// Fill grid using a predefined layout array.
+        /// Layout dimensions must match grid dimensions [columns, rows].
+        /// Values >= 0 will cause a piece to be placed (value is available via OnConfigurePiece col/row).
+        /// Values &lt; 0 leave the cell empty.
+        /// Subscribe to OnConfigurePiece and use the col/row to look up your layout for piece type.
+        /// </summary>
+        public async UniTask FillGridWithLayoutAsync(int[,] layout, CancellationToken ct = default)
+        {
+            if (layout.GetLength(0) != Columns || layout.GetLength(1) != Rows)
+            {
+                _logger.LogError($"Layout size ({layout.GetLength(0)}x{layout.GetLength(1)}) does not match grid ({Columns}x{Rows})");
+                return;
+            }
+
+            var newPieces = new List<GridPiece>();
+            for (int col = 0; col < Columns; col++)
+            {
+                for (int row = 0; row < Rows; row++)
+                {
+                    if (layout[col, row] < 0) continue;
+
+                    var cell = _cells[col, row];
+                    if (!cell.IsActive || !cell.IsEmpty) continue;
+
+                    var piece = SpawnPiece(col, row);
+                    if (piece != null)
+                        newPieces.Add(piece);
+                }
+            }
+
+            if (newPieces.Count > 0)
+            {
+                await AnimateSpawnAsync(newPieces, ct);
+                OnPiecesSpawned?.Invoke(newPieces);
+            }
+        }
+
         private GridPiece SpawnPiece(int col, int row)
         {
             if (_piecePool == null) return null;
@@ -347,7 +445,31 @@ namespace PlayFrame.Systems.Grid
             piece.RectTransform.sizeDelta = Vector2.one * config.cellSize;
 
             // Let the game configure the piece (type, color, sprite, etc.)
-            OnConfigurePiece?.Invoke(piece, col, row);
+            if (OnConfigurePiece != null)
+            {
+                OnConfigurePiece.Invoke(piece, col, row);
+            }
+            else if (config.useBoardLayout && config.pieceSprites != null)
+            {
+                // Auto-configure from board layout
+                int pieceType = config.GetBoardLayoutPieceType(col, row);
+                if (pieceType >= 0 && pieceType < config.pieceSprites.Length)
+                {
+                    piece.PieceId = pieceType;
+                    piece.PieceType = pieceType.ToString();
+                    if (config.pieceSprites[pieceType] != null)
+                        piece.SetSprite(config.pieceSprites[pieceType]);
+                }
+                else if (pieceType < 0 && config.pieceSprites.Length > 0)
+                {
+                    // Random fallback for unset cells
+                    int rnd = UnityEngine.Random.Range(0, config.pieceSprites.Length);
+                    piece.PieceId = rnd;
+                    piece.PieceType = rnd.ToString();
+                    if (config.pieceSprites[rnd] != null)
+                        piece.SetSprite(config.pieceSprites[rnd]);
+                }
+            }
 
             return piece;
         }

@@ -1,6 +1,8 @@
 # PlayFrame Systems Documentation
 
-Complete documentation for all framework systems. Each system is designed to be plug-and-play: configure via ScriptableObject, assign references in Inspector, and extend with game-specific logic.
+Reference documentation for all framework systems. Each system is designed to be plug-and-play: configure via ScriptableObject, assign references in Inspector, and extend with game-specific logic.
+
+> **Creating a new game?** See [NEW_GAME_GUIDE.md](NEW_GAME_GUIDE.md) for the step-by-step walkthrough.
 
 ---
 
@@ -16,7 +18,6 @@ Complete documentation for all framework systems. Each system is designed to be 
 8. [Save System](#save-system)
 9. [Scene Loading](#scene-loading)
 10. [Analytics](#analytics)
-11. [Creating a New Game](#creating-a-new-game)
 
 ---
 
@@ -62,34 +63,50 @@ A comprehensive grid system supporting all common puzzle game interactions: tap,
 ### Setup
 
 1. **Create a GridConfig asset:** `Create → PlayFrame → Grid → Grid Config`
-2. **Configure grid dimensions**, interaction mode, spawn mode, visual config, and audio config.
-3. **Add `GridManager`** to your game scene.
-4. **Assign the GridConfig** to the GridManager.
-5. **Subscribe to events** in your game logic.
+2. **Select the GridConfig** in the Project window — the Inspector shows the full Grid Designer.
+3. **Add `GridManager`** to a GameObject with a RectTransform in your game scene.
+4. **Add `GridInputHandler`** to the same GameObject (or let your game add it at runtime).
+5. **Assign the GridConfig** and a **Piece Prefab** (a GameObject with `GridPiece` component + `Image`).
+6. **Subscribe to events** in your game logic, or use the built-in Board Layout Designer.
 
-### Configuration (GridConfig)
+### Configuration (GridConfig Inspector)
 
-```csharp
-// ScriptableObject fields:
-columns = 8;           // Grid width
-rows = 8;              // Grid height
-cellSize = 1f;         // Size of each cell
-cellSpacing = 0.1f;    // Gap between cells
-gridShape = GridShape.Rectangle;       // Rectangle, Diamond, Hexagonal, Custom
-interactionMode = GridInteractionMode.Swap;  // Tap, Swap, DragAndDrop, MultiSelect, Draw, Chain
-spawnMode = GridSpawnMode.FallFromTop;       // FallFromTop, RiseFromBottom, SlideFromLeft, SpawnInPlace, InitialOnly
-```
+The GridConfig Inspector has collapsible sections:
+
+| Section | Contents |
+|---------|----------|
+| **Grid Dimensions** | Columns, rows, shape, cell size, cell spacing, cell interaction |
+| **Interaction** | Interaction mode flags, multi-select count, chain length, diagonals |
+| **Spawn** | Spawn mode, animation duration, stagger delay, easing |
+| **Visuals** | GridVisualConfig reference + inline editing |
+| **Audio** | GridAudioConfig reference + context-sensitive editing |
+| **Board Layout Designer** | Piece sprites, visual cell painter, deterministic placement |
+| **Preview** | Visual grid preview with sprites |
 
 ### Interaction Modes (flags, can combine)
 
 | Mode | Description |
 |------|-------------|
 | `Tap` | Tap a piece to select/activate it |
-| `Swap` | Swipe to swap adjacent pieces (Match-3 style) |
-| `DragAndDrop` | Drag a piece to a target cell |
-| `MultiSelect` | Select multiple pieces then confirm (Memory game) |
-| `Draw` | Draw a path through connected pieces |
-| `Chain` | Build a chain through adjacent matching pieces |
+| `Swap` | Tap two adjacent pieces or swipe to swap (Match-3 style) |
+| `DragAndDrop` | Drag a piece and drop onto another cell |
+| `MultiSelect` | Tap multiple pieces, action triggers after N selections |
+| `Draw` | Draw a path through connected pieces without lifting finger |
+| `Chain` | Chain adjacent same-type pieces without lifting finger |
+
+### GridInputHandler
+
+`GridInputHandler` is the bridge between Unity's EventSystem and `GridManager`. It translates pointer events (tap, swipe, drag, chain/draw gestures) into GridManager API calls. It handles **all** interaction modes — not just swipe and drag.
+
+| User Gesture | Interaction Mode | GridManager Method Called |
+|-------------|------------------|-------------------------|
+| Tap (short press) | Tap, Swap, MultiSelect | `HandlePieceTap()` |
+| Swipe (drag > threshold) | Swap | `HandlePieceSwipe()` |
+| Long drag | DragAndDrop | `HandleDragStart()` / `HandleDragUpdate()` / `HandleDragEnd()` |
+| Touch + slide over cells | Chain, Draw | `HandleChainAdd()` (first piece on touch start) |
+| Lift finger after chain | Chain, Draw | `HandleChainEnd()` |
+
+**Setup:** Add `GridInputHandler` alongside `GridManager`. It auto-creates a transparent Image for raycast target and auto-finds the GridManager.
 
 ### GridManager Events
 
@@ -102,14 +119,15 @@ grid.OnPieceDragDropped += (piece, fromCell, toCell) => { /* handle drop */ };
 grid.OnMultiSelectCompleted += (pieces) => { /* check selected group */ };
 grid.OnChainCompleted += (pieces) => { /* process chain */ };
 grid.OnPiecesMatched += (pieces) => { /* animate match */ };
-grid.OnPiecesDestroyed += (count) => { /* update score */ };
+grid.OnPiecesDestroyed += (pieces) => { /* update score */ };
 grid.OnPiecesSpawned += (pieces) => { /* new pieces entered */ };
 
 // Factory callback - configure each new piece
-grid.OnConfigurePiece += (piece) => {
-    // Assign random type, sprite, color, etc.
+// If you don't subscribe, GridManager auto-configures from GridConfig.pieceSprites + boardLayout
+grid.OnConfigurePiece += (piece, col, row) => {
     int type = Random.Range(0, pieceSprites.Length);
-    piece.PieceType = type;
+    piece.PieceId = type;
+    piece.PieceType = type.ToString();
     piece.SetSprite(pieceSprites[type]);
 };
 ```
@@ -118,37 +136,50 @@ grid.OnConfigurePiece += (piece) => {
 
 ```csharp
 // Initialization
-grid.InitializeGrid();                    // Build grid from config
-await grid.FillGridAsync();              // Spawn pieces with animation
-grid.FillGridImmediate();                // Spawn pieces instantly
+grid.InitializeGrid();                         // Build grid from config
+await grid.FillGridAsync();                    // Spawn pieces with animation
+grid.FillGridImmediate();                      // Spawn pieces instantly
+
+// Deterministic Placement
+grid.PlacePieceAt(col, row);                   // Place a single piece
+await grid.FillGridWithLayoutAsync(layout);    // Fill from int[,] array
 
 // Piece Management
-await grid.RemovePiecesAsync(pieces);    // Destroy pieces with animation
-await grid.CollapseGridAsync();          // Gravity - fill gaps
-await grid.SwapPiecesAsync(a, b);        // Animated swap
-await grid.SwapBackAsync(a, b);          // Reverse swap (no match)
+await grid.RemovePiecesAsync(pieces);          // Destroy pieces with animation
+await grid.CollapseGridAsync();                // Gravity — fill gaps
+await grid.SwapPiecesAsync(a, b);              // Animated swap
+await grid.SwapBackAsync(a, b);                // Reverse swap (no match)
 
 // Queries
-GridCell cell = grid.GetCell(col, row);  // Get cell at position
-GridPiece piece = grid.GetPiece(col, row); // Get piece at position
-List<GridCell> neighbors = grid.GetNeighbors(cell); // Adjacent cells
+GridCell cell = grid.GetCell(col, row);
+GridPiece piece = grid.GetPiece(col, row);
+List<GridCell> neighbors = grid.GetNeighbors(col, row);
+GridCell hitCell = grid.GetCellAtPosition(localPos);
 
-// Grid Operations
-grid.ShuffleGrid();                      // Randomize positions
-grid.ClearGrid();                        // Remove all pieces
+// Cleanup
+grid.ClearGrid();                              // Remove all pieces
 ```
 
-### Grid Editor Tool
+### Board Layout Designer
 
-Open via **Window → PlayFrame → Grid Editor**.
+Define which piece type goes in which cell at design time:
 
-**Tabs:**
-- **Grid:** Dimensions, shape, cell size, custom cell mask (click cells to enable/disable)
-- **Interaction:** Select interaction modes, configure multi-select count, chain length, diagonals
-- **Spawn:** Spawn mode, animation timing
-- **Visuals:** Assign GridVisualConfig for colors, selection overlays, particles
-- **Audio:** Assign GridAudioConfig for per-event sound effects
-- **Preview:** Visual grid preview with cell rendering
+1. Add sprites to **Piece Sprites** array in your GridConfig.
+2. Enable **Use Board Layout**.
+3. Select a piece from the palette, then click/drag on cells to paint.
+4. Use **X** button to switch to erase mode.
+
+When `useBoardLayout` is true and no `OnConfigurePiece` subscriber exists, GridManager auto-configures pieces from the layout. Cells with value `-1` get random pieces.
+
+### Visuals (GridVisualConfig)
+
+GridManager **auto-creates** background, border, and cell background GameObjects at runtime if they are not manually assigned in the Inspector. Configure them in the GridVisualConfig asset:
+
+- **Grid Background**: Sprite, color, padding
+- **Grid Border**: Sprite, color, width, dynamic sizing
+- **Cell Background**: Sprite, color (auto-created for each active cell)
+- **Selection/Drag/Chain**: Visual feedback for interactions
+- **Spawn**: Start scale and alpha for spawn animation
 
 ### Custom Pieces
 
@@ -167,19 +198,276 @@ public class CandyPiece : GridPiece
 }
 ```
 
+### Interaction Mode Configuration Guide
+
+For each interaction mode, here's what you need to configure and which events to subscribe to.
+
+#### Tap Mode
+
+Select a piece by tapping it. Good for: tile removal, selection-based puzzles.
+
+**GridConfig Settings:**
+- Interaction Mode: `Tap`
+- Default Cell Interaction: `Tappable` (or `All`)
+
+```csharp
+public class TapGame : BaseGame
+{
+    [SerializeField] private GridManager gridManager;
+
+    protected override async void OnGameStart()
+    {
+        gridManager.OnConfigurePiece += ConfigurePiece;
+        gridManager.OnPieceTapped += OnPieceTapped;
+        gridManager.InitializeGrid();
+        await gridManager.FillGridAsync();
+    }
+
+    private void ConfigurePiece(GridPiece piece, int col, int row)
+    {
+        // Set up piece type, sprite, etc.
+    }
+
+    private async void OnPieceTapped(GridPiece piece)
+    {
+        // Remove tapped piece
+        await gridManager.RemovePiecesAsync(new List<GridPiece> { piece });
+        await gridManager.CollapseGridAsync();
+        await gridManager.FillGridAsync();
+    }
+}
+```
+
+#### Swap Mode (Match-3)
+
+Swipe or tap-tap to swap adjacent pieces. Good for: Match-3, sorting puzzles.
+
+**GridConfig Settings:**
+- Interaction Mode: `Swap` (optionally combine with `Tap`)
+- Default Cell Interaction: `Swipeable, Tappable` (or `All`)
+
+```csharp
+public class Match3Game : BaseGame
+{
+    [SerializeField] private GridManager gridManager;
+
+    protected override async void OnGameStart()
+    {
+        gridManager.OnConfigurePiece += ConfigurePiece;
+        gridManager.OnPiecesSwapped += OnSwap;
+        gridManager.InitializeGrid();
+        await gridManager.FillGridAsync();
+    }
+
+    private void ConfigurePiece(GridPiece piece, int col, int row) { /* ... */ }
+
+    private async void OnSwap(GridPiece a, GridPiece b)
+    {
+        var matches = FindMatches();
+        if (matches.Count > 0)
+        {
+            await gridManager.RemovePiecesAsync(matches);
+            await gridManager.CollapseGridAsync();
+            await gridManager.FillGridAsync();
+        }
+        else
+        {
+            await gridManager.SwapBackAsync(a, b);
+        }
+    }
+
+    private List<GridPiece> FindMatches() { /* game-specific logic */ }
+}
+```
+
+#### DragAndDrop Mode
+
+Drag pieces freely between cells. Good for: sorting, arrangement puzzles.
+
+**GridConfig Settings:**
+- Interaction Mode: `DragAndDrop`
+- Default Cell Interaction: `Draggable` (or `All`)
+- Spawn Mode: `InitialOnly` (if pieces shouldn't respawn)
+
+```csharp
+public class DragGame : BaseGame
+{
+    [SerializeField] private GridManager gridManager;
+
+    protected override async void OnGameStart()
+    {
+        gridManager.OnConfigurePiece += ConfigurePiece;
+        gridManager.OnPieceDragDropped += OnDrop;
+        gridManager.InitializeGrid();
+        await gridManager.FillGridAsync();
+    }
+
+    private void ConfigurePiece(GridPiece piece, int col, int row) { /* ... */ }
+
+    private void OnDrop(GridPiece piece, GridCell from, GridCell to)
+    {
+        Debug.Log($"Dropped {piece.PieceType} from ({from.Col},{from.Row}) to ({to.Col},{to.Row})");
+        // Validate placement, check win condition, etc.
+    }
+}
+```
+
+#### MultiSelect Mode
+
+Tap multiple pieces to select them, action triggers when count is reached. Good for: memory games, group selection.
+
+**GridConfig Settings:**
+- Interaction Mode: `MultiSelect`
+- Default Cell Interaction: `Selectable, Tappable` (or `All`)
+- Multi Select Count: number of pieces to select before triggering
+
+```csharp
+public class MemoryGame : BaseGame
+{
+    [SerializeField] private GridManager gridManager;
+
+    protected override async void OnGameStart()
+    {
+        gridManager.OnConfigurePiece += ConfigurePiece;
+        gridManager.OnMultiSelectCompleted += OnGroupSelected;
+        gridManager.InitializeGrid();
+        await gridManager.FillGridAsync();
+    }
+
+    private void ConfigurePiece(GridPiece piece, int col, int row) { /* ... */ }
+
+    private async void OnGroupSelected(List<GridPiece> selected)
+    {
+        // Check if all selected pieces match
+        bool allMatch = selected.TrueForAll(p => p.PieceId == selected[0].PieceId);
+        if (allMatch)
+        {
+            await gridManager.RemovePiecesAsync(selected);
+        }
+        else
+        {
+            foreach (var p in selected) p.OnDeselected();
+        }
+    }
+}
+```
+
+#### Chain Mode
+
+Connect adjacent same-type pieces by dragging across them. Good for: connect-the-dots, chain puzzles.
+
+**GridConfig Settings:**
+- Interaction Mode: `Chain`
+- Default Cell Interaction: `Chainable` (or `All`)
+- Min Chain Length: minimum chain to trigger action (e.g., 3)
+- Allow Diagonals: whether diagonal connections are valid
+
+```csharp
+public class ChainGame : BaseGame
+{
+    [SerializeField] private GridManager gridManager;
+
+    protected override async void OnGameStart()
+    {
+        gridManager.OnConfigurePiece += ConfigurePiece;
+        gridManager.OnChainCompleted += OnChainDone;
+        gridManager.InitializeGrid();
+        await gridManager.FillGridAsync();
+    }
+
+    private void ConfigurePiece(GridPiece piece, int col, int row) { /* ... */ }
+
+    private async void OnChainDone(List<GridPiece> chain)
+    {
+        Debug.Log($"Chain of {chain.Count} {chain[0].PieceType} pieces!");
+        int score = chain.Count * chain.Count * 10; // Exponential scoring
+        await gridManager.RemovePiecesAsync(chain);
+        await gridManager.CollapseGridAsync();
+        await gridManager.FillGridAsync();
+    }
+}
+```
+
+#### Draw Mode
+
+Trace a path through any adjacent pieces (no type matching required). Good for: word games, path drawing.
+
+**GridConfig Settings:**
+- Interaction Mode: `Draw`
+- Default Cell Interaction: `Chainable` (or `All`)
+- Min Chain Length: minimum path length
+- Allow Diagonals: true/false
+
+```csharp
+public class DrawGame : BaseGame
+{
+    [SerializeField] private GridManager gridManager;
+
+    protected override async void OnGameStart()
+    {
+        gridManager.OnConfigurePiece += ConfigurePiece;
+        gridManager.OnChainCompleted += OnPathDrawn;
+        gridManager.InitializeGrid();
+        await gridManager.FillGridAsync();
+    }
+
+    private void ConfigurePiece(GridPiece piece, int col, int row) { /* ... */ }
+
+    private void OnPathDrawn(List<GridPiece> path)
+    {
+        // Build word from path letters, validate pattern, etc.
+        string word = string.Join("", path.ConvertAll(p => p.PieceType));
+        Debug.Log($"Drew path: {word}");
+    }
+}
+```
+
+#### Combined Modes
+
+Modes are flags — combine them for hybrid interactions:
+
+```csharp
+// Tap + Swap: player can tap-to-select then tap-to-swap, OR swipe to swap
+interactionMode = GridInteractionMode.Tap | GridInteractionMode.Swap;
+
+// Subscribe to both events
+gridManager.OnPieceTapped += OnTap;
+gridManager.OnPiecesSwapped += OnSwap;
+```
+
+### CellInteraction vs InteractionMode
+
+| Setting | Purpose |
+|---------|---------|
+| `InteractionMode` (GridConfig) | Which interaction **types** are enabled for the whole grid |
+| `DefaultCellInteraction` (GridConfig) | Which interactions each **cell** supports (per-cell filtering) |
+
+`InteractionMode` controls what GridInputHandler sends to GridManager. `DefaultCellInteraction` controls what GridManager accepts per cell. Both must allow an interaction for it to work.
+
+**Example:** `InteractionMode = Chain | Tap`, `DefaultCellInteraction = Chainable | Tappable`
+
 ---
 
 ## Panel Management
 
 **Location:** `Assets/Scripts/UI/PanelManager.cs`
 
-Stack-based panel manager with transitions, queuing, and flow control.
+Stack-based panel manager with transitions, queuing, display modes, animations, overlay, and audio.
 
 ### Setup
 
-1. Add `PanelManager` to your persistent Canvas.
-2. Register panels in the Inspector (`panelId` → `UIPanel` reference).
-3. Or register at runtime: `PanelManager.Instance.RegisterPanel("MyPanel", panelInstance);`
+1. Add `PanelManager` to your persistent Canvas (under a **Panels** container).
+2. Create a **PanelDefaults** asset: `Create → PlayFrame → UI → Panel Defaults`
+3. Assign it to `PanelManager → Defaults`
+4. Register panels in the Inspector — drag a panel reference and the `panelId` auto-fills from the class name (e.g., `SettingsPanel` → `"Settings"`).
+5. Or register at runtime: `PanelManager.Instance.RegisterPanel("MyPanel", panelInstance);`
+
+### Creating Panel Prefabs
+
+Use the built-in prefab factory:
+- **GameObject → PlayFrame → Panel → [Panel Type]**
+- Each panel is created with full UI layout, components, and auto-wired fields
+- Only visual customization needed (sprites, colors, fonts)
 
 ### API
 
@@ -206,6 +494,55 @@ var settings = PanelManager.Instance.GetPanel<SettingsPanel>(PanelIds.SETTINGS);
 UIPanel current = PanelManager.Instance.CurrentPanel;
 bool busy = PanelManager.Instance.IsTransitioning;
 ```
+
+### Panel Defaults (PanelDefaults ScriptableObject)
+
+Global defaults that all panels inherit unless overridden:
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| Display Mode | Popup | Fullscreen, Popup, or Custom |
+| Popup Width/Height Ratio | 0.85 / 0.7 | Size relative to screen |
+| Open Animation | FadeIn | Animation when panel opens |
+| Close Animation | FadeOut | Animation when panel closes |
+| Animation Duration | 0.3s | How long the animation takes |
+| Show Overlay | true | Dark background behind popup |
+| Overlay Color | rgba(0,0,0,0.6) | Semi-transparent black |
+| Close On Overlay Tap | false | Tap overlay to dismiss |
+| Open/Close Sound | null | AudioClip to play |
+
+### Display Modes
+
+| Mode | Behavior |
+|------|----------|
+| **Fullscreen** | Panel stretches to fill the entire screen. No overlay. |
+| **Popup** | Panel is centered with configurable size ratio. Shows overlay. |
+| **Custom** | Panel anchors are left as set in the prefab. |
+
+### Animation Types
+
+| Animation | Open | Close |
+|-----------|------|-------|
+| None | Instant | Instant |
+| FadeIn / FadeOut | Alpha 0→1 | Alpha 1→0 |
+| ScaleUp / ScaleDown | Scale 0→1 | Scale 1→0 |
+| SlideFromTop | Slides in from top | Slides out to top |
+| SlideFromBottom | Slides in from bottom | Slides out to bottom |
+| SlideFromLeft | Slides in from left | Slides out to left |
+| SlideFromRight | Slides in from right | Slides out to right |
+
+### Per-Panel Overrides
+
+Each panel (UIPanel subclass) can override any default in the Inspector:
+
+```
+[✓] Override Display Mode   → Fullscreen
+[✓] Override Animation      → ScaleUp / ScaleDown, 0.25s
+[✓] Override Overlay         → Custom color, tap-to-close
+[✓] Override Audio           → Custom open/close sounds
+```
+
+Resolution order: **Panel override → PanelDefaults → Hardcoded fallback**
 
 ### Panel IDs
 
@@ -410,27 +747,32 @@ The `GameLayoutConfig` Inspector shows a visual preview of all zones with propor
 
 ### ResponsiveCanvasSetup
 
-Auto-configures `CanvasScaler` for responsive mobile UI.
+Auto-configures `CanvasScaler` for responsive mobile UI. Add to your Canvas GameObject.
 
-```csharp
-// Add to your Canvas GameObject
-// Automatically sets:
-// - Reference resolution: 1080x1920
-// - UI Scale Mode: ScaleWithScreenSize
-// - Match width/height auto-adjusts based on current aspect ratio
-// - Wide devices (tablets): match more to height
-// - Tall devices (phones): match more to width
 ```
+Canvas (Screen Space - Overlay)          ← ResponsiveCanvasSetup
+├── SafeArea                             ← SafeAreaHandler (stretch)
+│   └── GameLayout                       ← GameLayoutManager (stretch)
+│       ├── TopPanel
+│       ├── CenterPanel
+│       └── BottomPanel
+└── Panels                               ← PanelManager
+```
+
+Settings:
+- **Reference Resolution:** 1080×1920 (default, portrait mobile)
+- **Match Width/Height:** 0.5 (balanced, auto-adjusts for device aspect ratio)
+- **Auto Adjust Match:** true (automatically favors width on tall phones, height on wide tablets)
 
 ### SafeAreaHandler
 
-Handles notch/cutout for modern mobile devices.
+Handles notch/cutout for modern mobile devices. Add to a full-screen child RectTransform under Canvas.
 
-```csharp
-// Add to a child RectTransform under Canvas
-// Automatically adjusts RectTransform anchors to respect Screen.safeArea
-// Per-edge control: applyTop, applyBottom, applyLeft, applyRight
-```
+Settings:
+- Per-edge control: `applyTop`, `applyBottom`, `applyLeft`, `applyRight`
+- All true by default — adjust to keep content away from notch and home indicator
+
+> **See [NEW_GAME_GUIDE.md](NEW_GAME_GUIDE.md) for complete Canvas hierarchy setup.**
 
 ---
 
@@ -495,74 +837,3 @@ Scene name constants in `SceneNames`.
 **Location:** `Assets/Scripts/Systems/Analytics/`
 
 Event-based analytics system. See `docs/ANALYTICS_SYSTEM.md` for full documentation.
-
----
-
-## Creating a New Game
-
-### Step-by-step Guide
-
-1. **Create game folder:** `Assets/Scripts/MiniGames/YourGame/`
-
-2. **Create game class** extending `BaseGame`:
-   ```csharp
-   public class YourGame : BaseGame
-   {
-       [SerializeField] private GridManager gridManager;
-
-       protected override void OnGameStart()
-       {
-           gridManager.OnConfigurePiece += ConfigurePiece;
-           gridManager.InitializeGrid();
-           gridManager.FillGridImmediate();
-           StartGame(); // Explicit start
-       }
-
-       private void ConfigurePiece(GridPiece piece)
-       {
-           // Configure randomly
-       }
-   }
-   ```
-
-3. Create a GameConfig asset in `Assets → GameSettings → Games`:
-   - `Create → PlayFrame → Game → Game Config`
-   - Set gameName, displayName, sceneName, themeColor
-
-4. **Register in GameRegistry:** Add your GameConfig to `GameRegistry.Instance`
-
-5. **Create game scene** with:
-   - Canvas with `ResponsiveCanvasSetup`
-   - `GameLayoutManager` under Canvas with zone RectTransforms
-   - `GridManager` in center zone
-   - Your game MonoBehaviour
-
-6. **Create GridConfig asset** with your game's grid settings
-
-7. **Hook up panels** for level complete/failed flows
-
-8. **Add scene to build settings**
-
-### What You Provide (per game)
-
-| Item | Type | Purpose |
-|------|------|---------|
-| Art assets | Sprites | Piece visuals, backgrounds, UI elements |
-| Game logic | C# class | Match rules, scoring, win/lose conditions |
-| GridConfig | ScriptableObject | Grid dimensions, interaction mode |
-| GameConfig | ScriptableObject | Game metadata |
-| GameLayoutConfig | ScriptableObject | Scene zone proportions |
-| Audio clips | AudioClip | Music and SFX |
-| Scene | Unity Scene | Game scene with prefabs |
-
-### What the Framework Handles
-
-- Grid creation, rendering, interaction handling
-- Panel navigation (level complete, failed, pause, settings, IAP, tutorial)
-- Audio playback and volume persistence
-- Save/load with backup
-- Scene transitions with loading screen
-- Responsive canvas and safe area
-- Analytics event tracking
-- Object pooling for performance
-- Event system for decoupled communication
