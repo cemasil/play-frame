@@ -11,9 +11,13 @@ public class SortGame : BaseGame
 
     protected override async void OnGameStart()
     {
-        // Ensure GridInputHandler is attached for input
+        // Validate GridInputHandler is attached
         if (gridManager.GetComponent<GridInputHandler>() == null)
-            gridManager.gameObject.AddComponent<GridInputHandler>();
+        {
+            Debug.LogError($"[SortGame] GridInputHandler is missing on '{gridManager.gameObject.name}'. " +
+                           "Add GridInputHandler component to the GridManager GameObject in the Inspector.");
+            return;
+        }
 
         // Subscribe to piece configuration
         // If you don't subscribe to OnConfigurePiece, GridManager auto-configures

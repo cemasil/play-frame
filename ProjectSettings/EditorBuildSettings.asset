@@ -26,6 +26,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SortGame.unity
     guid: f0e771a3c1cd34ce1a7b83c5f3b70f46
+  - enabled: 0
+    path: Assets/Scenes/Bootstrap2.unity
+    guid: bd039835a8d1140a89106fd63a29ed84
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

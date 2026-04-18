@@ -20,13 +20,25 @@ namespace PlayFrame.Systems.Scene
         [Tooltip("Optional: Assign settings directly. If null, uses default settings")]
         [SerializeField] private SceneLoadingSettings settings;
 
+        [Header("Loading Screen")]
+        [Tooltip("Default loading scene used when none is specified")]
+        [SerializeField] private string defaultLoadingScene = SceneNames.LOADING;
+
         private bool _isLoading;
         private float _displayProgress;
         private float _loadStartTime;
         private ILogger _logger;
+        private string _pendingTargetScene;
+        private Action _pendingOnComplete;
 
         public bool IsLoading => _isLoading;
         public float CurrentProgress => _displayProgress;
+
+        /// <summary>
+        /// The scene that a loading scene should load next.
+        /// Set by LoadSceneWithLoading, read by LoadingSceneController.
+        /// </summary>
+        public string PendingTargetScene => _pendingTargetScene;
 
         /// <summary>
         /// Current scene loading settings
@@ -156,6 +168,49 @@ namespace PlayFrame.Systems.Scene
         public void ReloadCurrentScene(Action onComplete = null)
         {
             LoadScene(SceneManager.GetActiveScene().name, onComplete);
+        }
+
+        /// <summary>
+        /// Load a scene through a loading scene.
+        /// The loading scene should have a LoadingSceneController that calls LoadPendingScene().
+        /// </summary>
+        /// <param name="targetScene">The final destination scene</param>
+        /// <param name="loadingScene">Loading scene to show during transition. If null, uses defaultLoadingScene.</param>
+        /// <param name="onComplete">Called after the target scene is fully loaded</param>
+        public void LoadSceneWithLoading(string targetScene, string loadingScene = null, Action onComplete = null)
+        {
+            if (_isLoading)
+            {
+                _logger.LogWarning($"Already loading a scene. Ignoring request for: {targetScene}");
+                return;
+            }
+
+            _pendingTargetScene = targetScene;
+            _pendingOnComplete = onComplete;
+
+            var loadScene = string.IsNullOrEmpty(loadingScene) ? defaultLoadingScene : loadingScene;
+            _logger.Log($"Loading '{targetScene}' via loading scene '{loadScene}'");
+
+            SceneManager.LoadScene(loadScene);
+        }
+
+        /// <summary>
+        /// Called by LoadingSceneController to start loading the pending target scene.
+        /// </summary>
+        public void LoadPendingScene()
+        {
+            if (string.IsNullOrEmpty(_pendingTargetScene))
+            {
+                _logger.LogError("No pending target scene. Use LoadSceneWithLoading() first.");
+                return;
+            }
+
+            var target = _pendingTargetScene;
+            var callback = _pendingOnComplete;
+            _pendingTargetScene = null;
+            _pendingOnComplete = null;
+
+            LoadScene(target, callback);
         }
     }
 }

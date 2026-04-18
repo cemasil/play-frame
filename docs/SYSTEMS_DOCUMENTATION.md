@@ -817,18 +817,83 @@ Configure: save key, auto-save interval, backup count, save on pause/quit, valid
 
 ---
 
-## Scene Loading
+## Scene System
 
-**Location:** `Assets/Scripts/Systems/Scene/SceneLoaderManager.cs`
+**Location:** `Assets/Scripts/Systems/Scene/`
 
-Async scene loading with progress events.
+### Scene Templates
+
+Create pre-configured scenes via: **Assets → Create → PlayFrame → Scene → [Type]**
+
+| Template | Contents |
+|----------|----------|
+| **Bootstrap** | All manager singletons (EventManager, SaveManager, AudioManager, InputManager, SceneLoaderManager, GameRegistry, PanelManager, AnalyticsManager, LocalizationManager) + GameBootstrap controller |
+| **MainMenu** | Canvas with ResponsiveCanvasSetup, SafeArea, title text, Play/Quit buttons |
+| **Loading** | Canvas with progress bar, percentage text, LoadingSceneController |
+| **Game** | Canvas with SafeArea, GameLayoutManager (TopPanel/CenterPanel/BottomPanel), background, score label |
+
+Each template automatically:
+- Creates the scene with all required GameObjects
+- Configures Canvas (1080×1920, Screen Space Overlay)
+- Sets up SafeAreaHandler for notch/cutout devices
+- Adds the scene to Build Settings
+
+### Scene Loading
+
+**SceneLoaderManager** handles async scene loading with progress events:
 
 ```csharp
+// Direct load (no loading screen)
 SceneLoaderManager.Instance.LoadScene("GameScene");
 SceneLoaderManager.Instance.LoadScene(SceneNames.MAIN_MENU);
+
+// Load through a loading scene (shows progress UI)
+SceneLoaderManager.Instance.LoadSceneWithLoading("GameScene");
+
+// Load through a specific loading scene
+SceneLoaderManager.Instance.LoadSceneWithLoading("GameScene", "CustomLoadingScreen");
+
+// Reload current scene
+SceneLoaderManager.Instance.ReloadCurrentScene();
 ```
 
-Scene name constants in `SceneNames`.
+### Loading Scene Transitions
+
+**Flow:** Current Scene → Loading Scene → Target Scene
+
+1. Call `LoadSceneWithLoading(targetScene, loadingScene)`
+2. SceneLoaderManager stores the target and loads the loading scene synchronously
+3. **LoadingSceneController** (on the loading scene) calls `LoadPendingScene()` on Start
+4. SceneLoaderManager async-loads the target with progress events
+5. **LoadingPanel** (if present) listens to `CoreEvents` and displays progress
+
+Multiple loading scenes are supported. Specify per-transition:
+
+```csharp
+// From GameConfig
+SceneLoaderManager.Instance.LoadSceneWithLoading(
+    gameConfig.sceneName,
+    gameConfig.loadingSceneName  // per-game loading scene
+);
+```
+
+**GameConfig** has `loadingSceneName` field for per-game loading screen selection.
+
+### Scene Constants
+
+Scene name constants defined in `SceneNames`:
+
+```csharp
+SceneNames.BOOTSTRAP      // "Bootstrap"
+SceneNames.MAIN_MENU      // "MainMenu"
+SceneNames.GAME_SELECTION  // "GameSelection"
+SceneNames.LOADING         // "LoadingScreen"
+SceneNames.SORT            // "SortGame"
+```
+
+### LoadingSceneController
+
+Place on a GameObject in any loading scene. Reads `SceneLoaderManager.PendingTargetScene` and triggers the async load automatically. Has a `fallbackScene` field for when opened directly without a pending target.
 
 ---
 

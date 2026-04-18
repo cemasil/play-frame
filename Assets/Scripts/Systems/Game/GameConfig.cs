@@ -21,6 +21,9 @@ namespace PlayFrame.Systems.Game
         [Header("Scene")]
         public string sceneName;
 
+        [Tooltip("Loading scene to use when transitioning to this game scene. Leave empty for default.")]
+        public string loadingSceneName;
+
         [Header("UI")]
         public Color themeColor = Color.white;
         public Sprite backgroundSprite;

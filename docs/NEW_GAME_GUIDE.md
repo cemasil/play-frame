@@ -21,22 +21,38 @@ Step-by-step guide to creating a complete game scene from scratch.
 
 ## 1. Scene Setup
 
-### Create the Bootstrap Scene (once per project)
+### Quick Setup (Recommended)
 
-1. Create a scene named `Bootstrap` (or `Init`)
-2. Add an empty GameObject named **Bootstrap**:
-   - Add `GameBootstrap` component
-   - Set `Next Scene Name` to `"MainMenu"`
-3. Add an empty GameObject named **EventSystem**:
-   - Add `EventSystem` component
-   - Add `StandaloneInputModule` component
-4. Add `Bootstrap` as **scene index 0** in Build Settings
+Use scene templates for instant setup:
 
-### Create Your Game Scene
+1. **Assets → Create → PlayFrame → Scene → Bootstrap Scene** (once per project)
+   - Creates all manager singletons, GameBootstrap controller, camera
+   - Automatically added to Build Settings as index 0
+2. **Assets → Create → PlayFrame → Scene → Game Scene**
+   - Creates Canvas, SafeArea, GameLayoutManager, TopPanel/CenterPanel/BottomPanel
+   - Enter your scene name (e.g., `MyPuzzleGame`)
+3. **Assets → Create → PlayFrame → Scene → Loading Scene** (once per project)
+   - Creates progress bar UI and LoadingSceneController
+   - Used for scene transitions
 
-1. **File → New Scene** → save as `YourGameScene`
-2. Delete the default `Main Camera` (Canvas will use Screen Space - Overlay)
-3. Add to Build Settings
+### GridInputHandler
+
+Add `GridInputHandler` component to your GridManager GameObject **in the Inspector**.
+Do **not** rely on runtime `AddComponent` — the game will log an error if it's missing.
+
+### Loading Scene Transitions
+
+To load a game scene through a loading screen:
+
+```csharp
+// Uses default loading scene
+SceneLoaderManager.Instance.LoadSceneWithLoading("MyPuzzleGame");
+
+// Uses a specific loading scene
+SceneLoaderManager.Instance.LoadSceneWithLoading("MyPuzzleGame", "CustomLoading");
+```
+
+Set `loadingSceneName` in your GameConfig asset to configure per-game loading screens.
 
 ---
 
