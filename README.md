@@ -1,159 +1,188 @@
 # PlayFrame
 
-A Unity framework I built for creating simple mini-games with clean architecture. Currently has two working games: Match3 and Memory Card matching.
+A modular Unity framework for building grid-based mini-games with clean architecture, built-in editor tooling, and a complete development-to-store pipeline.
 
-## Why This Architecture?
+**Unity Version:** 6000.x (URP)
 
-I wanted to avoid the common Unity pitfall of everything being tightly coupled singletons. The framework is organized into layers:
+---
+
+## Architecture
+
+The framework is organized into layered assemblies, each with explicit dependencies:
 
 ```
-UI / MiniGames → Systems → Core  
+PlayFrame.Core        → No dependencies. Events, Singletons, Pools, Logging, State Machine.
+PlayFrame.Systems     → Depends on Core. Audio, Save, Scene, Grid, Layout, Canvas, Analytics, Localization.
+PlayFrame.UI          → Depends on Core + Systems. PanelManager, common panels, UIPanel base.
+PlayFrame.MiniGames   → Depends on Core + Systems. Game-specific logic (Match3, Memory, etc.)
 ```
-Each layer depends on Core. UI and MiniGames both use Systems (EventManager, SceneLoader, SaveManager).
 
-**Core** has the base patterns (Singleton, MonoSingleton, PersistentSingleton). I made three types because:
-- `Singleton<T>`: Plain C# classes that don't need MonoBehaviour (like data managers)
-- `MonoSingleton<T>`: Scene-specific managers that get destroyed on scene change
-- `PersistentSingleton<T>`: Stuff like EventManager and SaveManager that survive scene transitions
+### Key Patterns
 
-Core is the most abstract layer with no dependencies on any other layer in the project. This means it can be reused in any Unity project.
+| Pattern | Purpose |
+|---------|---------|
+| `PersistentSingleton<T>` | Managers that survive scene loads (EventManager, SaveManager) |
+| `MonoSingleton<T>` | Scene-scoped singletons destroyed on scene change |
+| `Singleton<T>` | Plain C# singletons without MonoBehaviour |
+| `EventManager` | Type-safe decoupled event system |
+| `ObjectPool<T>` | Reusable object pooling |
+| `StateMachine` | Finite state machine |
+| ScriptableObject Configs | Inspector-configurable settings for all systems |
 
-**Systems** has EventManager, SceneLoader, and SaveManager. These are the "services" that games use. I intentionally kept them simple - EventManager just uses a dictionary of delegates.
+All systems are plug-and-play: configure via ScriptableObject, assign references in Inspector, and extend with game-specific logic. For full details, see [Systems Documentation](docs/SYSTEMS_DOCUMENTATION.md).
 
-**MiniGames** contains the actual games. Each game extends `BaseGameUI` which handles the common Unity lifecycle functions (Initialize, Update, Cleanup). This way no need to remember to unsubscribe from events in every game.
+---
 
-## Design Decisions
+## Systems Overview
 
-### Event System
-I chose a string-based event system over Unity Events or delegates because:
-- Easy to use: `EventManager.Instance.TriggerEvent(GameEvents.SCENE_LOAD_STARTED)`
-- No inspector setup needed
-- Games can subscribe/unsubscribe without knowing about each other
+### Grid System
+
+The core of the framework. Supports 6 interaction modes out of the box:
+
+| Mode | Description | Example |
+|------|-------------|---------|
+| Tap | Click/tap on pieces | Bubble pop, whack-a-mole |
+| Swap | Swap adjacent pieces | Match-3 |
+| Drag | Drag pieces to positions | Jigsaw, sorting |
+| MultiSelect | Select multiple pieces | Word search |
+| Chain | Draw through connected pieces | Chain reaction |
+| Draw | Free-form path drawing | Line drawing |
+
+Grid configuration, board layout, piece types, and visual settings are all ScriptableObject-driven. The Board Layout Designer in the Inspector allows deterministic piece placement for level design.
+
+### Panel Management
+
+Stack-based panel system with 8 built-in panels (Settings, Pause, Level Complete, Level Fail, etc.). Panels support multiple display modes (overlay, exclusive, additive) and configurable animations.
+
+### Audio System
+
+`AudioManager` with separate music/SFX channels. `GridAudioConfig` maps grid events (place, match, swap, chain) to sound effects. Volume and mute state persists via `SaveManager`.
 
 ### Save System
-Using PlayerPrefs with JSON serialization. I know it's not the most secure or performant solution, but:
-- No external dependencies
-- Works across platforms
-- Good enough for high scores and simple settings
-- Easy to debug (can check PlayerPrefs in editor)
 
-If I needed shared leaderboards or cross-user rankings, I'd set up a proper backend database instead.
+PlayerPrefs-backed with JSON serialization. Handles high scores, game-specific data, settings, and localization preferences. No external dependencies.
 
-### Scene Management
-SceneLoader handles async loading with a loading screen. I added event triggers (`SCENE_LOAD_START`, `SCENE_LOAD_COMPLETE`) so other systems can react to scene changes. The progress bar updates via coroutine checking `AsyncOperation.progress`.
+### Scene System
 
-### UI System
-I built a theme system with ScriptableObjects. Each UITheme has colors, fonts, etc. ThemedUIElement components automatically apply the theme in `OnValidate()` so you see changes in the editor immediately.
+Async scene loading with progress tracking and loading screen support. Scene templates (Bootstrap, Game, Loading) can be created from the editor menu.
 
-## Current Games
+### Localization System
 
-### Match3
-- 6x6 grid, swap adjacent gems
-- Match 3+ horizontally or vertically
-- 15 moves to reach target score
-- Invalid swaps are allowed but swapped back
+Key-based localization with `LocalizedStringTable` ScriptableObjects per language. `LocalizedText` components auto-update UI text on language change. Adding a new language requires only creating a new string table asset.
 
-**Technical note:** Initially I was checking the entire grid for matches after each swap, which caused a bug where random matches across the board would get cleared. Fixed it by only checking around the two swapped gems.
+### Analytics System
 
-### Memory Card Game
-- 4x4 grid (16 cards, 8 pairs)
-- Click to flip, match pairs
-- Timer counts up, tracks moves
-- Best time saved as high score
+Extensible provider-based analytics with event batching and offline support. Built-in providers: Console Logger, Local Storage, Unity Analytics, Firebase. `BaseGame` has automatic tracking for level start/complete/fail/retry.
 
-I used colors instead of sprites for cards because it was faster to test. In a real game I'd use proper card artwork.
+See [Analytics System](docs/ANALYTICS_SYSTEM.md) for provider implementation details.
 
-## Adding New Mini-Games
+### Build System
 
-The framework uses a config-based system for adding games without modifying existing code.
+Editor tooling under **Tools → PlayFrame**:
 
-**1. Create a GameConfig asset**
-```
-Assets/Resources/Games/ → Right-click → Create → MiniGames → Game Config
-```
+- **Project Setup Wizard** — configure product name, company, bundle ID, and platform targets in one step
+- **Build Pipeline** — one-click Dev/Prod builds for iOS and Android with auto-incrementing version and build numbers
+- **Build Configs** — separate `BuildConfig_Dev` and `BuildConfig_Prod` ScriptableObjects for environment-specific settings
 
-Configure in Inspector:
-- **Game Name**: Internal identifier (e.g., "Puzzle")
-- **Display Name**: User-facing name (e.g., "Puzzle Game")
-- **Description**: Short description
-- **Scene Name**: Unity scene name (e.g., "PuzzleGame")
-- **Theme Color**: Primary color for UI
+### Platform Integration
 
-**2. Create the game scene**
-- File → New Scene → Save as `PuzzleGame.unity`
-- Add to Build Settings (File → Build Settings → Add Open Scenes)
+- **iOS:** ATT permission prompt (`IOSTrackingPermission`), Xcode post-process hook for Info.plist and signing configuration
+- **Android:** IL2CPP, ARM64, AAB format, API level 28+ configured via Project Setup Wizard
 
-**3. Implement game logic**
+---
+
+## Getting Started
+
+### Quick Start
+
+1. Open project in Unity 6000.x
+2. Run **Tools → PlayFrame → Project Setup Wizard** to configure identity and platforms
+3. Run **Tools → PlayFrame → Build → Create Build Configs** for version management
+4. Main scene: `MainMenu` (all scenes already in Build Settings)
+
+### Creating a New Game
+
+Create scene templates, configure `GridConfig`, choose an interaction mode, implement game logic. The framework handles grid rendering, input handling, panel UI, audio, save, and analytics.
+
 ```csharp
-using PlayFrame.MiniGames;
-
-public class PuzzleGame : MonoBehaviour
+public class MyGame : BaseGame
 {
-    protected override void OnInitialize()
+    [SerializeField] private GridManager gridManager;
+
+    protected override async void OnGameStart()
     {
-        // Game initialization
-    }
-    
-    private void OnGameWin(int score)
-    {
-        SaveManager.Instance.SaveGameScore(GameNames.PUZZLE, score);
-        // Handle win logic
+        gridManager.OnPiecesSwapped += OnSwap;
+        gridManager.InitializeGrid();
+        await gridManager.FillGridAsync();
     }
 }
 ```
 
-**4. GameRegistry automatically discovers config and GameSelectionPanel displays it.**
+See [New Game Guide](docs/NEW_GAME_GUIDE.md) for the complete walkthrough with examples for all 6 interaction modes.
 
-## Known Issues & Future Improvements
+---
 
-1. **Dependency injection**: Instead of singletons everywhere, use a service locator or DI container. Would make testing easier. For example, instead of `SaveManager.Instance.SaveScore()`, inject an `ISaveService` through constructor. This way it can be mock in tests without needing the actual Unity environment.
+## Performance
 
-2. **Addressables**: For larger games, loading all assets at startup doesn't scale. Unity's Addressables system would be better.
+Profiled during ~33 seconds gameplay session (2000 frames):
 
-3. **Better state management**: Right now game state (score, moves, time) is just private fields. Could use a proper state machine or observable pattern.
+| Metric | Value |
+|--------|-------|
+| Frame Rate | Stable 60 FPS |
+| Frame Time | 1-2ms average (16.6ms budget) |
+| Texture Memory | 0.5 GB (constant) |
+| GC Memory | 0.8 GB (no leaks) |
+| Object Count | 14.5k (stable) |
 
-4. **Animation system**: Games feel stiff without animations. Would integrate DOTween or create a simple tween manager.
+![Profiler](docs/profiler.png)
 
-5. **Object pooling**: Currently just `Instantiate()` and `Destroy()` for gems/cards. Would pool them for better performance.
+Key optimizations: lazy singleton initialization, async scene loading, automatic event cleanup in `BaseGameUI.OnDestroy()`, object pooling, no heavy external dependencies.
 
-## Performance Optimizations
+---
 
-Basic optimizations implemented:
+## Documentation
 
-1. **Lazy Singleton Initialization**: Core systems (EventManager, SaveManager, SceneLoader) only initialize when first accessed, not at app start.
+| Document | Description |
+|----------|-------------|
+| [Systems Documentation](docs/SYSTEMS_DOCUMENTATION.md) | Complete API reference for all framework systems — Grid, Panels, Layout, Audio, Save, Scene, Localization, Build, Analytics, Platform |
+| [New Game Guide](docs/NEW_GAME_GUIDE.md) | Step-by-step guide: scene setup, grid configuration, interaction modes, panel integration, with code examples |
+| [Memory Game Setup](docs/MEMORY_GAME_SETUP.md) | Specific setup guide for the memory card matching game |
+| [Analytics System](docs/ANALYTICS_SYSTEM.md) | Analytics architecture, built-in providers, custom provider template, privacy compliance |
+| [Asset Management Guide](docs/ASSET_MANAGEMENT_GUIDE.md) | Image/audio/VFX import settings, sprite atlases, build size optimization, package audit |
+| [Store Preparation Guide](docs/STORE_PREPARATION_GUIDE.md) | iOS App Store & Google Play checklists, screenshots, metadata, common rejection reasons |
+| [Development to Store Guide](docs/DEVELOPMENT_TO_STORE_GUIDE.md) | End-to-end 12-phase workflow: from project setup to post-launch monitoring |
+| [Unity Setup Guide](docs/UNITY_SETUP_GUIDE.md) | Basic Unity scene and UI setup checklist |
 
-2. **Async Scene Loading**: SceneLoader uses `LoadSceneAsync` with progress tracking to prevent frame drops during transitions.
+---
 
-3. **Event Cleanup**: All games extend `BaseGameUI` which calls `Cleanup()` in `OnDestroy()`. Games override this method to remove button listeners and prevent memory leaks.
+## Project Structure
 
-4. **Minimal Dependencies**: No heavy external libraries. Framework uses Unity's built-in systems where possible.
+```
+Assets/
+├── Audio/                  # Music and SFX assets
+├── GameSettings/           # ScriptableObject configs (GridConfig, BuildConfig, etc.)
+├── Prefabs/                # Reusable prefabs (panels, grid pieces, UI elements)
+├── Resources/              # Runtime-loaded assets (GameConfigs, themes)
+├── Scenes/                 # All game scenes
+├── Scripts/
+│   ├── Core/               # PlayFrame.Core — base patterns, no dependencies
+│   ├── Systems/            # PlayFrame.Systems — all framework systems
+│   │   ├── Audio/          # AudioManager, SFXCollection, MusicCollection
+│   │   ├── Build/          # BuildConfig, BuildPipeline (Editor)
+│   │   ├── Grid/           # GridManager, GridConfig, GridInputHandler, interactions
+│   │   ├── Localization/   # LocalizationManager, LocalizedText, string tables
+│   │   ├── Platform/       # iOS ATT, Xcode post-process (Editor)
+│   │   ├── Save/           # SaveManager
+│   │   └── Scene/          # SceneLoaderManager, scene templates
+│   ├── UI/                 # PlayFrame.UI — PanelManager, common panels
+│   └── MiniGames/          # PlayFrame.MiniGames — Match3, Memory, etc.
+├── Tests/                  # Edit-mode unit tests
+└── UI/                     # UI assets (themes, fonts, sprites)
+```
 
-**Profiling Results** 
+---
 
-Profiled during ~33 seconds gameplay session (2000 frames, 60 FPS):
-
-- Frame rate: Stable 60 FPS
-- Frame time: 1-2ms average (well below 16.6ms budget)
-- Texture Memory: 0.5 GB (constant)
-- Mesh Memory: 500 KB (constant)
-- Object Count: 14.5k (stable)
-- GC Memory: 0.8 GB (no leaks detected)
-- Material Count: 1.62k (constant)
-
-![Profiler Screenshot - Startup](docs/profiler.png)
-
-## Code Quality Choices
-
-I tried to follow SOLID principles:
-- **Single Responsibility**: Each class does one thing (EventManager manages events, SaveManager manages saves)
-- **Open/Closed**: Can add new games without modifying framework code (GameConfig system)
-- **Dependency Inversion**: Games depend on interfaces/base classes, not concrete implementations
-
-## Running the Project
-
-Open in Unity 2022.3 or later. Main scene is `MainMenu`. Build settings already has all scenes added.
-
-There are unit tests for EventManager and SaveManager in the Tests folder. Run them from terminal using commands below.
+## Tests
 
 ```bash
 make test          # Run all tests

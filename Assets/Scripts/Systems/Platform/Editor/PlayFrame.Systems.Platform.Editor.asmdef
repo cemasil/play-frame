@@ -1,0 +1,19 @@
+{
+    "name": "PlayFrame.Systems.Platform.Editor",
+    "rootNamespace": "PlayFrame.Systems.Platform.Editor",
+    "references": [
+        "PlayFrame.Core",
+        "PlayFrame.Systems"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

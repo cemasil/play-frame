@@ -16,8 +16,11 @@ Reference documentation for all framework systems. Each system is designed to be
 6. [Responsive Canvas](#responsive-canvas)
 7. [Audio System](#audio-system)
 8. [Save System](#save-system)
-9. [Scene Loading](#scene-loading)
-10. [Analytics](#analytics)
+9. [Scene System](#scene-system)
+10. [Localization System](#localization-system)
+11. [Build System](#build-system)
+12. [Platform Integration](#platform-integration)
+13. [Analytics](#analytics)
 
 ---
 
@@ -894,6 +897,246 @@ SceneNames.SORT            // "SortGame"
 ### LoadingSceneController
 
 Place on a GameObject in any loading scene. Reads `SceneLoaderManager.PendingTargetScene` and triggers the async load automatically. Has a `fallbackScene` field for when opened directly without a pending target.
+
+---
+
+## Localization System
+
+**Location:** `Assets/Scripts/Systems/Localization/`
+
+Multi-language text management with runtime switching and UI auto-update.
+
+### Components
+
+| File | Purpose |
+|------|---------|
+| `LocalizationManager` | PersistentSingleton — language switching, key lookup |
+| `LocalizedStringTable` | ScriptableObject — per-language key-value pairs |
+| `LocalizedText` | TMP component — auto-updates text on language change |
+| `LocalizationKeys` | Static constants for all localization keys |
+
+### Setup
+
+1. **Create a string table per language:** `Assets → Create → PlayFrame → Localization → String Table`
+2. Name them clearly: `StringTable_EN`, `StringTable_TR`, `StringTable_DE`, etc.
+3. Add key-value entries (e.g., key: `"PLAY"`, value: `"Play"` / `"Oyna"` / `"Spielen"`)
+4. Assign all string tables to `LocalizationManager` in the Inspector (under the Bootstrap scene `[Managers]` object)
+5. Add `LocalizedText` to any TextMeshProUGUI component and set the `Localization Key`
+
+### API
+
+```csharp
+// Get localized string
+string text = LocalizationManager.Get("PLAY");            // "Oyna" (if Turkish)
+string text = LocalizationManager.Get("SCORE", score);    // "Skor: 100" (formatted)
+
+// Switch language
+LocalizationManager.Instance.SetLanguage("tr");           // By language code
+LocalizationManager.Instance.SetLanguage(0);              // By index
+LocalizationManager.Instance.NextLanguage();               // Cycle to next
+
+// Current language info
+string code = LocalizationManager.Instance.CurrentLanguageCode;  // "tr"
+int index = LocalizationManager.Instance.CurrentLanguageIndex;    // 1
+
+// Listen to language changes
+LocalizationManager.Instance.OnLanguageChanged += (langCode) => {
+    Debug.Log($"Language changed to: {langCode}");
+};
+```
+
+### LocalizedText Component
+
+Add to any TextMeshProUGUI to auto-translate:
+
+```
+Inspector:
+├── Localization Key: "LEVEL_COMPLETE"
+├── Prefix: ""              ← optional text before translated value
+├── Suffix: " !"            ← optional text after translated value
+```
+
+- Automatically updates when language changes at runtime
+- Supports format args: `localizedText.SetKey("SCORE", currentScore);`
+- Shows `[KEY_NAME]` in editor for easy identification of missing keys
+
+### Adding a New Language
+
+1. Create a new `LocalizedStringTable` asset (e.g., `StringTable_JA` for Japanese)
+2. Copy all keys from an existing table and translate the values
+3. Add it to `LocalizationManager.languages` array in the Inspector
+4. The language is immediately available via `SetLanguage()` and `NextLanguage()`
+
+### Testing Languages in Editor
+
+- Use `LocalizationManager.Instance.SetLanguage("ja")` in any script's Start()
+- Or use the SettingsPanel language dropdown to test switching at runtime
+- `LocalizedText.OnValidate()` shows `[KEY_NAME]` in editor as a placeholder
+- Missing keys show as `[KEY_NAME]` at runtime — easy to spot in builds
+
+### Localization Keys
+
+All predefined keys in `LocalizationKeys`:
+
+```csharp
+// UI
+LocalizationKeys.SCORE       // "SCORE"
+LocalizationKeys.MOVES       // "MOVES"
+LocalizationKeys.TIME        // "TIME"
+LocalizationKeys.HIGH_SCORE  // "HIGH_SCORE"
+
+// Results
+LocalizationKeys.YOU_WIN         // "YOU_WIN"
+LocalizationKeys.GAME_OVER      // "GAME_OVER"
+LocalizationKeys.LEVEL_COMPLETE // "LEVEL_COMPLETE"
+
+// Buttons
+LocalizationKeys.PLAY     // "PLAY"
+LocalizationKeys.RESTART  // "RESTART"
+LocalizationKeys.SETTINGS // "SETTINGS"
+LocalizationKeys.QUIT     // "QUIT"
+
+// Settings
+LocalizationKeys.MUSIC    // "MUSIC"
+LocalizationKeys.SFX      // "SFX"
+LocalizationKeys.LANGUAGE // "LANGUAGE"
+```
+
+Add new keys to `LocalizationKeys.cs` as needed. Keep all keys as static constants for compile-time safety.
+
+---
+
+## Build System
+
+**Location:** `Assets/Scripts/Systems/Build/`
+
+Automated build pipeline with version management, dev/prod configurations, and multi-platform support.
+
+### Project Setup
+
+First-time setup: **Tools → PlayFrame → Project Setup Wizard**
+
+| Field | Description |
+|-------|-------------|
+| Product Name | Game name shown on device (e.g., "Puzzle Match") |
+| Company Name | Your studio name |
+| Bundle ID Suffix | Final part of bundle identifier |
+| Target Platforms | iOS, Android checkboxes |
+
+The wizard applies:
+- PlayerSettings (product name, company name, bundle identifier)
+- Platform-specific settings (IL2CPP, ARM64, minimum OS versions)
+- Android: AAB format, API level 28+
+- iOS: min iOS 15.0, automatic signing
+
+### Build Configs
+
+Create dev/prod build configs: **Tools → PlayFrame → Build → Create Build Configs**
+
+Creates two `BuildConfig` ScriptableObjects in `Assets/GameSettings/`:
+
+| Config | File | Settings |
+|--------|------|----------|
+| **Development** | `BuildConfig_Dev.asset` | Development build, profiler, debugging, `.dev` bundle suffix |
+| **Production** | `BuildConfig_Prod.asset` | Release build, no profiler, no debugging, no suffix |
+
+### Version Management
+
+**Tools → PlayFrame → Build → Increment [Patch/Minor/Major] Version**
+
+Follows semantic versioning (MAJOR.MINOR.PATCH):
+- **Patch** (1.0.0 → 1.0.1): Bug fixes, small changes
+- **Minor** (1.0.1 → 1.1.0): New features, content updates
+- **Major** (1.1.0 → 2.0.0): Breaking changes, major releases
+
+**Build number** auto-increments on every build. Applied to:
+- `PlayerSettings.bundleVersion` (both platforms)
+- `PlayerSettings.Android.bundleVersionCode` (Android)
+- `PlayerSettings.iOS.buildNumber` (iOS)
+
+### Building
+
+Menu: **Tools → PlayFrame → Build → [Platform] [Environment]**
+
+| Menu Item | Target | Environment |
+|-----------|--------|-------------|
+| Build Android Dev | Android APK/AAB | Development |
+| Build Android Prod | Android AAB | Production |
+| Build iOS Dev | iOS Xcode project | Development |
+| Build iOS Prod | iOS Xcode project | Production |
+
+Output path: `Builds/[Platform]_[Env]/[ProductName]_[Version]_b[BuildNumber].[ext]`
+
+Example: `Builds/Android_Prod/PuzzleMatch_1.2.0_b42.aab`
+
+### BuildConfig Fields
+
+```csharp
+BuildConfig config = ...;
+config.version          // "1.2.0"
+config.buildNumber      // 42
+config.FullVersion      // "1.2.0 (42)"
+config.IsDevelopment    // true/false
+config.BundleIdSuffix   // ".dev" or ""
+```
+
+---
+
+## Platform Integration
+
+**Location:** `Assets/Scripts/Systems/Platform/`
+
+Platform-specific runtime code and build hooks.
+
+### iOS — App Tracking Transparency
+
+**`IOSTrackingPermission`** — Add to a persistent GameObject (Bootstrap scene).
+
+Automatically requests ATT permission on iOS 14.5+ with configurable delay. No-op on non-iOS platforms.
+
+```
+Inspector:
+├── Prompt Delay: 1.0    ← seconds to wait before showing dialog
+```
+
+- Tracks whether permission was already requested via `PlayerPrefs`
+- Shows Apple's standard ATT consent dialog
+- Required for AdMob, Facebook SDK, and other ad networks
+
+### iOS — Xcode Post-Process
+
+**`IOSPostProcessBuild`** — Runs automatically after iOS builds.
+
+Applies to the generated Xcode project:
+- **Info.plist**: `NSUserTrackingUsageDescription` (ATT consent text)
+- **Signing**: Automatic code signing
+- **Frameworks**: `AppTrackingTransparency.framework`, `AdSupport.framework`
+- **Bitcode**: Disabled (Unity standard)
+
+To set your Team ID, uncomment and edit in `IOSPostProcessBuild.cs`:
+```csharp
+project.SetBuildProperty(targetGuid, "DEVELOPMENT_TEAM", "YOUR_TEAM_ID");
+```
+
+### Adding Platform-Specific Code
+
+Use `#if UNITY_IOS` / `#if UNITY_ANDROID` preprocessor directives:
+
+```csharp
+public class PlatformFeature : MonoBehaviour
+{
+    private void Start()
+    {
+#if UNITY_IOS && !UNITY_EDITOR
+        // iOS-only code
+#elif UNITY_ANDROID && !UNITY_EDITOR
+        // Android-only code
+#endif
+    }
+}
+```
+
+For editor/build hooks, place scripts in `Platform/Editor/` with the Editor asmdef.
 
 ---
 
